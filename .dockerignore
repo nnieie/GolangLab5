@@ -1,0 +1,13 @@
+.git
+.gitignore
+.editorconfig
+.gitattributes
+.golangci.yml
+Dockerfile
+docker-compose.yml
+README.md
+test/
+.github/
+.idea/
+.vscode/
+docs/

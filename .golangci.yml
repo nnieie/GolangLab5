@@ -1,0 +1,124 @@
+version: "2"
+run:
+  concurrency: 16
+  issues-exit-code: 1
+  tests: true
+linters:
+  default: none
+  enable:
+    - asciicheck
+    - copyloopvar
+    - decorder
+    - errcheck
+    - errorlint
+    - forcetypeassert
+    - gocritic
+    - govet
+    - importas
+    - inamedparam
+    - ineffassign
+    - lll
+    - makezero
+    - mirror
+    - misspell
+    - mnd
+    - nakedret
+    - nestif
+    - nilerr
+    - nolintlint
+    - staticcheck
+    - tagalign
+    - unconvert
+    - unused
+    - whitespace
+  settings:
+    errorlint:
+      errorf: true
+      errorf-multi: true
+      asserts: true
+      comparison: true
+      allowed-errors-wildcard:
+        - err: github.com/nnieie/golanglab5/pkg/errno
+          fun: github.com/nnieie/golanglab5/pkg/errno
+    lll:
+      line-length: 160
+      tab-width: 1
+    makezero:
+      always: false
+    misspell:
+      locale: US
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - operation
+        - return
+        - assign
+      ignored-files:
+        - magic1_.+\.go$
+      ignored-functions:
+        - ^math\.
+        - ^http\.StatusText$
+    nakedret:
+      max-func-lines: 31
+    nestif:
+      min-complexity: 8
+    nilnil:
+      checked-types:
+        - ptr
+        - func
+        - iface
+        - map
+        - chan
+        - uintptr
+        - unsafeptr
+    staticcheck:
+      checks:
+        - all
+    tagalign:
+      align: true
+      sort: true
+      order:
+        - json
+        - yaml
+        - yml
+        - toml
+        - mapstructure
+        - binding
+        - validate
+      strict: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/nnieie/golanglab5)
+      custom-order: true
+      no-lex-order: true
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/nnieie/golanglab5
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
