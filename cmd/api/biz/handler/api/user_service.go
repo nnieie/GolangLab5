@@ -6,8 +6,16 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	api "github.com/nnieie/golanglab5/cmd/api/biz/model/api"
+	"github.com/nnieie/golanglab5/cmd/api/biz/model/base"
+	"github.com/nnieie/golanglab5/cmd/api/pack"
+	"github.com/nnieie/golanglab5/cmd/api/rpc"
+	"github.com/nnieie/golanglab5/kitex_gen/user"
+	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/errno"
 )
 
 // Register .
@@ -22,6 +30,32 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.RegisterResponse)
+
+	rpcResp, err := rpc.UserRegister(ctx, &user.RegisterRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	accessToken, _, _ := jwt.AccessTokenJwtMiddleware.TokenGenerator(&base.User{
+		ID: *rpcResp.UserId,
+	})
+	refreshToken, _, _ := jwt.RefreshTokenJwtMiddleware.TokenGenerator(&base.User{
+		ID: *rpcResp.UserId,
+	})
+
+	// 将 Token 设置为 HttpOnly Cookie
+	c.SetCookie("access_token", accessToken, 3600, "/", "", protocol.CookieSameSiteLaxMode, true, true)
+	c.SetCookie("refresh_token", refreshToken, 3600*24*7, "/", "", protocol.CookieSameSiteLaxMode, true, true)
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -39,6 +73,21 @@ func Login(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.LoginResponse)
 
+	rpcResp, err := rpc.UserLogin(ctx, &user.LoginRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -54,6 +103,21 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetUserInfoResponse)
+
+	rpcResp, err := rpc.GetUserInfo(ctx, &user.UserInfoRequest{
+		UserId: req.UserID,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.UserRPCToUser(rpcResp.Data)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -71,15 +135,44 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.UploadAvatarResponse)
 
+	rpcResp, err := rpc.UserAvatar(ctx, &user.UploadAvatarRequest{
+		// TODO: UserID,
+		Data: req.Data,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	c.JSON(consts.StatusOK, resp)
 }
 
 // GetMFA .
 // @router /auth/mfa/qrcode [GET]
 func GetMFA(ctx context.Context, c *app.RequestContext) {
-	// var err error
+	var err error
 
 	resp := new(api.GetMFAResponse)
+
+	rpcResp, err := rpc.GetMFAQrcode(ctx, &user.GetMFAQrcodeRequest{
+		// TODO: UserID,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -97,5 +190,42 @@ func MFABind(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.MFABindResponse)
 
+	rpcResp, err := rpc.BindMFA(ctx, &user.MFABindRequest{
+		// TODO: UserID,
+		Code: req.Code,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	c.JSON(consts.StatusOK, resp)
+}
+
+// RefreshToken .
+// @router /user/token/refresh [POST]
+func RefreshToken(ctx context.Context, c *app.RequestContext) {
+	userID, exists := c.Get(constants.IdentityKey)
+	if !exists {
+		c.JSON(consts.StatusUnauthorized, errno.AuthorizationFailedErr)
+		return
+	}
+	newAccessToken, _, err := jwt.RefreshTokenJwtMiddleware.TokenGenerator(&base.User{
+		ID: userID.(int64),
+	})
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(consts.StatusOK, map[string]interface{}{
+		"new_access_token": newAccessToken,
+	})
+	c.SetCookie("access_token", newAccessToken, 3600, "/", "", protocol.CookieSameSiteLaxMode, true, true)
 }

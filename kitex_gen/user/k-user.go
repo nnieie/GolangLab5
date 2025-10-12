@@ -956,14 +956,15 @@ SkipFieldError:
 func (p *UploadAvatarRequest) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 
-	var _field string
-	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
+	var _field []byte
+	if v, l, err := thrift.Binary.ReadBinary(buf[offset:]); err != nil {
 		return offset, err
 	} else {
 		offset += l
-		_field = v
+
+		_field = []byte(v)
 	}
-	p.AvatarUrl = _field
+	p.Data = _field
 	return offset, nil
 }
 
@@ -1008,7 +1009,7 @@ func (p *UploadAvatarRequest) BLength() int {
 func (p *UploadAvatarRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 1)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.AvatarUrl)
+	offset += thrift.Binary.WriteBinaryNocopy(buf[offset:], w, []byte(p.Data))
 	return offset
 }
 
@@ -1022,7 +1023,7 @@ func (p *UploadAvatarRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter)
 func (p *UploadAvatarRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.AvatarUrl)
+	l += thrift.Binary.BinaryLengthNocopy([]byte(p.Data))
 	return l
 }
 

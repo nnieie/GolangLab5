@@ -300,8 +300,8 @@ var fieldIDToName_UserInfoResponse = map[int16]string{
 }
 
 type UploadAvatarRequest struct {
-	AvatarUrl string `thrift:"avatar_url,1" frugal:"1,default,string" json:"avatar_url"`
-	UserId    int64  `thrift:"user_id,2" frugal:"2,default,i64" json:"user_id"`
+	Data   []byte `thrift:"data,1" frugal:"1,default,binary" json:"data"`
+	UserId int64  `thrift:"user_id,2" frugal:"2,default,i64" json:"user_id"`
 }
 
 func NewUploadAvatarRequest() *UploadAvatarRequest {
@@ -311,15 +311,15 @@ func NewUploadAvatarRequest() *UploadAvatarRequest {
 func (p *UploadAvatarRequest) InitDefault() {
 }
 
-func (p *UploadAvatarRequest) GetAvatarUrl() (v string) {
-	return p.AvatarUrl
+func (p *UploadAvatarRequest) GetData() (v []byte) {
+	return p.Data
 }
 
 func (p *UploadAvatarRequest) GetUserId() (v int64) {
 	return p.UserId
 }
-func (p *UploadAvatarRequest) SetAvatarUrl(val string) {
-	p.AvatarUrl = val
+func (p *UploadAvatarRequest) SetData(val []byte) {
+	p.Data = val
 }
 func (p *UploadAvatarRequest) SetUserId(val int64) {
 	p.UserId = val
@@ -333,7 +333,7 @@ func (p *UploadAvatarRequest) String() string {
 }
 
 var fieldIDToName_UploadAvatarRequest = map[int16]string{
-	1: "avatar_url",
+	1: "data",
 	2: "user_id",
 }
 

@@ -4,6 +4,7 @@ package api
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -12,8 +13,9 @@ func rootMw() []app.HandlerFunc {
 }
 
 func _chatMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _authMw() []app.HandlerFunc {
@@ -22,8 +24,9 @@ func _authMw() []app.HandlerFunc {
 }
 
 func _mfaMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _mfabindMw() []app.HandlerFunc {
@@ -42,8 +45,9 @@ func _commentMw() []app.HandlerFunc {
 }
 
 func _deletecommentMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _getcommentlistMw() []app.HandlerFunc {
@@ -52,8 +56,9 @@ func _getcommentlistMw() []app.HandlerFunc {
 }
 
 func _commentvideoMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _followerMw() []app.HandlerFunc {
@@ -77,8 +82,9 @@ func _getfollowlistMw() []app.HandlerFunc {
 }
 
 func _friendsMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _getfriendlistMw() []app.HandlerFunc {
@@ -92,8 +98,9 @@ func _likeMw() []app.HandlerFunc {
 }
 
 func _likeactionMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _getlikelistMw() []app.HandlerFunc {
@@ -107,8 +114,9 @@ func _relationMw() []app.HandlerFunc {
 }
 
 func _followactionMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _userMw() []app.HandlerFunc {
@@ -137,8 +145,9 @@ func _avatarMw() []app.HandlerFunc {
 }
 
 func _uploadavatarMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _videoMw() []app.HandlerFunc {
@@ -162,8 +171,9 @@ func _getpopularvideoMw() []app.HandlerFunc {
 }
 
 func _publishvideoMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+        jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+    }
 }
 
 func _searchvideoMw() []app.HandlerFunc {
