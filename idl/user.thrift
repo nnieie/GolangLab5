@@ -33,8 +33,9 @@ struct UserInfoResponse{
 }
 
 struct UploadAvatarRequest{
-    1:string avatar_url,
+    1:binary data,
     2:i64 user_id,
+    3:string file_name,
 }
 
 struct UploadAvatarResponse{

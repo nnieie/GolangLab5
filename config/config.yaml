@@ -1,0 +1,15 @@
+mysql:
+  addr: 127.0.0.1:3306
+  username: root
+  password: 12345
+  database: rpc
+  charset: utf8mb4
+redis:
+  addr: 127.0.0.1:6379
+  password: 12345
+etcd:
+  addr: 127.0.0.1:2379
+services:
+  user:
+    name: user
+    addr: 127.0.0.1:11393

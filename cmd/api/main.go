@@ -4,9 +4,19 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
+	"github.com/nnieie/golanglab5/cmd/api/rpc"
+	"github.com/nnieie/golanglab5/config"
+	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 func main() {
+	logger.InitKlog()
+	config.Init(constants.APIServiceName)
+	jwt.InitJwt()
+	rpc.InitUserRPC()
+
 	h := server.Default()
 
 	register(h)

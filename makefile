@@ -7,7 +7,7 @@ API_PATH= $(DIR)/cmd/api
 
 MODULE = github.com/nnieie/golanglab5
 
-SERVICES := api user video interaction social chat
+SERVICES := api user
 
 
 .PHONY: kitex-gen-%
@@ -32,3 +32,7 @@ hertz-gen-api:
 	cd ${API_PATH}; \
 	hz update -idl ${IDL_PATH}/api.thrift; \
 	go mod tidy
+
+.PHONY: start-%
+start-%:
+	go run ./cmd/$* --log-level=debug

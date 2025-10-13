@@ -5,6 +5,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	handler "github.com/nnieie/golanglab5/cmd/api/biz/handler"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/api"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 )
 
 // customizeRegister registers customize routers.
@@ -12,4 +14,5 @@ func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
 
 	// your code ...
+	r.POST("/user/token/refresh", jwt.RefreshTokenJwtMiddleware.MiddlewareFunc(), api.RefreshToken)
 }
