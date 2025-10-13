@@ -3,7 +3,10 @@
 package api
 
 import (
+	"bytes"
 	"context"
+	"io"
+	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
@@ -16,6 +19,7 @@ import (
 	"github.com/nnieie/golanglab5/kitex_gen/user"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 // Register .
@@ -73,9 +77,12 @@ func Login(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.LoginResponse)
 
+	logger.Debugf("Login request(api): username=%s, password=%s, code=%v", req.Username, req.Password, req.Code)
+
 	rpcResp, err := rpc.UserLogin(ctx, &user.LoginRequest{
 		Username: req.Username,
 		Password: req.Password,
+		MFAcode:     req.Code,
 	})
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -87,6 +94,20 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
+
+	resp.Data = pack.UserRPCToUser(rpcResp.Data)
+
+	accessToken, _, _ := jwt.AccessTokenJwtMiddleware.TokenGenerator(&base.User{
+		ID: rpcResp.Data.Id,
+	})
+	refreshToken, _, _ := jwt.RefreshTokenJwtMiddleware.TokenGenerator(&base.User{
+		ID: rpcResp.Data.Id,
+	})
+
+	// 将 Token 设置为 HttpOnly Cookie
+	c.SetCookie("access_token", accessToken, 3600, "/", "", protocol.CookieSameSiteLaxMode, true, true)
+	c.SetCookie("refresh_token", refreshToken, 3600*24*7, "/", "", protocol.CookieSameSiteLaxMode, true, true)
+
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -135,9 +156,51 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.UploadAvatarResponse)
 
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	// 获取上传的文件
+	file, err := c.FormFile("data")
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	openedFile, err := file.Open()
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	defer openedFile.Close()
+
+	// 读取前512字节用于验证文件类型
+	header := make([]byte, 512)
+    if _, err := openedFile.Read(header); err != nil {
+		pack.SendErrResp(c, err)
+        return
+    }
+	contentType := http.DetectContentType(header)
+	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
+		pack.SendErrResp(c, errno.InvalidFileTypeErr)
+		return
+	}
+
+	// 把header恢复回去并限制整体读取大小
+	reader := io.MultiReader(bytes.NewReader(header), io.LimitReader(openedFile, constants.MaxAvatarSize))
+
+	// 把内容读到buffer
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, reader); err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
 	rpcResp, err := rpc.UserAvatar(ctx, &user.UploadAvatarRequest{
-		// TODO: UserID,
-		Data: req.Data,
+		UserId: UserID,
+		Data:   buf.Bytes(),
+		FileName: file.Filename,
 	})
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -149,6 +212,8 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
+
+	resp.Data = pack.UserRPCToUser(rpcResp.Data)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -160,8 +225,14 @@ func GetMFA(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetMFAResponse)
 
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
 	rpcResp, err := rpc.GetMFAQrcode(ctx, &user.GetMFAQrcodeRequest{
-		// TODO: UserID,
+		UserId: UserID,
 	})
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -172,6 +243,11 @@ func GetMFA(ctx context.Context, c *app.RequestContext) {
 	if resp.Base.Code != errno.SuccessCode {
 		c.JSON(consts.StatusOK, resp)
 		return
+	}
+
+	resp.Data = &base.MFAQrcode{
+		Secret: rpcResp.Data.Secret,
+		Qrcode: rpcResp.Data.Qrcode,
 	}
 
 	c.JSON(consts.StatusOK, resp)
@@ -190,9 +266,16 @@ func MFABind(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.MFABindResponse)
 
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
 	rpcResp, err := rpc.BindMFA(ctx, &user.MFABindRequest{
-		// TODO: UserID,
-		Code: req.Code,
+		UserId: UserID,
+		Code:   req.Code,
+		Secret: req.Secret,
 	})
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -216,7 +299,7 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusUnauthorized, errno.AuthorizationFailedErr)
 		return
 	}
-	newAccessToken, _, err := jwt.RefreshTokenJwtMiddleware.TokenGenerator(&base.User{
+	newAccessToken, _, err := jwt.AccessTokenJwtMiddleware.TokenGenerator(&base.User{
 		ID: userID.(int64),
 	})
 	if err != nil {
@@ -224,8 +307,9 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	c.SetCookie("access_token", newAccessToken, 3600, "/", "", protocol.CookieSameSiteLaxMode, true, true)
+
 	c.JSON(consts.StatusOK, map[string]interface{}{
 		"new_access_token": newAccessToken,
 	})
-	c.SetCookie("access_token", newAccessToken, 3600, "/", "", protocol.CookieSameSiteLaxMode, true, true)
 }

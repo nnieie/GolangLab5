@@ -99,18 +99,25 @@ func QueryUserByIDList(ctx context.Context, userIds []int64) (*[]User, error) {
 }
 
 func UpdateMFA(ctx context.Context, secret string, userID int64) error {
-	err := DB.WithContext(ctx).Model(User{}).Where("id = ?", userID).Update("topt", secret).Error
+	err := DB.WithContext(ctx).Model(User{}).Where("id = ?", userID).Update("totp", secret).Error
 	if err != nil {
-		logger.Errorf("update topt secret err: %v", err)
+		logger.Errorf("update totp secret err: %v", err)
 		return err
 	}
 	return nil
 }
 
 func UpdateAvatar(ctx context.Context, userID int64, avatar string) (*User, error) {
-	user := new(User)
-	if err := DB.WithContext(ctx).Where("id = ?", userID).Update("avatar", avatar).First(user).Error; err != nil {
+	// 先执行更新
+	if err := DB.WithContext(ctx).Model(&User{}).Where("id = ?", userID).Update("avatar", avatar).Error; err != nil {
 		logger.Errorf("update avatar err: %v", err)
+		return nil, err
+	}
+
+	// 再单独查询最新记录
+	user := new(User)
+	if err := DB.WithContext(ctx).Where("id = ?", userID).First(user).Error; err != nil {
+		logger.Errorf("query updated user err: %v", err)
 		return nil, err
 	}
 	return user, nil

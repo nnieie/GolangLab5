@@ -8,9 +8,11 @@ import (
 	"github.com/nnieie/golanglab5/cmd/api/rpc"
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 func main() {
+	logger.InitKlog()
 	config.Init(constants.APIServiceName)
 	jwt.InitJwt()
 	rpc.InitUserRPC()

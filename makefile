@@ -35,4 +35,4 @@ hertz-gen-api:
 
 .PHONY: start-%
 start-%:
-	go run ./cmd/$*
+	go run ./cmd/$* --log-level=debug

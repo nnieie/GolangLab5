@@ -17,6 +17,7 @@ import (
 )
 
 func Init() {
+	logger.InitKlog()
 	config.Init(constants.UserServiceName)
 	oss.InitR2Client()
 	dal.Init()

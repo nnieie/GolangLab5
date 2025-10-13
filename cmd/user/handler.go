@@ -27,7 +27,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, req *user.RegisterReques
 // Login implements the UserServiceImpl interface.
 func (s *UserServiceImpl) Login(ctx context.Context, req *user.LoginRequest) (resp *user.LoginResponse, err error) {
 	resp = new(user.LoginResponse)
-	user, err := service.NewUserService(ctx, s.Snowflake).Login(req.Username, req.Password, *req.MFAcode)
+	user, err := service.NewUserService(ctx, s.Snowflake).Login(req.Username, req.Password, req.MFAcode)
 	resp.Base = utils.BuildBaseResp(err)
 	resp.Data = user
 	return
@@ -46,7 +46,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, req *user.UserInfoReq
 func (s *UserServiceImpl) UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest) (resp *user.UploadAvatarResponse, err error) {
 	resp = new(user.UploadAvatarResponse)
 	avatarData := bytes.NewReader(req.Data)
-	user, err := service.NewUserService(ctx, s.Snowflake).UploadAvatar(req.UserId, avatarData)
+	user, err := service.NewUserService(ctx, s.Snowflake).UploadAvatar(req.UserId, avatarData, req.FileName)
 	resp.Base = utils.BuildBaseResp(err)
 	resp.Data = user
 	return

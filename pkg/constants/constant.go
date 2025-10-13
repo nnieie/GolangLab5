@@ -22,6 +22,10 @@ const (
 )
 
 const (
+	MaxAvatarSize = 5 << 20
+)
+
+const (
 	EtcdAddr       = "127.0.0.1:2379"
 	RPCTimeout     = 3 * time.Second
 	ConnectTimeout = 50 * time.Millisecond
