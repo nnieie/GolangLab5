@@ -16,6 +16,7 @@ func main() {
 	config.Init(constants.APIServiceName)
 	jwt.InitJwt()
 	rpc.InitUserRPC()
+	rpc.InitVideoRPC()
 
 	h := server.Default()
 

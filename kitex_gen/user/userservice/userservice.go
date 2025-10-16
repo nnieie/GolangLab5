@@ -55,6 +55,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"SearchUserIdsByName": kitex.NewMethodInfo(
+		searchUserIdsByNameHandler,
+		newUserServiceSearchUserIdsByNameArgs,
+		newUserServiceSearchUserIdsByNameResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -229,6 +236,24 @@ func newUserServiceMFABindResult() interface{} {
 	return user.NewUserServiceMFABindResult()
 }
 
+func searchUserIdsByNameHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceSearchUserIdsByNameArgs)
+	realResult := result.(*user.UserServiceSearchUserIdsByNameResult)
+	success, err := handler.(user.UserService).SearchUserIdsByName(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceSearchUserIdsByNameArgs() interface{} {
+	return user.NewUserServiceSearchUserIdsByNameArgs()
+}
+
+func newUserServiceSearchUserIdsByNameResult() interface{} {
+	return user.NewUserServiceSearchUserIdsByNameResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -294,6 +319,16 @@ func (p *kClient) MFABind(ctx context.Context, req *user.MFABindRequest) (r *use
 	_args.Req = req
 	var _result user.UserServiceMFABindResult
 	if err = p.c.Call(ctx, "MFABind", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest) (r *user.SearchUserIdsByNameResponse, err error) {
+	var _args user.UserServiceSearchUserIdsByNameArgs
+	_args.Req = req
+	var _result user.UserServiceSearchUserIdsByNameResult
+	if err = p.c.Call(ctx, "SearchUserIdsByName", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

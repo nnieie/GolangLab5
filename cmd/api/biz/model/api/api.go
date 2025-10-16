@@ -2367,9 +2367,9 @@ func (p *PublishResponse) String() string {
 }
 
 type GetPublishListRequest struct {
-	UserID   int64 `thrift:"user_id,1" form:"user_id" json:"user_id" query:"user_id"`
-	PageSize int64 `thrift:"page_size,2" form:"page_size" json:"page_size" query:"page_size"`
-	PageNum  int64 `thrift:"page_num,3" form:"page_num" json:"page_num" query:"page_num"`
+	UserID   string `thrift:"user_id,1" form:"user_id" json:"user_id" query:"user_id"`
+	PageSize int64  `thrift:"page_size,2" form:"page_size" json:"page_size" query:"page_size"`
+	PageNum  int64  `thrift:"page_num,3" form:"page_num" json:"page_num" query:"page_num"`
 }
 
 func NewGetPublishListRequest() *GetPublishListRequest {
@@ -2379,7 +2379,7 @@ func NewGetPublishListRequest() *GetPublishListRequest {
 func (p *GetPublishListRequest) InitDefault() {
 }
 
-func (p *GetPublishListRequest) GetUserID() (v int64) {
+func (p *GetPublishListRequest) GetUserID() (v string) {
 	return p.UserID
 }
 
@@ -2417,7 +2417,7 @@ func (p *GetPublishListRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -2471,8 +2471,8 @@ ReadStructEndError:
 
 func (p *GetPublishListRequest) ReadField1(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -2540,10 +2540,10 @@ WriteStructEndError:
 }
 
 func (p *GetPublishListRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("user_id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
+	if err := oprot.WriteString(p.UserID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2599,8 +2599,9 @@ func (p *GetPublishListRequest) String() string {
 }
 
 type GetPublishListResponse struct {
-	Base *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
-	Data []*base.Video  `thrift:"data,2,optional,list<base.Video>" form:"data" json:"data,omitempty" query:"data"`
+	Base  *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data  []*base.Video  `thrift:"data,2,optional,list<base.Video>" form:"data" json:"data,omitempty" query:"data"`
+	Total *int64         `thrift:"total,3,optional" form:"total" json:"total,omitempty" query:"total"`
 }
 
 func NewGetPublishListResponse() *GetPublishListResponse {
@@ -2628,9 +2629,19 @@ func (p *GetPublishListResponse) GetData() (v []*base.Video) {
 	return p.Data
 }
 
+var GetPublishListResponse_Total_DEFAULT int64
+
+func (p *GetPublishListResponse) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return GetPublishListResponse_Total_DEFAULT
+	}
+	return *p.Total
+}
+
 var fieldIDToName_GetPublishListResponse = map[int16]string{
 	1: "base",
 	2: "data",
+	3: "total",
 }
 
 func (p *GetPublishListResponse) IsSetBase() bool {
@@ -2639,6 +2650,10 @@ func (p *GetPublishListResponse) IsSetBase() bool {
 
 func (p *GetPublishListResponse) IsSetData() bool {
 	return p.Data != nil
+}
+
+func (p *GetPublishListResponse) IsSetTotal() bool {
+	return p.Total != nil
 }
 
 func (p *GetPublishListResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -2671,6 +2686,14 @@ func (p *GetPublishListResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 2:
 			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -2736,6 +2759,17 @@ func (p *GetPublishListResponse) ReadField2(iprot thrift.TProtocol) error {
 	p.Data = _field
 	return nil
 }
+func (p *GetPublishListResponse) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Total = _field
+	return nil
+}
 
 func (p *GetPublishListResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -2749,6 +2783,10 @@ func (p *GetPublishListResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -2811,6 +2849,25 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetPublishListResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetTotal() {
+		if err = oprot.WriteFieldBegin("total", thrift.I64, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.Total); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *GetPublishListResponse) String() string {
@@ -3233,7 +3290,7 @@ func (p *GetPopularListResponse) String() string {
 type SearchVideoRequest struct {
 	PageSize int64   `thrift:"page_size,1" form:"page_size" json:"page_size" query:"page_size"`
 	PageNum  int64   `thrift:"page_num,2" form:"page_num" json:"page_num" query:"page_num"`
-	Keyword  string  `thrift:"keyword,3" form:"keyword" json:"keyword" query:"keyword"`
+	Keywords string  `thrift:"keywords,3" form:"keywords" json:"keywords" query:"keywords"`
 	FromDate *int64  `thrift:"from_date,4,optional" form:"from_date" json:"from_date,omitempty" query:"from_date"`
 	ToDate   *int64  `thrift:"to_date,5,optional" form:"to_date" json:"to_date,omitempty" query:"to_date"`
 	Username *string `thrift:"username,6,optional" form:"username" json:"username,omitempty" query:"username"`
@@ -3254,8 +3311,8 @@ func (p *SearchVideoRequest) GetPageNum() (v int64) {
 	return p.PageNum
 }
 
-func (p *SearchVideoRequest) GetKeyword() (v string) {
-	return p.Keyword
+func (p *SearchVideoRequest) GetKeywords() (v string) {
+	return p.Keywords
 }
 
 var SearchVideoRequest_FromDate_DEFAULT int64
@@ -3288,7 +3345,7 @@ func (p *SearchVideoRequest) GetUsername() (v string) {
 var fieldIDToName_SearchVideoRequest = map[int16]string{
 	1: "page_size",
 	2: "page_num",
-	3: "keyword",
+	3: "keywords",
 	4: "from_date",
 	5: "to_date",
 	6: "username",
@@ -3432,7 +3489,7 @@ func (p *SearchVideoRequest) ReadField3(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Keyword = _field
+	p.Keywords = _field
 	return nil
 }
 func (p *SearchVideoRequest) ReadField4(iprot thrift.TProtocol) error {
@@ -3552,10 +3609,10 @@ WriteFieldEndError:
 }
 
 func (p *SearchVideoRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("keyword", thrift.STRING, 3); err != nil {
+	if err = oprot.WriteFieldBegin("keywords", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Keyword); err != nil {
+	if err := oprot.WriteString(p.Keywords); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3634,8 +3691,9 @@ func (p *SearchVideoRequest) String() string {
 }
 
 type SearchVideoResponse struct {
-	Base *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
-	Data []*base.Video  `thrift:"data,2,optional,list<base.Video>" form:"data" json:"data,omitempty" query:"data"`
+	Base  *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data  []*base.Video  `thrift:"data,2,optional,list<base.Video>" form:"data" json:"data,omitempty" query:"data"`
+	Total *int64         `thrift:"total,3,optional" form:"total" json:"total,omitempty" query:"total"`
 }
 
 func NewSearchVideoResponse() *SearchVideoResponse {
@@ -3663,9 +3721,19 @@ func (p *SearchVideoResponse) GetData() (v []*base.Video) {
 	return p.Data
 }
 
+var SearchVideoResponse_Total_DEFAULT int64
+
+func (p *SearchVideoResponse) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return SearchVideoResponse_Total_DEFAULT
+	}
+	return *p.Total
+}
+
 var fieldIDToName_SearchVideoResponse = map[int16]string{
 	1: "base",
 	2: "data",
+	3: "total",
 }
 
 func (p *SearchVideoResponse) IsSetBase() bool {
@@ -3674,6 +3742,10 @@ func (p *SearchVideoResponse) IsSetBase() bool {
 
 func (p *SearchVideoResponse) IsSetData() bool {
 	return p.Data != nil
+}
+
+func (p *SearchVideoResponse) IsSetTotal() bool {
+	return p.Total != nil
 }
 
 func (p *SearchVideoResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -3706,6 +3778,14 @@ func (p *SearchVideoResponse) Read(iprot thrift.TProtocol) (err error) {
 		case 2:
 			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3771,6 +3851,17 @@ func (p *SearchVideoResponse) ReadField2(iprot thrift.TProtocol) error {
 	p.Data = _field
 	return nil
 }
+func (p *SearchVideoResponse) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Total = _field
+	return nil
+}
 
 func (p *SearchVideoResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -3784,6 +3875,10 @@ func (p *SearchVideoResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -3846,6 +3941,25 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *SearchVideoResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetTotal() {
+		if err = oprot.WriteFieldBegin("total", thrift.I64, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.Total); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *SearchVideoResponse) String() string {

@@ -17,6 +17,7 @@ type Client interface {
 	UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest, callOptions ...callopt.Option) (r *user.UploadAvatarResponse, err error)
 	GetMFAQrcode(ctx context.Context, req *user.GetMFAQrcodeRequest, callOptions ...callopt.Option) (r *user.GetMFAQrcodeResponse, err error)
 	MFABind(ctx context.Context, req *user.MFABindRequest, callOptions ...callopt.Option) (r *user.MFABindResponse, err error)
+	SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest, callOptions ...callopt.Option) (r *user.SearchUserIdsByNameResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -76,4 +77,9 @@ func (p *kUserServiceClient) GetMFAQrcode(ctx context.Context, req *user.GetMFAQ
 func (p *kUserServiceClient) MFABind(ctx context.Context, req *user.MFABindRequest, callOptions ...callopt.Option) (r *user.MFABindResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.MFABind(ctx, req)
+}
+
+func (p *kUserServiceClient) SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest, callOptions ...callopt.Option) (r *user.SearchUserIdsByNameResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.SearchUserIdsByName(ctx, req)
 }

@@ -1,40 +1,62 @@
 package main
 
 import (
+	"bytes"
 	"context"
 
+	"github.com/nnieie/golanglab5/cmd/video/service"
 	video "github.com/nnieie/golanglab5/kitex_gen/video"
+	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
 // VideoServiceImpl implements the last service interface defined in the IDL.
-type VideoServiceImpl struct{}
+type VideoServiceImpl struct {
+	Snowflake *utils.Snowflake
+}
 
 // PublishVideo implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) PublishVideo(ctx context.Context, req *video.PublishRequest) (resp *video.PublishResponse, err error) {
-	// TODO: Your code here...
+	resp = new(video.PublishResponse)
+	videoData := bytes.NewReader(req.Video)
+	err = service.NewVideoService(ctx, s.Snowflake).PublishVideo(req.UserId, videoData, req.FileName, req.Title, req.Description)
+	resp.Base = utils.BuildBaseResp(err)
 	return
 }
 
 // GetPublishList implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) GetPublishList(ctx context.Context, req *video.GetPublishListRequest) (resp *video.GetPublishListResponse, err error) {
-	// TODO: Your code here...
+	resp = new(video.GetPublishListResponse)
+	videos, total, err := service.NewVideoService(ctx, s.Snowflake).GetVideoList(req.UserId, req.PageNum, req.PageSize)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Data = videos
+	resp.Total = &total
 	return
 }
 
 // SearchVideo implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) SearchVideo(ctx context.Context, req *video.SearchVideoRequest) (resp *video.SearchVideoResponse, err error) {
-	// TODO: Your code here...
+	resp = new(video.SearchVideoResponse)
+	videos, total, err := service.NewVideoService(ctx, s.Snowflake).SearchVideo(req.Keywords, req.PageNum, req.PageSize, req.FromDate, req.ToDate, req.Username)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Data = videos
+	resp.Total = &total
 	return
 }
 
 // GetPopularVideo implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) GetPopularVideo(ctx context.Context, req *video.GetPopularVideoListRequest) (resp *video.GetPopularVideoListResponse, err error) {
-	// TODO: Your code here...
+	resp = new(video.GetPopularVideoListResponse)
+	videos, err := service.NewVideoService(ctx, s.Snowflake).GetPopularVideo(req.PageNum, req.PageSize)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Data = videos
 	return
 }
 
 // GetVideoStream implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) GetVideoStream(ctx context.Context, req *video.VideoStreamRequest) (resp *video.VideoStreamResponse, err error) {
-	// TODO: Your code here...
+	resp = new(video.VideoStreamResponse)
+	videos, err := service.NewVideoService(ctx, s.Snowflake).FeedVideo(req.LatestTime)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Data = videos
 	return
 }

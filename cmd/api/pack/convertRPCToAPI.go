@@ -28,3 +28,25 @@ func UserRPCToUser(user *kitBase.User) *apiBase.User {
 		DeletedAt: user.DeletedAt,
 	}
 }
+
+func VideoRPCToVideo(video *kitBase.Video) *apiBase.Video {
+	if video == nil {
+		return nil
+	}
+	return &apiBase.Video{
+		ID:          video.Id,
+		Title:       video.Title,
+		Description: video.Description,
+		CreatedAt:   video.CreatedAt,
+		UpdatedAt:   video.UpdatedAt,
+		DeletedAt:   video.DeletedAt,
+	}
+}
+
+func VideosRPCToVideos(videos []*kitBase.Video) []*apiBase.Video {
+	res := make([]*apiBase.Video, 0, len(videos))
+	for _, video := range videos {
+		res = append(res, VideoRPCToVideo(video))
+	}
+	return res
+}

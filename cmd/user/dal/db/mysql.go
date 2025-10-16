@@ -122,3 +122,18 @@ func UpdateAvatar(ctx context.Context, userID int64, avatar string) (*User, erro
 	}
 	return user, nil
 }
+
+func SearchUserIdsByName(ctx context.Context, pattern string, page, pageSize int64) ([]int64, error) {
+	userIds := make([]int64, 0)
+	err := DB.WithContext(ctx).
+		Where("user_name LIKE ?", "%"+pattern+"%").
+		Limit(int(pageSize)).Offset(int((page-1)*pageSize)).
+		Pluck("id", &userIds).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(userIds) == 0 {
+		return nil, errno.UserIsNotExistErr
+	}
+	return userIds, nil
+}

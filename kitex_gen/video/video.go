@@ -14,6 +14,7 @@ type PublishRequest struct {
 	Video       []byte `thrift:"video,3" frugal:"3,default,binary" json:"video"`
 	Cover       []byte `thrift:"cover,4" frugal:"4,default,binary" json:"cover"`
 	UserId      int64  `thrift:"user_id,5" frugal:"5,default,i64" json:"user_id"`
+	FileName    string `thrift:"file_name,6" frugal:"6,default,string" json:"file_name"`
 }
 
 func NewPublishRequest() *PublishRequest {
@@ -42,6 +43,10 @@ func (p *PublishRequest) GetCover() (v []byte) {
 func (p *PublishRequest) GetUserId() (v int64) {
 	return p.UserId
 }
+
+func (p *PublishRequest) GetFileName() (v string) {
+	return p.FileName
+}
 func (p *PublishRequest) SetTitle(val string) {
 	p.Title = val
 }
@@ -57,6 +62,9 @@ func (p *PublishRequest) SetCover(val []byte) {
 func (p *PublishRequest) SetUserId(val int64) {
 	p.UserId = val
 }
+func (p *PublishRequest) SetFileName(val string) {
+	p.FileName = val
+}
 
 func (p *PublishRequest) String() string {
 	if p == nil {
@@ -71,6 +79,7 @@ var fieldIDToName_PublishRequest = map[int16]string{
 	3: "video",
 	4: "cover",
 	5: "user_id",
+	6: "file_name",
 }
 
 type PublishResponse struct {
@@ -233,7 +242,7 @@ var fieldIDToName_GetPublishListResponse = map[int16]string{
 }
 
 type SearchVideoRequest struct {
-	Keyword  string  `thrift:"keyword,1" frugal:"1,default,string" json:"keyword"`
+	Keywords string  `thrift:"keywords,1" frugal:"1,default,string" json:"keywords"`
 	PageNum  int64   `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
 	PageSize int64   `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
 	FromDate *int64  `thrift:"from_date,4,optional" frugal:"4,optional,i64" json:"from_date,omitempty"`
@@ -248,8 +257,8 @@ func NewSearchVideoRequest() *SearchVideoRequest {
 func (p *SearchVideoRequest) InitDefault() {
 }
 
-func (p *SearchVideoRequest) GetKeyword() (v string) {
-	return p.Keyword
+func (p *SearchVideoRequest) GetKeywords() (v string) {
+	return p.Keywords
 }
 
 func (p *SearchVideoRequest) GetPageNum() (v int64) {
@@ -286,8 +295,8 @@ func (p *SearchVideoRequest) GetUsername() (v string) {
 	}
 	return *p.Username
 }
-func (p *SearchVideoRequest) SetKeyword(val string) {
-	p.Keyword = val
+func (p *SearchVideoRequest) SetKeywords(val string) {
+	p.Keywords = val
 }
 func (p *SearchVideoRequest) SetPageNum(val int64) {
 	p.PageNum = val
@@ -325,7 +334,7 @@ func (p *SearchVideoRequest) String() string {
 }
 
 var fieldIDToName_SearchVideoRequest = map[int16]string{
-	1: "keyword",
+	1: "keywords",
 	2: "page_num",
 	3: "page_size",
 	4: "from_date",
@@ -334,8 +343,9 @@ var fieldIDToName_SearchVideoRequest = map[int16]string{
 }
 
 type SearchVideoResponse struct {
-	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data []*base.Video  `thrift:"data,2,optional" frugal:"2,optional,list<base.Video>" json:"data,omitempty"`
+	Base  *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data  []*base.Video  `thrift:"data,2,optional" frugal:"2,optional,list<base.Video>" json:"data,omitempty"`
+	Total *int64         `thrift:"total,3,optional" frugal:"3,optional,i64" json:"total,omitempty"`
 }
 
 func NewSearchVideoResponse() *SearchVideoResponse {
@@ -362,11 +372,23 @@ func (p *SearchVideoResponse) GetData() (v []*base.Video) {
 	}
 	return p.Data
 }
+
+var SearchVideoResponse_Total_DEFAULT int64
+
+func (p *SearchVideoResponse) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return SearchVideoResponse_Total_DEFAULT
+	}
+	return *p.Total
+}
 func (p *SearchVideoResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
 func (p *SearchVideoResponse) SetData(val []*base.Video) {
 	p.Data = val
+}
+func (p *SearchVideoResponse) SetTotal(val *int64) {
+	p.Total = val
 }
 
 func (p *SearchVideoResponse) IsSetBase() bool {
@@ -375,6 +397,10 @@ func (p *SearchVideoResponse) IsSetBase() bool {
 
 func (p *SearchVideoResponse) IsSetData() bool {
 	return p.Data != nil
+}
+
+func (p *SearchVideoResponse) IsSetTotal() bool {
+	return p.Total != nil
 }
 
 func (p *SearchVideoResponse) String() string {
@@ -387,6 +413,7 @@ func (p *SearchVideoResponse) String() string {
 var fieldIDToName_SearchVideoResponse = map[int16]string{
 	1: "base",
 	2: "data",
+	3: "total",
 }
 
 type GetPopularVideoListRequest struct {

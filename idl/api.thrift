@@ -73,7 +73,7 @@ struct PublishResponse{
 }
 
 struct GetPublishListRequest{
-    1: i64 user_id,
+    1: string user_id,
     2: i64 page_size,
     3: i64 page_num,
 }
@@ -81,6 +81,7 @@ struct GetPublishListRequest{
 struct GetPublishListResponse{
     1:base.BaseResp base,
     2:optional list<base.Video> data,
+    3:optional i64 total,
 }
 
 struct GetPopularListRequest{
@@ -95,7 +96,7 @@ struct GetPopularListResponse{
 struct SearchVideoRequest{
     1: i64 page_size,
     2: i64 page_num,
-    3: string keyword,
+    3: string keywords,
     4: optional i64 from_date,
     5: optional i64 to_date,
     6: optional string username,
@@ -104,6 +105,7 @@ struct SearchVideoRequest{
 struct SearchVideoResponse{
     1:base.BaseResp base,
     2:optional list<base.Video> data,
+    3:optional i64 total,
 }
 
 struct VideoStreamRequest{

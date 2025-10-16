@@ -82,7 +82,7 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	rpcResp, err := rpc.UserLogin(ctx, &user.LoginRequest{
 		Username: req.Username,
 		Password: req.Password,
-		MFAcode:     req.Code,
+		MFAcode:  req.Code,
 	})
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -107,7 +107,6 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	// 将 Token 设置为 HttpOnly Cookie
 	c.SetCookie("access_token", accessToken, 3600, "/", "", protocol.CookieSameSiteLaxMode, true, true)
 	c.SetCookie("refresh_token", refreshToken, 3600*24*7, "/", "", protocol.CookieSameSiteLaxMode, true, true)
-
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -177,10 +176,10 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 
 	// 读取前512字节用于验证文件类型
 	header := make([]byte, 512)
-    if _, err := openedFile.Read(header); err != nil {
+	if _, err := openedFile.Read(header); err != nil {
 		pack.SendErrResp(c, err)
-        return
-    }
+		return
+	}
 	contentType := http.DetectContentType(header)
 	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
 		pack.SendErrResp(c, errno.InvalidFileTypeErr)
@@ -198,8 +197,8 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 	}
 
 	rpcResp, err := rpc.UserAvatar(ctx, &user.UploadAvatarRequest{
-		UserId: UserID,
-		Data:   buf.Bytes(),
+		UserId:   UserID,
+		Data:     buf.Bytes(),
 		FileName: file.Filename,
 	})
 	if err != nil {

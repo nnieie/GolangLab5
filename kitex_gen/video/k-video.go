@@ -113,6 +113,20 @@ func (p *PublishRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 6:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField6(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -203,6 +217,20 @@ func (p *PublishRequest) FastReadField5(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *PublishRequest) FastReadField6(buf []byte) (int, error) {
+	offset := 0
+
+	var _field string
+	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.FileName = _field
+	return offset, nil
+}
+
 func (p *PublishRequest) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -215,6 +243,7 @@ func (p *PublishRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int 
 		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
 		offset += p.fastWriteField4(buf[offset:], w)
+		offset += p.fastWriteField6(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -228,6 +257,7 @@ func (p *PublishRequest) BLength() int {
 		l += p.field3Length()
 		l += p.field4Length()
 		l += p.field5Length()
+		l += p.field6Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -268,6 +298,13 @@ func (p *PublishRequest) fastWriteField5(buf []byte, w thrift.NocopyWriter) int 
 	return offset
 }
 
+func (p *PublishRequest) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 6)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.FileName)
+	return offset
+}
+
 func (p *PublishRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -300,6 +337,13 @@ func (p *PublishRequest) field5Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *PublishRequest) field6Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.FileName)
 	return l
 }
 
@@ -931,7 +975,7 @@ func (p *SearchVideoRequest) FastReadField1(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.Keyword = _field
+	p.Keywords = _field
 	return offset, nil
 }
 
@@ -1040,7 +1084,7 @@ func (p *SearchVideoRequest) BLength() int {
 func (p *SearchVideoRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 1)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Keyword)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Keywords)
 	return offset
 }
 
@@ -1088,7 +1132,7 @@ func (p *SearchVideoRequest) fastWriteField6(buf []byte, w thrift.NocopyWriter) 
 func (p *SearchVideoRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.Keyword)
+	l += thrift.Binary.StringLengthNocopy(p.Keywords)
 	return l
 }
 
@@ -1178,6 +1222,20 @@ func (p *SearchVideoResponse) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField3(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -1233,6 +1291,20 @@ func (p *SearchVideoResponse) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *SearchVideoResponse) FastReadField3(buf []byte) (int, error) {
+	offset := 0
+
+	var _field *int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = &v
+	}
+	p.Total = _field
+	return offset, nil
+}
+
 func (p *SearchVideoResponse) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -1240,6 +1312,7 @@ func (p *SearchVideoResponse) FastWrite(buf []byte) int {
 func (p *SearchVideoResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
+		offset += p.fastWriteField3(buf[offset:], w)
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
 	}
@@ -1252,6 +1325,7 @@ func (p *SearchVideoResponse) BLength() int {
 	if p != nil {
 		l += p.field1Length()
 		l += p.field2Length()
+		l += p.field3Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -1280,6 +1354,15 @@ func (p *SearchVideoResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter)
 	return offset
 }
 
+func (p *SearchVideoResponse) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	if p.IsSetTotal() {
+		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 3)
+		offset += thrift.Binary.WriteI64(buf[offset:], *p.Total)
+	}
+	return offset
+}
+
 func (p *SearchVideoResponse) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -1296,6 +1379,15 @@ func (p *SearchVideoResponse) field2Length() int {
 			_ = v
 			l += v.BLength()
 		}
+	}
+	return l
+}
+
+func (p *SearchVideoResponse) field3Length() int {
+	l := 0
+	if p.IsSetTotal() {
+		l += thrift.Binary.FieldBeginLength()
+		l += thrift.Binary.I64Length()
 	}
 	return l
 }
