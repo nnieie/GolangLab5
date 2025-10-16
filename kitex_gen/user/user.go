@@ -572,6 +572,109 @@ var fieldIDToName_MFABindResponse = map[int16]string{
 	1: "base",
 }
 
+type SearchUserIdsByNameRequest struct {
+	Pattern  string `thrift:"pattern,1" frugal:"1,default,string" json:"pattern"`
+	PageNum  int64  `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
+	PageSize int64  `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
+}
+
+func NewSearchUserIdsByNameRequest() *SearchUserIdsByNameRequest {
+	return &SearchUserIdsByNameRequest{}
+}
+
+func (p *SearchUserIdsByNameRequest) InitDefault() {
+}
+
+func (p *SearchUserIdsByNameRequest) GetPattern() (v string) {
+	return p.Pattern
+}
+
+func (p *SearchUserIdsByNameRequest) GetPageNum() (v int64) {
+	return p.PageNum
+}
+
+func (p *SearchUserIdsByNameRequest) GetPageSize() (v int64) {
+	return p.PageSize
+}
+func (p *SearchUserIdsByNameRequest) SetPattern(val string) {
+	p.Pattern = val
+}
+func (p *SearchUserIdsByNameRequest) SetPageNum(val int64) {
+	p.PageNum = val
+}
+func (p *SearchUserIdsByNameRequest) SetPageSize(val int64) {
+	p.PageSize = val
+}
+
+func (p *SearchUserIdsByNameRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SearchUserIdsByNameRequest(%+v)", *p)
+}
+
+var fieldIDToName_SearchUserIdsByNameRequest = map[int16]string{
+	1: "pattern",
+	2: "page_num",
+	3: "page_size",
+}
+
+type SearchUserIdsByNameResponse struct {
+	Base    *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	UserIds []int64        `thrift:"user_ids,2,optional" frugal:"2,optional,list<i64>" json:"user_ids,omitempty"`
+}
+
+func NewSearchUserIdsByNameResponse() *SearchUserIdsByNameResponse {
+	return &SearchUserIdsByNameResponse{}
+}
+
+func (p *SearchUserIdsByNameResponse) InitDefault() {
+}
+
+var SearchUserIdsByNameResponse_Base_DEFAULT *base.BaseResp
+
+func (p *SearchUserIdsByNameResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return SearchUserIdsByNameResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var SearchUserIdsByNameResponse_UserIds_DEFAULT []int64
+
+func (p *SearchUserIdsByNameResponse) GetUserIds() (v []int64) {
+	if !p.IsSetUserIds() {
+		return SearchUserIdsByNameResponse_UserIds_DEFAULT
+	}
+	return p.UserIds
+}
+func (p *SearchUserIdsByNameResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *SearchUserIdsByNameResponse) SetUserIds(val []int64) {
+	p.UserIds = val
+}
+
+func (p *SearchUserIdsByNameResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *SearchUserIdsByNameResponse) IsSetUserIds() bool {
+	return p.UserIds != nil
+}
+
+func (p *SearchUserIdsByNameResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SearchUserIdsByNameResponse(%+v)", *p)
+}
+
+var fieldIDToName_SearchUserIdsByNameResponse = map[int16]string{
+	1: "base",
+	2: "user_ids",
+}
+
 type UserService interface {
 	Register(ctx context.Context, req *RegisterRequest) (r *RegisterResponse, err error)
 
@@ -584,6 +687,8 @@ type UserService interface {
 	GetMFAQrcode(ctx context.Context, req *GetMFAQrcodeRequest) (r *GetMFAQrcodeResponse, err error)
 
 	MFABind(ctx context.Context, req *MFABindRequest) (r *MFABindResponse, err error)
+
+	SearchUserIdsByName(ctx context.Context, req *SearchUserIdsByNameRequest) (r *SearchUserIdsByNameResponse, err error)
 }
 
 type UserServiceRegisterArgs struct {
@@ -1039,5 +1144,81 @@ func (p *UserServiceMFABindResult) String() string {
 }
 
 var fieldIDToName_UserServiceMFABindResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceSearchUserIdsByNameArgs struct {
+	Req *SearchUserIdsByNameRequest `thrift:"req,1" frugal:"1,default,SearchUserIdsByNameRequest" json:"req"`
+}
+
+func NewUserServiceSearchUserIdsByNameArgs() *UserServiceSearchUserIdsByNameArgs {
+	return &UserServiceSearchUserIdsByNameArgs{}
+}
+
+func (p *UserServiceSearchUserIdsByNameArgs) InitDefault() {
+}
+
+var UserServiceSearchUserIdsByNameArgs_Req_DEFAULT *SearchUserIdsByNameRequest
+
+func (p *UserServiceSearchUserIdsByNameArgs) GetReq() (v *SearchUserIdsByNameRequest) {
+	if !p.IsSetReq() {
+		return UserServiceSearchUserIdsByNameArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *UserServiceSearchUserIdsByNameArgs) SetReq(val *SearchUserIdsByNameRequest) {
+	p.Req = val
+}
+
+func (p *UserServiceSearchUserIdsByNameArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UserServiceSearchUserIdsByNameArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceSearchUserIdsByNameArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceSearchUserIdsByNameArgs = map[int16]string{
+	1: "req",
+}
+
+type UserServiceSearchUserIdsByNameResult struct {
+	Success *SearchUserIdsByNameResponse `thrift:"success,0,optional" frugal:"0,optional,SearchUserIdsByNameResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceSearchUserIdsByNameResult() *UserServiceSearchUserIdsByNameResult {
+	return &UserServiceSearchUserIdsByNameResult{}
+}
+
+func (p *UserServiceSearchUserIdsByNameResult) InitDefault() {
+}
+
+var UserServiceSearchUserIdsByNameResult_Success_DEFAULT *SearchUserIdsByNameResponse
+
+func (p *UserServiceSearchUserIdsByNameResult) GetSuccess() (v *SearchUserIdsByNameResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceSearchUserIdsByNameResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceSearchUserIdsByNameResult) SetSuccess(x interface{}) {
+	p.Success = x.(*SearchUserIdsByNameResponse)
+}
+
+func (p *UserServiceSearchUserIdsByNameResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceSearchUserIdsByNameResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceSearchUserIdsByNameResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceSearchUserIdsByNameResult = map[int16]string{
 	0: "success",
 }

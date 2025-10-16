@@ -62,6 +62,17 @@ struct MFABindResponse{
     1: base.BaseResp base,
 }
 
+struct SearchUserIdsByNameRequest {
+    1: string pattern,
+    2: i64 page_num,
+    3: i64 page_size,
+}
+
+struct SearchUserIdsByNameResponse {
+    1: base.BaseResp base,
+    2: optional list<i64> user_ids,
+}
+
 service UserService {
     RegisterResponse Register (1: RegisterRequest req),
     LoginResponse Login(1: LoginRequest req),
@@ -69,4 +80,5 @@ service UserService {
     UploadAvatarResponse UploadAvatar(1:UploadAvatarRequest req),
     GetMFAQrcodeResponse GetMFAQrcode(1:GetMFAQrcodeRequest req),
     MFABindResponse MFABind(1:MFABindRequest req),
+    SearchUserIdsByNameResponse SearchUserIdsByName(1: SearchUserIdsByNameRequest req),
 }

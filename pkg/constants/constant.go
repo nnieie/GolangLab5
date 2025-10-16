@@ -23,6 +23,7 @@ const (
 
 const (
 	MaxAvatarSize = 5 << 20
+	MaxVideoSize  = 4 << 30
 )
 
 const (
@@ -32,13 +33,14 @@ const (
 )
 
 const (
-	APIServiceName  = "api"
-	UserServiceName = "user"
+	APIServiceName   = "api"
+	UserServiceName  = "user"
+	VideoServiceName = "video"
 )
 
 const (
 	AvatarBucketName = "tkrpc-avatar"
-	VideoBucketName  = "video-avatar"
+	VideoBucketName  = "tkrpc-video"
 
 	AvatarPublicDomain = "avatar.tkrpc.miaooo.qzz.io"
 	VideoPublicDomain  = "video.tkrpc.miaooo.qzz.io"

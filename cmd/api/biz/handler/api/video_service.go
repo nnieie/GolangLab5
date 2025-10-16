@@ -3,11 +3,21 @@
 package api
 
 import (
+	"bytes"
 	"context"
+	"io"
+	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	api "github.com/nnieie/golanglab5/cmd/api/biz/model/api"
+	"github.com/nnieie/golanglab5/cmd/api/pack"
+	"github.com/nnieie/golanglab5/cmd/api/rpc"
+	"github.com/nnieie/golanglab5/kitex_gen/video"
+	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/errno"
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 // PublishVideo .
@@ -22,6 +32,66 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.PublishResponse)
+
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	// 获取上传的文件
+	file, err := c.FormFile("data")
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	openedFile, err := file.Open()
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	defer openedFile.Close()
+
+	// 读取前512字节用于验证文件类型
+	header := make([]byte, 512)
+	if _, err := openedFile.Read(header); err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	contentType := http.DetectContentType(header)
+	if contentType != "video/mp4" && contentType != "video/x-msvideo" && contentType != "video/x-ms-wmv" &&
+		contentType != "video/x-flv" && contentType != "video/quicktime" {
+		pack.SendErrResp(c, errno.InvalidFileTypeErr)
+		return
+	}
+
+	// 把header恢复回去并限制整体读取大小
+	reader := io.MultiReader(bytes.NewReader(header), io.LimitReader(openedFile, constants.MaxVideoSize))
+
+	// 把内容读到buffer
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, reader); err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	rpcResp, err := rpc.PublishVideo(ctx, &video.PublishRequest{
+		UserId:      UserID,
+		Video:       buf.Bytes(),
+		FileName:    file.Filename,
+		Title:       req.Title,
+		Description: req.Description,
+	})
+
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -39,6 +109,23 @@ func GetPublishVideoList(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetPublishListResponse)
 
+	rpcResp, err := rpc.GetPublishList(ctx, &video.GetPublishListRequest{
+		UserId:   req.UserID,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+	resp.Total = rpcResp.Total
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -55,6 +142,21 @@ func GetPopularVideo(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetPopularListResponse)
 
+	rpcResp, err := rpc.GetPopularVideo(ctx, &video.GetPopularVideoListRequest{
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -69,7 +171,29 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	logger.Debugf("API SearchVideo req: %+v, keywords: %v", req, req.Keywords)
+
 	resp := new(api.SearchVideoResponse)
+
+	rpcResp, err := rpc.SearchVideo(ctx, &video.SearchVideoRequest{
+		Keywords:  req.Keywords,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+		FromDate: req.FromDate,
+		ToDate:   req.ToDate,
+		Username: req.Username,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+	resp.Total = rpcResp.Total
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -86,6 +210,20 @@ func GetVideoStream(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.VideoStreamResponse)
+
+	rpcResp, err := rpc.GetVideoStream(ctx, &video.VideoStreamRequest{
+		LatestTime: req.LatestTime,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
 
 	c.JSON(consts.StatusOK, resp)
 }

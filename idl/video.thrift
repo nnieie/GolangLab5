@@ -8,6 +8,7 @@ struct PublishRequest{
     3: binary video,
     4: binary cover,
     5: i64 user_id,
+    6: string file_name,
 }
 
 struct PublishResponse{
@@ -27,7 +28,7 @@ struct GetPublishListResponse{
 }
 
 struct SearchVideoRequest{
-    1: string keyword,
+    1: string keywords,
     2: i64 page_num,
     3: i64 page_size,
     4: optional i64 from_date,
@@ -38,6 +39,7 @@ struct SearchVideoRequest{
 struct SearchVideoResponse{
     1:base.BaseResp base,
     2:optional list<base.Video> data,
+    3:optional i64 total,
 }
 
 struct GetPopularVideoListRequest{

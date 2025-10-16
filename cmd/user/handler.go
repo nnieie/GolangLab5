@@ -71,3 +71,12 @@ func (s *UserServiceImpl) MFABind(ctx context.Context, req *user.MFABindRequest)
 	resp.Base = utils.BuildBaseResp(err)
 	return
 }
+
+// SearchUserIdsByName implements the UserServiceImpl interface.
+func (s *UserServiceImpl) SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest) (resp *user.SearchUserIdsByNameResponse, err error) {
+	resp = new(user.SearchUserIdsByNameResponse)
+	userIds, err := service.NewUserService(ctx, s.Snowflake).SearchUserIdsByName(req.Pattern, req.PageNum, req.PageSize)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.UserIds = userIds
+	return
+}

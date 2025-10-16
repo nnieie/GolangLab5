@@ -13,3 +13,6 @@ services:
   user:
     name: user
     addr: 127.0.0.1:11393
+  video:
+    name: video
+    addr: 127.0.0.1:11394

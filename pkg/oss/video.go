@@ -18,6 +18,14 @@ type VideoOSSCli struct {
 	sf           *utils.Snowflake
 }
 
+func NewVideoOSSCli(bucketName, publicDomain string, snowflake *utils.Snowflake) *VideoOSSCli {
+	return &VideoOSSCli{
+		bucketName:   bucketName,
+		publicDomain: publicDomain,
+		sf:           snowflake,
+	}
+}
+
 func (c *VideoOSSCli) UploadVideo(objectKey string, reader io.Reader) (fileURL string, err error) {
 	_, err = r2Client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket: aws.String(c.bucketName),
