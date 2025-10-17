@@ -18,6 +18,8 @@ type Client interface {
 	GetMFAQrcode(ctx context.Context, req *user.GetMFAQrcodeRequest, callOptions ...callopt.Option) (r *user.GetMFAQrcodeResponse, err error)
 	MFABind(ctx context.Context, req *user.MFABindRequest, callOptions ...callopt.Option) (r *user.MFABindResponse, err error)
 	SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest, callOptions ...callopt.Option) (r *user.SearchUserIdsByNameResponse, err error)
+	QueryUserByID(ctx context.Context, req *user.QueryUserByIDRequest, callOptions ...callopt.Option) (r *user.QueryUserByIDResponse, err error)
+	QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDsRequest, callOptions ...callopt.Option) (r *user.QueryUsersByIDsResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -82,4 +84,14 @@ func (p *kUserServiceClient) MFABind(ctx context.Context, req *user.MFABindReque
 func (p *kUserServiceClient) SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest, callOptions ...callopt.Option) (r *user.SearchUserIdsByNameResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.SearchUserIdsByName(ctx, req)
+}
+
+func (p *kUserServiceClient) QueryUserByID(ctx context.Context, req *user.QueryUserByIDRequest, callOptions ...callopt.Option) (r *user.QueryUserByIDResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.QueryUserByID(ctx, req)
+}
+
+func (p *kUserServiceClient) QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDsRequest, callOptions ...callopt.Option) (r *user.QueryUsersByIDsResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.QueryUsersByIDs(ctx, req)
 }

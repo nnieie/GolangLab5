@@ -176,7 +176,7 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 	resp := new(api.SearchVideoResponse)
 
 	rpcResp, err := rpc.SearchVideo(ctx, &video.SearchVideoRequest{
-		Keywords:  req.Keywords,
+		Keywords: req.Keywords,
 		PageNum:  req.PageNum,
 		PageSize: req.PageSize,
 		FromDate: req.FromDate,

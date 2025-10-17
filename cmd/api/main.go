@@ -17,6 +17,7 @@ func main() {
 	jwt.InitJwt()
 	rpc.InitUserRPC()
 	rpc.InitVideoRPC()
+	rpc.InitSocialRPC()
 
 	h := server.Default()
 

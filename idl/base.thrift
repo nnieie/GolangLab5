@@ -9,10 +9,9 @@ struct User{
     1: i64 id,
     2: string username,
     3: string avatar_url,
-    4: string avatar,
-    5: string created_at,
-    6: string updated_at,
-    7: string deleted_at,
+    4: string created_at,
+    5: string updated_at,
+    6: string deleted_at,
 }
 
 struct Video{

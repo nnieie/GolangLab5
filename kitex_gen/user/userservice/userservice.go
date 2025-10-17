@@ -62,6 +62,20 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"QueryUserByID": kitex.NewMethodInfo(
+		queryUserByIDHandler,
+		newUserServiceQueryUserByIDArgs,
+		newUserServiceQueryUserByIDResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"QueryUsersByIDs": kitex.NewMethodInfo(
+		queryUsersByIDsHandler,
+		newUserServiceQueryUsersByIDsArgs,
+		newUserServiceQueryUsersByIDsResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -254,6 +268,42 @@ func newUserServiceSearchUserIdsByNameResult() interface{} {
 	return user.NewUserServiceSearchUserIdsByNameResult()
 }
 
+func queryUserByIDHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceQueryUserByIDArgs)
+	realResult := result.(*user.UserServiceQueryUserByIDResult)
+	success, err := handler.(user.UserService).QueryUserByID(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceQueryUserByIDArgs() interface{} {
+	return user.NewUserServiceQueryUserByIDArgs()
+}
+
+func newUserServiceQueryUserByIDResult() interface{} {
+	return user.NewUserServiceQueryUserByIDResult()
+}
+
+func queryUsersByIDsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceQueryUsersByIDsArgs)
+	realResult := result.(*user.UserServiceQueryUsersByIDsResult)
+	success, err := handler.(user.UserService).QueryUsersByIDs(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceQueryUsersByIDsArgs() interface{} {
+	return user.NewUserServiceQueryUsersByIDsArgs()
+}
+
+func newUserServiceQueryUsersByIDsResult() interface{} {
+	return user.NewUserServiceQueryUsersByIDsResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -329,6 +379,26 @@ func (p *kClient) SearchUserIdsByName(ctx context.Context, req *user.SearchUserI
 	_args.Req = req
 	var _result user.UserServiceSearchUserIdsByNameResult
 	if err = p.c.Call(ctx, "SearchUserIdsByName", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) QueryUserByID(ctx context.Context, req *user.QueryUserByIDRequest) (r *user.QueryUserByIDResponse, err error) {
+	var _args user.UserServiceQueryUserByIDArgs
+	_args.Req = req
+	var _result user.UserServiceQueryUserByIDResult
+	if err = p.c.Call(ctx, "QueryUserByID", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDsRequest) (r *user.QueryUsersByIDsResponse, err error) {
+	var _args user.UserServiceQueryUsersByIDsArgs
+	_args.Req = req
+	var _result user.UserServiceQueryUsersByIDsResult
+	if err = p.c.Call(ctx, "QueryUsersByIDs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

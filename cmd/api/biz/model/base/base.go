@@ -197,10 +197,9 @@ type User struct {
 	ID        int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
 	Username  string `thrift:"username,2" form:"username" json:"username" query:"username"`
 	AvatarURL string `thrift:"avatar_url,3" form:"avatar_url" json:"avatar_url" query:"avatar_url"`
-	Avatar    string `thrift:"avatar,4" form:"avatar" json:"avatar" query:"avatar"`
-	CreatedAt string `thrift:"created_at,5" form:"created_at" json:"created_at" query:"created_at"`
-	UpdatedAt string `thrift:"updated_at,6" form:"updated_at" json:"updated_at" query:"updated_at"`
-	DeletedAt string `thrift:"deleted_at,7" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
+	CreatedAt string `thrift:"created_at,4" form:"created_at" json:"created_at" query:"created_at"`
+	UpdatedAt string `thrift:"updated_at,5" form:"updated_at" json:"updated_at" query:"updated_at"`
+	DeletedAt string `thrift:"deleted_at,6" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
 }
 
 func NewUser() *User {
@@ -222,10 +221,6 @@ func (p *User) GetAvatarURL() (v string) {
 	return p.AvatarURL
 }
 
-func (p *User) GetAvatar() (v string) {
-	return p.Avatar
-}
-
 func (p *User) GetCreatedAt() (v string) {
 	return p.CreatedAt
 }
@@ -242,10 +237,9 @@ var fieldIDToName_User = map[int16]string{
 	1: "id",
 	2: "username",
 	3: "avatar_url",
-	4: "avatar",
-	5: "created_at",
-	6: "updated_at",
-	7: "deleted_at",
+	4: "created_at",
+	5: "updated_at",
+	6: "deleted_at",
 }
 
 func (p *User) Read(iprot thrift.TProtocol) (err error) {
@@ -310,14 +304,6 @@ func (p *User) Read(iprot thrift.TProtocol) (err error) {
 		case 6:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField6(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 7:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField7(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -393,7 +379,7 @@ func (p *User) ReadField4(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Avatar = _field
+	p.CreatedAt = _field
 	return nil
 }
 func (p *User) ReadField5(iprot thrift.TProtocol) error {
@@ -404,21 +390,10 @@ func (p *User) ReadField5(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.CreatedAt = _field
-	return nil
-}
-func (p *User) ReadField6(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
 	p.UpdatedAt = _field
 	return nil
 }
-func (p *User) ReadField7(iprot thrift.TProtocol) error {
+func (p *User) ReadField6(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -458,10 +433,6 @@ func (p *User) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField6(oprot); err != nil {
 			fieldId = 6
-			goto WriteFieldError
-		}
-		if err = p.writeField7(oprot); err != nil {
-			fieldId = 7
 			goto WriteFieldError
 		}
 	}
@@ -534,10 +505,10 @@ WriteFieldEndError:
 }
 
 func (p *User) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("avatar", thrift.STRING, 4); err != nil {
+	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Avatar); err != nil {
+	if err := oprot.WriteString(p.CreatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -551,10 +522,10 @@ WriteFieldEndError:
 }
 
 func (p *User) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.CreatedAt); err != nil {
+	if err := oprot.WriteString(p.UpdatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -568,24 +539,7 @@ WriteFieldEndError:
 }
 
 func (p *User) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.UpdatedAt); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *User) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 7); err != nil {
+	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 6); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteString(p.DeletedAt); err != nil {
@@ -596,9 +550,9 @@ func (p *User) writeField7(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
 func (p *User) String() string {

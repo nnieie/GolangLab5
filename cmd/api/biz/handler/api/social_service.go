@@ -7,7 +7,11 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	api "github.com/nnieie/golanglab5/cmd/api/biz/model/api"
+	"github.com/nnieie/golanglab5/cmd/api/pack"
+	"github.com/nnieie/golanglab5/cmd/api/rpc"
+	"github.com/nnieie/golanglab5/kitex_gen/social"
 )
 
 // FollowAction .
@@ -22,6 +26,23 @@ func FollowAction(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.FollowActionResponse)
+
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	rpcResp, err := rpc.FollowAction(ctx, &social.FollowActionRequest{
+		UserId:     UserID,
+		ToUserId:   req.ToUserID,
+		ActionType: req.ActionType,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -39,6 +60,18 @@ func GetFollowList(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetFollowListResponse)
 
+	FollowList, err := rpc.GetFollowingList(ctx, &social.QueryFollowListRequest{
+		UserId:   req.UserID,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(FollowList.Base)
+	resp.Data = pack.UsersRPCToUsers(FollowList.Data)
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -55,6 +88,18 @@ func GetFansList(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetFansListResponse)
 
+	FollowerList, err := rpc.GetFollowerList(ctx, &social.QueryFollowerListRequest{
+		UserId:   req.UserID,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(FollowerList.Base)
+	resp.Data = pack.UsersRPCToUsers(FollowerList.Data)
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -70,6 +115,24 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetFriendListResponse)
+
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	FriendList, err := rpc.GetFriendList(ctx, &social.QueryFriendListRequest{
+		UserId:   UserID,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(FriendList.Base)
+	resp.Data = pack.UsersRPCToUsers(FriendList.Data)
 
 	c.JSON(consts.StatusOK, resp)
 }

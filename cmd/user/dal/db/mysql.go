@@ -3,8 +3,6 @@ package db
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 
 	"gorm.io/gorm"
 
@@ -77,22 +75,13 @@ func QueryUserByNameWithPassword(ctx context.Context, username string) (*User, e
 	return &user, nil
 }
 
-func QueryUserByIDList(ctx context.Context, userIds []int64) (*[]User, error) {
-	users := new([]User)
+func QueryUserByIDList(ctx context.Context, userIds []int64) ([]*User, error) {
 	if len(userIds) == 0 {
-		return users, errno.UserIsNotExistErr
+		return nil, errno.UserIsNotExistErr
 	}
+	users := make([]*User, 0, len(userIds))
 
-	// 构建 ORDER BY FIELD 字符串，保证返回顺序
-	var builder strings.Builder
-	builder.WriteString("FIELD(id")
-	for _, id := range userIds {
-		builder.WriteString(fmt.Sprintf(", %d", id))
-	}
-	builder.WriteString(")")
-	orderClause := builder.String()
-
-	if err := DB.WithContext(ctx).Where("id IN ?", userIds).Order(orderClause).Find(users).Error; err != nil {
+	if err := DB.WithContext(ctx).Where("id IN ?", userIds).Order(gorm.Expr("FIELD(id, ?)", userIds)).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
