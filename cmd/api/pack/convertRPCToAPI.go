@@ -22,11 +22,19 @@ func UserRPCToUser(user *kitBase.User) *apiBase.User {
 	return &apiBase.User{
 		ID:        user.Id,
 		Username:  user.Username,
-		Avatar:    user.AvatarUrl,
+		AvatarURL: user.AvatarUrl,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 		DeletedAt: user.DeletedAt,
 	}
+}
+
+func UsersRPCToUsers(users []*kitBase.User) []*apiBase.User {
+	res := make([]*apiBase.User, 0, len(users))
+	for _, user := range users {
+		res = append(res, UserRPCToUser(user))
+	}
+	return res
 }
 
 func VideoRPCToVideo(video *kitBase.Video) *apiBase.Video {

@@ -675,6 +675,176 @@ var fieldIDToName_SearchUserIdsByNameResponse = map[int16]string{
 	2: "user_ids",
 }
 
+type QueryUserByIDRequest struct {
+	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+}
+
+func NewQueryUserByIDRequest() *QueryUserByIDRequest {
+	return &QueryUserByIDRequest{}
+}
+
+func (p *QueryUserByIDRequest) InitDefault() {
+}
+
+func (p *QueryUserByIDRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+func (p *QueryUserByIDRequest) SetUserId(val int64) {
+	p.UserId = val
+}
+
+func (p *QueryUserByIDRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryUserByIDRequest(%+v)", *p)
+}
+
+var fieldIDToName_QueryUserByIDRequest = map[int16]string{
+	1: "user_id",
+}
+
+type QueryUserByIDResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	User *base.User     `thrift:"user,2,optional" frugal:"2,optional,base.User" json:"user,omitempty"`
+}
+
+func NewQueryUserByIDResponse() *QueryUserByIDResponse {
+	return &QueryUserByIDResponse{}
+}
+
+func (p *QueryUserByIDResponse) InitDefault() {
+}
+
+var QueryUserByIDResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryUserByIDResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryUserByIDResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryUserByIDResponse_User_DEFAULT *base.User
+
+func (p *QueryUserByIDResponse) GetUser() (v *base.User) {
+	if !p.IsSetUser() {
+		return QueryUserByIDResponse_User_DEFAULT
+	}
+	return p.User
+}
+func (p *QueryUserByIDResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *QueryUserByIDResponse) SetUser(val *base.User) {
+	p.User = val
+}
+
+func (p *QueryUserByIDResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryUserByIDResponse) IsSetUser() bool {
+	return p.User != nil
+}
+
+func (p *QueryUserByIDResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryUserByIDResponse(%+v)", *p)
+}
+
+var fieldIDToName_QueryUserByIDResponse = map[int16]string{
+	1: "base",
+	2: "user",
+}
+
+type QueryUsersByIDsRequest struct {
+	UserIds []int64 `thrift:"user_ids,1" frugal:"1,default,list<i64>" json:"user_ids"`
+}
+
+func NewQueryUsersByIDsRequest() *QueryUsersByIDsRequest {
+	return &QueryUsersByIDsRequest{}
+}
+
+func (p *QueryUsersByIDsRequest) InitDefault() {
+}
+
+func (p *QueryUsersByIDsRequest) GetUserIds() (v []int64) {
+	return p.UserIds
+}
+func (p *QueryUsersByIDsRequest) SetUserIds(val []int64) {
+	p.UserIds = val
+}
+
+func (p *QueryUsersByIDsRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryUsersByIDsRequest(%+v)", *p)
+}
+
+var fieldIDToName_QueryUsersByIDsRequest = map[int16]string{
+	1: "user_ids",
+}
+
+type QueryUsersByIDsResponse struct {
+	Base  *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Users []*base.User   `thrift:"users,2,optional" frugal:"2,optional,list<base.User>" json:"users,omitempty"`
+}
+
+func NewQueryUsersByIDsResponse() *QueryUsersByIDsResponse {
+	return &QueryUsersByIDsResponse{}
+}
+
+func (p *QueryUsersByIDsResponse) InitDefault() {
+}
+
+var QueryUsersByIDsResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryUsersByIDsResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryUsersByIDsResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryUsersByIDsResponse_Users_DEFAULT []*base.User
+
+func (p *QueryUsersByIDsResponse) GetUsers() (v []*base.User) {
+	if !p.IsSetUsers() {
+		return QueryUsersByIDsResponse_Users_DEFAULT
+	}
+	return p.Users
+}
+func (p *QueryUsersByIDsResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *QueryUsersByIDsResponse) SetUsers(val []*base.User) {
+	p.Users = val
+}
+
+func (p *QueryUsersByIDsResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryUsersByIDsResponse) IsSetUsers() bool {
+	return p.Users != nil
+}
+
+func (p *QueryUsersByIDsResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryUsersByIDsResponse(%+v)", *p)
+}
+
+var fieldIDToName_QueryUsersByIDsResponse = map[int16]string{
+	1: "base",
+	2: "users",
+}
+
 type UserService interface {
 	Register(ctx context.Context, req *RegisterRequest) (r *RegisterResponse, err error)
 
@@ -689,6 +859,10 @@ type UserService interface {
 	MFABind(ctx context.Context, req *MFABindRequest) (r *MFABindResponse, err error)
 
 	SearchUserIdsByName(ctx context.Context, req *SearchUserIdsByNameRequest) (r *SearchUserIdsByNameResponse, err error)
+
+	QueryUserByID(ctx context.Context, req *QueryUserByIDRequest) (r *QueryUserByIDResponse, err error)
+
+	QueryUsersByIDs(ctx context.Context, req *QueryUsersByIDsRequest) (r *QueryUsersByIDsResponse, err error)
 }
 
 type UserServiceRegisterArgs struct {
@@ -1220,5 +1394,157 @@ func (p *UserServiceSearchUserIdsByNameResult) String() string {
 }
 
 var fieldIDToName_UserServiceSearchUserIdsByNameResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceQueryUserByIDArgs struct {
+	Req *QueryUserByIDRequest `thrift:"req,1" frugal:"1,default,QueryUserByIDRequest" json:"req"`
+}
+
+func NewUserServiceQueryUserByIDArgs() *UserServiceQueryUserByIDArgs {
+	return &UserServiceQueryUserByIDArgs{}
+}
+
+func (p *UserServiceQueryUserByIDArgs) InitDefault() {
+}
+
+var UserServiceQueryUserByIDArgs_Req_DEFAULT *QueryUserByIDRequest
+
+func (p *UserServiceQueryUserByIDArgs) GetReq() (v *QueryUserByIDRequest) {
+	if !p.IsSetReq() {
+		return UserServiceQueryUserByIDArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *UserServiceQueryUserByIDArgs) SetReq(val *QueryUserByIDRequest) {
+	p.Req = val
+}
+
+func (p *UserServiceQueryUserByIDArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UserServiceQueryUserByIDArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceQueryUserByIDArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceQueryUserByIDArgs = map[int16]string{
+	1: "req",
+}
+
+type UserServiceQueryUserByIDResult struct {
+	Success *QueryUserByIDResponse `thrift:"success,0,optional" frugal:"0,optional,QueryUserByIDResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceQueryUserByIDResult() *UserServiceQueryUserByIDResult {
+	return &UserServiceQueryUserByIDResult{}
+}
+
+func (p *UserServiceQueryUserByIDResult) InitDefault() {
+}
+
+var UserServiceQueryUserByIDResult_Success_DEFAULT *QueryUserByIDResponse
+
+func (p *UserServiceQueryUserByIDResult) GetSuccess() (v *QueryUserByIDResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceQueryUserByIDResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceQueryUserByIDResult) SetSuccess(x interface{}) {
+	p.Success = x.(*QueryUserByIDResponse)
+}
+
+func (p *UserServiceQueryUserByIDResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceQueryUserByIDResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceQueryUserByIDResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceQueryUserByIDResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceQueryUsersByIDsArgs struct {
+	Req *QueryUsersByIDsRequest `thrift:"req,1" frugal:"1,default,QueryUsersByIDsRequest" json:"req"`
+}
+
+func NewUserServiceQueryUsersByIDsArgs() *UserServiceQueryUsersByIDsArgs {
+	return &UserServiceQueryUsersByIDsArgs{}
+}
+
+func (p *UserServiceQueryUsersByIDsArgs) InitDefault() {
+}
+
+var UserServiceQueryUsersByIDsArgs_Req_DEFAULT *QueryUsersByIDsRequest
+
+func (p *UserServiceQueryUsersByIDsArgs) GetReq() (v *QueryUsersByIDsRequest) {
+	if !p.IsSetReq() {
+		return UserServiceQueryUsersByIDsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *UserServiceQueryUsersByIDsArgs) SetReq(val *QueryUsersByIDsRequest) {
+	p.Req = val
+}
+
+func (p *UserServiceQueryUsersByIDsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UserServiceQueryUsersByIDsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceQueryUsersByIDsArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceQueryUsersByIDsArgs = map[int16]string{
+	1: "req",
+}
+
+type UserServiceQueryUsersByIDsResult struct {
+	Success *QueryUsersByIDsResponse `thrift:"success,0,optional" frugal:"0,optional,QueryUsersByIDsResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceQueryUsersByIDsResult() *UserServiceQueryUsersByIDsResult {
+	return &UserServiceQueryUsersByIDsResult{}
+}
+
+func (p *UserServiceQueryUsersByIDsResult) InitDefault() {
+}
+
+var UserServiceQueryUsersByIDsResult_Success_DEFAULT *QueryUsersByIDsResponse
+
+func (p *UserServiceQueryUsersByIDsResult) GetSuccess() (v *QueryUsersByIDsResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceQueryUsersByIDsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceQueryUsersByIDsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*QueryUsersByIDsResponse)
+}
+
+func (p *UserServiceQueryUsersByIDsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceQueryUsersByIDsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceQueryUsersByIDsResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceQueryUsersByIDsResult = map[int16]string{
 	0: "success",
 }

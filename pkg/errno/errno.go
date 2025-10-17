@@ -31,6 +31,7 @@ const (
 	LikeIsNotExistErrCode
 	LikeHadExistErrCode
 	FollowIsNotExistErrCode
+	FollowAlreadyExistErrCode
 	ContentIsEmptyErrCode
 
 	NotFriendErrCode
@@ -50,14 +51,15 @@ const (
 	UserIsNotExistOrPasswordErrMsg = "username or password error"
 	FavoriteActionErrMsg           = "favorite add failed"
 
-	MessageAddFailedErrMsg  = "message add failed"
-	FriendIsNotExistMsg     = "friend is not exist"
-	VideoIsNotExistErrMsg   = "video is not exist"
-	CommentIsNotExistErrMsg = "comment is not exist"
-	LikeIsNotExistErrMsg    = "like is not exist"
-	LikeHadExistErrMsg      = "like had existed"
-	FollowIsNotExistErrMsg  = "follow is not exist"
-	ContentIsEmptyErrMsg    = "content is empty"
+	MessageAddFailedErrMsg   = "message add failed"
+	FriendIsNotExistMsg      = "friend is not exist"
+	VideoIsNotExistErrMsg    = "video is not exist"
+	CommentIsNotExistErrMsg  = "comment is not exist"
+	LikeIsNotExistErrMsg     = "like is not exist"
+	LikeHadExistErrMsg       = "like had existed"
+	FollowIsNotExistErrMsg   = "follow is not exist"
+	FollowAlreadyExistErrMsg = "follow already exists"
+	ContentIsEmptyErrMsg     = "content is empty"
 
 	NotFriendErrMsg  = "not friend"
 	NotInGroupErrMsg = "not in group"
@@ -100,14 +102,15 @@ var (
 	FavoriteRelationNotExistErr     = NewErrNo(FavoriteRelationNotExistErrCode, "FavoriteRelationNotExistErr")
 	FavoriteActionErr               = NewErrNo(FavoriteActionErrCode, FavoriteActionErrMsg)
 
-	MessageAddFailedErr  = NewErrNo(MessageAddFailedErrCode, MessageAddFailedErrMsg)
-	FriendIsNotExistErr  = NewErrNo(FriendIsNotExistErrCode, FriendIsNotExistMsg)
-	VideoIsNotExistErr   = NewErrNo(VideoIsNotExistErrCode, VideoIsNotExistErrMsg)
-	CommentIsNotExistErr = NewErrNo(CommentIsNotExistErrCode, CommentIsNotExistErrMsg)
-	LikeIsNotExistErr    = NewErrNo(LikeIsNotExistErrCode, LikeIsNotExistErrMsg)
-	LikeHadExistErr      = NewErrNo(LikeHadExistErrCode, LikeHadExistErrMsg)
-	FollowIsNotExistErr  = NewErrNo(FollowIsNotExistErrCode, FollowIsNotExistErrMsg)
-	ContentIsEmptyErr    = NewErrNo(ContentIsEmptyErrCode, ContentIsEmptyErrMsg)
+	MessageAddFailedErr   = NewErrNo(MessageAddFailedErrCode, MessageAddFailedErrMsg)
+	FriendIsNotExistErr   = NewErrNo(FriendIsNotExistErrCode, FriendIsNotExistMsg)
+	VideoIsNotExistErr    = NewErrNo(VideoIsNotExistErrCode, VideoIsNotExistErrMsg)
+	CommentIsNotExistErr  = NewErrNo(CommentIsNotExistErrCode, CommentIsNotExistErrMsg)
+	LikeIsNotExistErr     = NewErrNo(LikeIsNotExistErrCode, LikeIsNotExistErrMsg)
+	LikeHadExistErr       = NewErrNo(LikeHadExistErrCode, LikeHadExistErrMsg)
+	FollowIsNotExistErr   = NewErrNo(FollowIsNotExistErrCode, FollowIsNotExistErrMsg)
+	FollowAlreadyExistErr = NewErrNo(FollowAlreadyExistErrCode, FollowAlreadyExistErrMsg)
+	ContentIsEmptyErr     = NewErrNo(ContentIsEmptyErrCode, ContentIsEmptyErrMsg)
 
 	NotFriendErr  = NewErrNo(NotFriendErrCode, NotFriendErrMsg)
 	NotInGroupErr = NewErrNo(NotInGroupErrCode, NotInGroupErrMsg)

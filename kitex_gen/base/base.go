@@ -48,10 +48,9 @@ type User struct {
 	Id        int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	Username  string `thrift:"username,2" frugal:"2,default,string" json:"username"`
 	AvatarUrl string `thrift:"avatar_url,3" frugal:"3,default,string" json:"avatar_url"`
-	Avatar    string `thrift:"avatar,4" frugal:"4,default,string" json:"avatar"`
-	CreatedAt string `thrift:"created_at,5" frugal:"5,default,string" json:"created_at"`
-	UpdatedAt string `thrift:"updated_at,6" frugal:"6,default,string" json:"updated_at"`
-	DeletedAt string `thrift:"deleted_at,7" frugal:"7,default,string" json:"deleted_at"`
+	CreatedAt string `thrift:"created_at,4" frugal:"4,default,string" json:"created_at"`
+	UpdatedAt string `thrift:"updated_at,5" frugal:"5,default,string" json:"updated_at"`
+	DeletedAt string `thrift:"deleted_at,6" frugal:"6,default,string" json:"deleted_at"`
 }
 
 func NewUser() *User {
@@ -71,10 +70,6 @@ func (p *User) GetUsername() (v string) {
 
 func (p *User) GetAvatarUrl() (v string) {
 	return p.AvatarUrl
-}
-
-func (p *User) GetAvatar() (v string) {
-	return p.Avatar
 }
 
 func (p *User) GetCreatedAt() (v string) {
@@ -97,9 +92,6 @@ func (p *User) SetUsername(val string) {
 func (p *User) SetAvatarUrl(val string) {
 	p.AvatarUrl = val
 }
-func (p *User) SetAvatar(val string) {
-	p.Avatar = val
-}
 func (p *User) SetCreatedAt(val string) {
 	p.CreatedAt = val
 }
@@ -121,10 +113,9 @@ var fieldIDToName_User = map[int16]string{
 	1: "id",
 	2: "username",
 	3: "avatar_url",
-	4: "avatar",
-	5: "created_at",
-	6: "updated_at",
-	7: "deleted_at",
+	4: "created_at",
+	5: "updated_at",
+	6: "deleted_at",
 }
 
 type Video struct {

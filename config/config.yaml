@@ -16,3 +16,6 @@ services:
   video:
     name: video
     addr: 127.0.0.1:11394
+  social:
+    name: social
+    addr: 127.0.0.1:11395

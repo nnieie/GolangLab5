@@ -73,6 +73,24 @@ struct SearchUserIdsByNameResponse {
     2: optional list<i64> user_ids,
 }
 
+struct QueryUserByIDRequest {
+    1: i64 user_id,
+}
+
+struct QueryUserByIDResponse {
+    1: base.BaseResp base,
+    2: optional base.User user,
+}
+
+struct QueryUsersByIDsRequest {
+    1: list<i64> user_ids,
+}
+
+struct QueryUsersByIDsResponse {
+    1: base.BaseResp base,
+    2: optional list<base.User> users,
+}
+
 service UserService {
     RegisterResponse Register (1: RegisterRequest req),
     LoginResponse Login(1: LoginRequest req),
@@ -81,4 +99,6 @@ service UserService {
     GetMFAQrcodeResponse GetMFAQrcode(1:GetMFAQrcodeRequest req),
     MFABindResponse MFABind(1:MFABindRequest req),
     SearchUserIdsByNameResponse SearchUserIdsByName(1: SearchUserIdsByNameRequest req),
+    QueryUserByIDResponse QueryUserByID(1: QueryUserByIDRequest req),
+    QueryUsersByIDsResponse QueryUsersByIDs(1: QueryUsersByIDsRequest req),
 }

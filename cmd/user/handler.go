@@ -80,3 +80,21 @@ func (s *UserServiceImpl) SearchUserIdsByName(ctx context.Context, req *user.Sea
 	resp.UserIds = userIds
 	return
 }
+
+// QueryUserByID implements the UserServiceImpl interface.
+func (s *UserServiceImpl) QueryUserByID(ctx context.Context, req *user.QueryUserByIDRequest) (resp *user.QueryUserByIDResponse, err error) {
+	resp = new(user.QueryUserByIDResponse)
+	user, err := service.NewUserService(ctx, s.Snowflake).QueryUserByID(req.UserId)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.User = user
+	return
+}
+
+// QueryUsersByIDs implements the UserServiceImpl interface.
+func (s *UserServiceImpl) QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDsRequest) (resp *user.QueryUsersByIDsResponse, err error) {
+	resp = new(user.QueryUsersByIDsResponse)
+	users, err := service.NewUserService(ctx, s.Snowflake).QueryUsersByIDs(req.UserIds)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Users = users
+	return
+}

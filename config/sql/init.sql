@@ -29,3 +29,14 @@ CREATE TABLE IF NOT EXISTS videos (
     INDEX idx_user_id (user_id),
     INDEX idx_created_at (created_at)
 );
+
+CREATE TABLE follows (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    follower_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_follower_id (follower_id)
+);
