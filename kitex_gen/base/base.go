@@ -255,8 +255,8 @@ type Comment struct {
 	ChildCount int64  `thrift:"child_count,6" frugal:"6,default,i64" json:"child_count"`
 	Content    string `thrift:"content,7" frugal:"7,default,string" json:"content"`
 	CreatedAt  string `thrift:"created_at,8" frugal:"8,default,string" json:"created_at"`
-	UpdatedAt  int64  `thrift:"updated_at,9" frugal:"9,default,i64" json:"updated_at"`
-	DeletedAt  int64  `thrift:"deleted_at,10" frugal:"10,default,i64" json:"deleted_at"`
+	UpdatedAt  string `thrift:"updated_at,9" frugal:"9,default,string" json:"updated_at"`
+	DeletedAt  string `thrift:"deleted_at,10" frugal:"10,default,string" json:"deleted_at"`
 }
 
 func NewComment() *Comment {
@@ -298,11 +298,11 @@ func (p *Comment) GetCreatedAt() (v string) {
 	return p.CreatedAt
 }
 
-func (p *Comment) GetUpdatedAt() (v int64) {
+func (p *Comment) GetUpdatedAt() (v string) {
 	return p.UpdatedAt
 }
 
-func (p *Comment) GetDeletedAt() (v int64) {
+func (p *Comment) GetDeletedAt() (v string) {
 	return p.DeletedAt
 }
 func (p *Comment) SetId(val int64) {
@@ -329,10 +329,10 @@ func (p *Comment) SetContent(val string) {
 func (p *Comment) SetCreatedAt(val string) {
 	p.CreatedAt = val
 }
-func (p *Comment) SetUpdatedAt(val int64) {
+func (p *Comment) SetUpdatedAt(val string) {
 	p.UpdatedAt = val
 }
-func (p *Comment) SetDeletedAt(val int64) {
+func (p *Comment) SetDeletedAt(val string) {
 	p.DeletedAt = val
 }
 

@@ -38,8 +38,8 @@ struct Comment{
     6: i64 child_count,
     7: string content,
     8: string created_at,
-    9: i64 updated_at,
-    10: i64 deleted_at,
+    9: string updated_at,
+    10: string deleted_at,
 }
 
 struct Message {

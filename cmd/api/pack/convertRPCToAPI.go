@@ -42,12 +42,18 @@ func VideoRPCToVideo(video *kitBase.Video) *apiBase.Video {
 		return nil
 	}
 	return &apiBase.Video{
-		ID:          video.Id,
-		Title:       video.Title,
-		Description: video.Description,
-		CreatedAt:   video.CreatedAt,
-		UpdatedAt:   video.UpdatedAt,
-		DeletedAt:   video.DeletedAt,
+		ID:           video.Id,
+		UserID:       video.UserId,
+		VideoURL:     video.VideoUrl,
+		CoverURL:     video.CoverUrl,
+		Title:        video.Title,
+		Description:  video.Description,
+		VisitCount:   video.VisitCount,
+		LikeCount:    video.LikeCount,
+		CommentCount: video.CommentCount,
+		CreatedAt:    video.CreatedAt,
+		UpdatedAt:    video.UpdatedAt,
+		DeletedAt:    video.DeletedAt,
 	}
 }
 
@@ -55,6 +61,31 @@ func VideosRPCToVideos(videos []*kitBase.Video) []*apiBase.Video {
 	res := make([]*apiBase.Video, 0, len(videos))
 	for _, video := range videos {
 		res = append(res, VideoRPCToVideo(video))
+	}
+	return res
+}
+
+func CommentRPCToComment(comment *kitBase.Comment) *apiBase.Comment {
+	if comment == nil {
+		return nil
+	}
+	return &apiBase.Comment{
+		ID:         comment.Id,
+		UserID:     comment.UserId,
+		VideoID:    comment.VideoId,
+		ParentID:   comment.ParentId,
+		ChildCount: comment.ChildCount,
+		Content:    comment.Content,
+		CreatedAt:  comment.CreatedAt,
+		UpdatedAt:  comment.UpdatedAt,
+		DeletedAt:  comment.DeletedAt,
+	}
+}
+
+func CommentsRPCToComments(comments []*kitBase.Comment) []*apiBase.Comment {
+	res := make([]*apiBase.Comment, 0, len(comments))
+	for _, comment := range comments {
+		res = append(res, CommentRPCToComment(comment))
 	}
 	return res
 }

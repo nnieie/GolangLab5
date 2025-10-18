@@ -30,7 +30,7 @@ func Register(r *server.Hertz) {
 		_comment := root.Group("/comment", _commentMw()...)
 		_comment.DELETE("/delete", append(_deletecommentMw(), api.DeleteComment)...)
 		_comment.GET("/list", append(_getcommentlistMw(), api.GetCommentList)...)
-		_comment.POST("/publish", append(_commentvideoMw(), api.CommentVideo)...)
+		_comment.POST("/publish", append(_publishcommentMw(), api.PublishComment)...)
 	}
 	{
 		_follower := root.Group("/follower", _followerMw()...)

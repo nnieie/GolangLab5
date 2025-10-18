@@ -7,7 +7,12 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	api "github.com/nnieie/golanglab5/cmd/api/biz/model/api"
+	"github.com/nnieie/golanglab5/cmd/api/pack"
+	"github.com/nnieie/golanglab5/cmd/api/rpc"
+	"github.com/nnieie/golanglab5/kitex_gen/interaction"
+	"github.com/nnieie/golanglab5/pkg/errno"
 )
 
 // LikeAction .
@@ -22,6 +27,29 @@ func LikeAction(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.LikeActionResponse)
+
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	rpcResp, err := rpc.LikeAction(ctx, &interaction.LikeActionRequest{
+		UserId:     UserID,
+		VideoId:    req.VideoID,
+		CommentId:  req.CommentID,
+		ActionType: req.ActionType,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -39,21 +67,59 @@ func GetLikeList(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetLikeListResponse)
 
+	rpcResp, err := rpc.GetLikeList(ctx, &interaction.GetLikeListRequest{
+		UserId:   req.UserID,
+		PageNum:  req.PageNum,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+
 	c.JSON(consts.StatusOK, resp)
 }
 
-// CommentVideo .
+// PublishComment .
 // @router /comment/publish [POST]
-func CommentVideo(ctx context.Context, c *app.RequestContext) {
+func PublishComment(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req api.CommentRequest
+	var req api.PublishCommentRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp := new(api.CommentResponse)
+	resp := new(api.PublishCommentResponse)
+
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	rpcResp, err := rpc.CommentAction(ctx, &interaction.CommentRequest{
+		UserId:    UserID,
+		VideoId:   req.VideoID,
+		CommentId: req.CommentID,
+		Content:   req.Content,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -71,6 +137,23 @@ func GetCommentList(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(api.GetCommentListResponse)
 
+	rpcResp, err := rpc.GetCommentList(ctx, &interaction.GetCommentListRequest{
+		VideoId:   req.VideoID,
+		CommentId: req.CommentID,
+		PageNum:   req.PageNum,
+		PageSize:  req.PageSize,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	resp.Data = pack.CommentsRPCToComments(rpcResp.Data)
+
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -86,6 +169,27 @@ func DeleteComment(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.DeleteCommentResponse)
+
+	UserID, err := jwt.ExtractUserID(c)
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	rpcResp, err := rpc.DeleteComment(ctx, &interaction.DeleteCommentRequest{
+		UserId:    UserID,
+		VideoId:   req.VideoID,
+		CommentId: req.CommentID,
+	})
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+	resp.Base = pack.BaseRespRPCToBaseResp(rpcResp.Base)
+	if resp.Base.Code != errno.SuccessCode {
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

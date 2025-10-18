@@ -19,3 +19,6 @@ services:
   social:
     name: social
     addr: 127.0.0.1:11395
+  interaction:
+    name: interaction
+    addr: 127.0.0.1:11396

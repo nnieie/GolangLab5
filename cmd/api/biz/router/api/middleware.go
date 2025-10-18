@@ -55,12 +55,6 @@ func _getcommentlistMw() []app.HandlerFunc {
 	return nil
 }
 
-func _commentvideoMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
-	}
-}
-
 func _followerMw() []app.HandlerFunc {
 	// your code...
 	return nil
@@ -179,4 +173,10 @@ func _publishvideoMw() []app.HandlerFunc {
 func _searchvideoMw() []app.HandlerFunc {
 	// your code...
 	return nil
+}
+
+func _publishcommentMw() []app.HandlerFunc {
+	return []app.HandlerFunc{
+		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+	}
 }

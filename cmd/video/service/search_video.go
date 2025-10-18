@@ -12,5 +12,5 @@ func (s *VideoService) SearchVideo(keywords string, pageNum, pageSize int64, fro
 	if err != nil {
 		return nil, 0, err
 	}
-	return pack.DBVideoToBaseVideos(videos), total, nil
+	return pack.DBVideosToBaseVideos(videos), total, nil
 }
