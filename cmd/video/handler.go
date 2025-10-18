@@ -60,3 +60,45 @@ func (s *VideoServiceImpl) GetVideoStream(ctx context.Context, req *video.VideoS
 	resp.Data = videos
 	return
 }
+
+func (s *VideoServiceImpl) QueryVideoByID(ctx context.Context, req *video.QueryVideoByIDRequest) (resp *video.QueryVideoByIDResponse, err error) {
+	resp = new(video.QueryVideoByIDResponse)
+	video, err := service.NewVideoService(ctx, s.Snowflake).QueryVideoByID(req.VideoId)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Data = video
+	return
+}
+
+func (s *VideoServiceImpl) QueryVideosByIDs(ctx context.Context, req *video.QueryVideosByIDsRequest) (resp *video.QueryVideosByIDsResponse, err error) {
+	resp = new(video.QueryVideosByIDsResponse)
+	videos, err := service.NewVideoService(ctx, s.Snowflake).QueryVideosByIDs(req.VideoIds)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.Data = videos
+	return
+}
+
+// GetVideoLikeCount implements the VideoServiceImpl interface.
+func (s *VideoServiceImpl) GetVideoLikeCount(ctx context.Context, req *video.GetVideoLikeCountRequest) (resp *video.GetVideoLikeCountResponse, err error) {
+	resp = new(video.GetVideoLikeCountResponse)
+	likeCount, err := service.NewVideoService(ctx, s.Snowflake).GetVideoLikeCount(req.VideoId)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.LikeCount = &likeCount
+	return
+}
+
+// SetVideoLikeCount implements the VideoServiceImpl interface.
+func (s *VideoServiceImpl) SetVideoLikeCount(ctx context.Context, req *video.SetVideoLikeCountRequest) (resp *video.SetVideoLikeCountResponse, err error) {
+	resp = new(video.SetVideoLikeCountResponse)
+	err = service.NewVideoService(ctx, s.Snowflake).SetVideoLikeCount(req.VideoId, req.LikeCount)
+	resp.Base = utils.BuildBaseResp(err)
+	return
+}
+
+// UpdateVideoLikeCount implements the VideoServiceImpl interface.
+func (s *VideoServiceImpl) UpdateVideoLikeCount(ctx context.Context, req *video.UpdateVideoLikeCountRequest) (
+	resp *video.UpdateVideoLikeCountResponse, err error) {
+	resp = new(video.UpdateVideoLikeCountResponse)
+	err = service.NewVideoService(ctx, s.Snowflake).UpdateVideoLikeCount(req.VideoId, req.Delta)
+	resp.Base = utils.BuildBaseResp(err)
+	return
+}

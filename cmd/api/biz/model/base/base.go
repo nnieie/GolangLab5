@@ -1218,8 +1218,8 @@ type Comment struct {
 	ChildCount int64  `thrift:"child_count,6" form:"child_count" json:"child_count" query:"child_count"`
 	Content    string `thrift:"content,7" form:"content" json:"content" query:"content"`
 	CreatedAt  string `thrift:"created_at,8" form:"created_at" json:"created_at" query:"created_at"`
-	UpdatedAt  int64  `thrift:"updated_at,9" form:"updated_at" json:"updated_at" query:"updated_at"`
-	DeletedAt  int64  `thrift:"deleted_at,10" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
+	UpdatedAt  string `thrift:"updated_at,9" form:"updated_at" json:"updated_at" query:"updated_at"`
+	DeletedAt  string `thrift:"deleted_at,10" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
 }
 
 func NewComment() *Comment {
@@ -1261,11 +1261,11 @@ func (p *Comment) GetCreatedAt() (v string) {
 	return p.CreatedAt
 }
 
-func (p *Comment) GetUpdatedAt() (v int64) {
+func (p *Comment) GetUpdatedAt() (v string) {
 	return p.UpdatedAt
 }
 
-func (p *Comment) GetDeletedAt() (v int64) {
+func (p *Comment) GetDeletedAt() (v string) {
 	return p.DeletedAt
 }
 
@@ -1366,7 +1366,7 @@ func (p *Comment) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 9:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1374,7 +1374,7 @@ func (p *Comment) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 10:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField10(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1500,8 +1500,8 @@ func (p *Comment) ReadField8(iprot thrift.TProtocol) error {
 }
 func (p *Comment) ReadField9(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1511,8 +1511,8 @@ func (p *Comment) ReadField9(iprot thrift.TProtocol) error {
 }
 func (p *Comment) ReadField10(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1722,10 +1722,10 @@ WriteFieldEndError:
 }
 
 func (p *Comment) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("updated_at", thrift.I64, 9); err != nil {
+	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 9); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UpdatedAt); err != nil {
+	if err := oprot.WriteString(p.UpdatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1739,10 +1739,10 @@ WriteFieldEndError:
 }
 
 func (p *Comment) writeField10(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("deleted_at", thrift.I64, 10); err != nil {
+	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 10); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.DeletedAt); err != nil {
+	if err := oprot.WriteString(p.DeletedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

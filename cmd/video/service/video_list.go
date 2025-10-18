@@ -25,5 +25,5 @@ func (s *VideoService) GetVideoList(userID string, pageNum, pageSize int64) ([]*
 	if err != nil {
 		return nil, 0, err
 	}
-	return pack.DBVideoToBaseVideos(videos), count, nil
+	return pack.DBVideosToBaseVideos(videos), count, nil
 }

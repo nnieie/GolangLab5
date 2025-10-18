@@ -17,5 +17,5 @@ func (s *VideoService) FeedVideo(latestTime *int64) ([]*base.Video, error) {
 	if err != nil {
 		return nil, err
 	}
-	return pack.DBVideoToBaseVideos(videos), nil
+	return pack.DBVideosToBaseVideos(videos), nil
 }

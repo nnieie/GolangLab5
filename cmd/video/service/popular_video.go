@@ -11,5 +11,5 @@ func (s *VideoService) GetPopularVideo(pageNum, pageSize int64) ([]*base.Video, 
 	if err != nil {
 		return nil, err
 	}
-	return pack.DBVideoToBaseVideos(videos), nil
+	return pack.DBVideosToBaseVideos(videos), nil
 }

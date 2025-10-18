@@ -48,7 +48,7 @@ func QueryVideoByID(ctx context.Context, videoID int64) (*Video, error) {
 	return &video, nil
 }
 
-func QueryVideoByIDs(ctx context.Context, videoIDs []int64) ([]*Video, error) {
+func QueryVideosByIDs(ctx context.Context, videoIDs []int64) ([]*Video, error) {
 	var videos []*Video
 	// 使用 WHERE id IN (?) 保持传入 ID 的顺序
 	err := DB.WithContext(ctx).Where("id IN (?)", videoIDs).Order(gorm.Expr("FIELD(id, ?)", videoIDs)).Find(&videos).Error
@@ -153,4 +153,22 @@ func SearchVideos(
 
 func IncVideoVisitCount(ctx context.Context, videoID int64) error {
 	return DB.WithContext(ctx).Where("id = ?", videoID).UpdateColumn("visit_count", gorm.Expr("visit_count + 1")).Error
+}
+
+func QueryVideoLikeCount(ctx context.Context, videoID int64) (int64, error) {
+	var video Video
+	err := DB.WithContext(ctx).Where("id = ?", videoID).First(&video).Error
+	if err != nil {
+		logger.Errorf("QueryVideoLikeCount err: %v", err)
+		return 0, err
+	}
+	return video.LikeCount, nil
+}
+
+func SetVideoLikeCount(ctx context.Context, videoID, likeCount int64) error {
+	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", videoID).Update("like_count", likeCount).Error
+}
+
+func UpdateVideoLikeCount(ctx context.Context, videoID int64, delta int64) error {
+	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", videoID).UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
 }

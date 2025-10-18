@@ -18,6 +18,7 @@ func main() {
 	rpc.InitUserRPC()
 	rpc.InitVideoRPC()
 	rpc.InitSocialRPC()
+	rpc.InitInteractionRPC()
 
 	h := server.Default()
 

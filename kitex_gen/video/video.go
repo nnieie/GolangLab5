@@ -604,6 +604,413 @@ var fieldIDToName_VideoStreamResponse = map[int16]string{
 	2: "data",
 }
 
+type QueryVideoByIDRequest struct {
+	VideoId int64 `thrift:"video_id,1" frugal:"1,default,i64" json:"video_id"`
+}
+
+func NewQueryVideoByIDRequest() *QueryVideoByIDRequest {
+	return &QueryVideoByIDRequest{}
+}
+
+func (p *QueryVideoByIDRequest) InitDefault() {
+}
+
+func (p *QueryVideoByIDRequest) GetVideoId() (v int64) {
+	return p.VideoId
+}
+func (p *QueryVideoByIDRequest) SetVideoId(val int64) {
+	p.VideoId = val
+}
+
+func (p *QueryVideoByIDRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryVideoByIDRequest(%+v)", *p)
+}
+
+var fieldIDToName_QueryVideoByIDRequest = map[int16]string{
+	1: "video_id",
+}
+
+type QueryVideoByIDResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data *base.Video    `thrift:"data,2,optional" frugal:"2,optional,base.Video" json:"data,omitempty"`
+}
+
+func NewQueryVideoByIDResponse() *QueryVideoByIDResponse {
+	return &QueryVideoByIDResponse{}
+}
+
+func (p *QueryVideoByIDResponse) InitDefault() {
+}
+
+var QueryVideoByIDResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryVideoByIDResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryVideoByIDResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryVideoByIDResponse_Data_DEFAULT *base.Video
+
+func (p *QueryVideoByIDResponse) GetData() (v *base.Video) {
+	if !p.IsSetData() {
+		return QueryVideoByIDResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *QueryVideoByIDResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *QueryVideoByIDResponse) SetData(val *base.Video) {
+	p.Data = val
+}
+
+func (p *QueryVideoByIDResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryVideoByIDResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *QueryVideoByIDResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryVideoByIDResponse(%+v)", *p)
+}
+
+var fieldIDToName_QueryVideoByIDResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
+type QueryVideosByIDsRequest struct {
+	VideoIds []int64 `thrift:"video_ids,1" frugal:"1,default,list<i64>" json:"video_ids"`
+}
+
+func NewQueryVideosByIDsRequest() *QueryVideosByIDsRequest {
+	return &QueryVideosByIDsRequest{}
+}
+
+func (p *QueryVideosByIDsRequest) InitDefault() {
+}
+
+func (p *QueryVideosByIDsRequest) GetVideoIds() (v []int64) {
+	return p.VideoIds
+}
+func (p *QueryVideosByIDsRequest) SetVideoIds(val []int64) {
+	p.VideoIds = val
+}
+
+func (p *QueryVideosByIDsRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryVideosByIDsRequest(%+v)", *p)
+}
+
+var fieldIDToName_QueryVideosByIDsRequest = map[int16]string{
+	1: "video_ids",
+}
+
+type QueryVideosByIDsResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data []*base.Video  `thrift:"data,2,optional" frugal:"2,optional,list<base.Video>" json:"data,omitempty"`
+}
+
+func NewQueryVideosByIDsResponse() *QueryVideosByIDsResponse {
+	return &QueryVideosByIDsResponse{}
+}
+
+func (p *QueryVideosByIDsResponse) InitDefault() {
+}
+
+var QueryVideosByIDsResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryVideosByIDsResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryVideosByIDsResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryVideosByIDsResponse_Data_DEFAULT []*base.Video
+
+func (p *QueryVideosByIDsResponse) GetData() (v []*base.Video) {
+	if !p.IsSetData() {
+		return QueryVideosByIDsResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *QueryVideosByIDsResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *QueryVideosByIDsResponse) SetData(val []*base.Video) {
+	p.Data = val
+}
+
+func (p *QueryVideosByIDsResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryVideosByIDsResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *QueryVideosByIDsResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryVideosByIDsResponse(%+v)", *p)
+}
+
+var fieldIDToName_QueryVideosByIDsResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
+type GetVideoLikeCountRequest struct {
+	VideoId int64 `thrift:"video_id,1" frugal:"1,default,i64" json:"video_id"`
+}
+
+func NewGetVideoLikeCountRequest() *GetVideoLikeCountRequest {
+	return &GetVideoLikeCountRequest{}
+}
+
+func (p *GetVideoLikeCountRequest) InitDefault() {
+}
+
+func (p *GetVideoLikeCountRequest) GetVideoId() (v int64) {
+	return p.VideoId
+}
+func (p *GetVideoLikeCountRequest) SetVideoId(val int64) {
+	p.VideoId = val
+}
+
+func (p *GetVideoLikeCountRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetVideoLikeCountRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetVideoLikeCountRequest = map[int16]string{
+	1: "video_id",
+}
+
+type GetVideoLikeCountResponse struct {
+	Base      *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	LikeCount *int64         `thrift:"like_count,2,optional" frugal:"2,optional,i64" json:"like_count,omitempty"`
+}
+
+func NewGetVideoLikeCountResponse() *GetVideoLikeCountResponse {
+	return &GetVideoLikeCountResponse{}
+}
+
+func (p *GetVideoLikeCountResponse) InitDefault() {
+}
+
+var GetVideoLikeCountResponse_Base_DEFAULT *base.BaseResp
+
+func (p *GetVideoLikeCountResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return GetVideoLikeCountResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetVideoLikeCountResponse_LikeCount_DEFAULT int64
+
+func (p *GetVideoLikeCountResponse) GetLikeCount() (v int64) {
+	if !p.IsSetLikeCount() {
+		return GetVideoLikeCountResponse_LikeCount_DEFAULT
+	}
+	return *p.LikeCount
+}
+func (p *GetVideoLikeCountResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *GetVideoLikeCountResponse) SetLikeCount(val *int64) {
+	p.LikeCount = val
+}
+
+func (p *GetVideoLikeCountResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetVideoLikeCountResponse) IsSetLikeCount() bool {
+	return p.LikeCount != nil
+}
+
+func (p *GetVideoLikeCountResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetVideoLikeCountResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetVideoLikeCountResponse = map[int16]string{
+	1: "base",
+	2: "like_count",
+}
+
+type SetVideoLikeCountRequest struct {
+	VideoId   int64 `thrift:"video_id,1" frugal:"1,default,i64" json:"video_id"`
+	LikeCount int64 `thrift:"like_count,2" frugal:"2,default,i64" json:"like_count"`
+}
+
+func NewSetVideoLikeCountRequest() *SetVideoLikeCountRequest {
+	return &SetVideoLikeCountRequest{}
+}
+
+func (p *SetVideoLikeCountRequest) InitDefault() {
+}
+
+func (p *SetVideoLikeCountRequest) GetVideoId() (v int64) {
+	return p.VideoId
+}
+
+func (p *SetVideoLikeCountRequest) GetLikeCount() (v int64) {
+	return p.LikeCount
+}
+func (p *SetVideoLikeCountRequest) SetVideoId(val int64) {
+	p.VideoId = val
+}
+func (p *SetVideoLikeCountRequest) SetLikeCount(val int64) {
+	p.LikeCount = val
+}
+
+func (p *SetVideoLikeCountRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SetVideoLikeCountRequest(%+v)", *p)
+}
+
+var fieldIDToName_SetVideoLikeCountRequest = map[int16]string{
+	1: "video_id",
+	2: "like_count",
+}
+
+type SetVideoLikeCountResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+}
+
+func NewSetVideoLikeCountResponse() *SetVideoLikeCountResponse {
+	return &SetVideoLikeCountResponse{}
+}
+
+func (p *SetVideoLikeCountResponse) InitDefault() {
+}
+
+var SetVideoLikeCountResponse_Base_DEFAULT *base.BaseResp
+
+func (p *SetVideoLikeCountResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return SetVideoLikeCountResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *SetVideoLikeCountResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+
+func (p *SetVideoLikeCountResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *SetVideoLikeCountResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SetVideoLikeCountResponse(%+v)", *p)
+}
+
+var fieldIDToName_SetVideoLikeCountResponse = map[int16]string{
+	1: "base",
+}
+
+type UpdateVideoLikeCountRequest struct {
+	VideoId int64 `thrift:"video_id,1" frugal:"1,default,i64" json:"video_id"`
+	Delta   int64 `thrift:"delta,2" frugal:"2,default,i64" json:"delta"`
+}
+
+func NewUpdateVideoLikeCountRequest() *UpdateVideoLikeCountRequest {
+	return &UpdateVideoLikeCountRequest{}
+}
+
+func (p *UpdateVideoLikeCountRequest) InitDefault() {
+}
+
+func (p *UpdateVideoLikeCountRequest) GetVideoId() (v int64) {
+	return p.VideoId
+}
+
+func (p *UpdateVideoLikeCountRequest) GetDelta() (v int64) {
+	return p.Delta
+}
+func (p *UpdateVideoLikeCountRequest) SetVideoId(val int64) {
+	p.VideoId = val
+}
+func (p *UpdateVideoLikeCountRequest) SetDelta(val int64) {
+	p.Delta = val
+}
+
+func (p *UpdateVideoLikeCountRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateVideoLikeCountRequest(%+v)", *p)
+}
+
+var fieldIDToName_UpdateVideoLikeCountRequest = map[int16]string{
+	1: "video_id",
+	2: "delta",
+}
+
+type UpdateVideoLikeCountResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+}
+
+func NewUpdateVideoLikeCountResponse() *UpdateVideoLikeCountResponse {
+	return &UpdateVideoLikeCountResponse{}
+}
+
+func (p *UpdateVideoLikeCountResponse) InitDefault() {
+}
+
+var UpdateVideoLikeCountResponse_Base_DEFAULT *base.BaseResp
+
+func (p *UpdateVideoLikeCountResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return UpdateVideoLikeCountResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *UpdateVideoLikeCountResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+
+func (p *UpdateVideoLikeCountResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *UpdateVideoLikeCountResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateVideoLikeCountResponse(%+v)", *p)
+}
+
+var fieldIDToName_UpdateVideoLikeCountResponse = map[int16]string{
+	1: "base",
+}
+
 type VideoService interface {
 	PublishVideo(ctx context.Context, req *PublishRequest) (r *PublishResponse, err error)
 
@@ -614,6 +1021,16 @@ type VideoService interface {
 	GetPopularVideo(ctx context.Context, req *GetPopularVideoListRequest) (r *GetPopularVideoListResponse, err error)
 
 	GetVideoStream(ctx context.Context, req *VideoStreamRequest) (r *VideoStreamResponse, err error)
+
+	QueryVideoByID(ctx context.Context, req *QueryVideoByIDRequest) (r *QueryVideoByIDResponse, err error)
+
+	QueryVideosByIDs(ctx context.Context, req *QueryVideosByIDsRequest) (r *QueryVideosByIDsResponse, err error)
+
+	GetVideoLikeCount(ctx context.Context, req *GetVideoLikeCountRequest) (r *GetVideoLikeCountResponse, err error)
+
+	SetVideoLikeCount(ctx context.Context, req *SetVideoLikeCountRequest) (r *SetVideoLikeCountResponse, err error)
+
+	UpdateVideoLikeCount(ctx context.Context, req *UpdateVideoLikeCountRequest) (r *UpdateVideoLikeCountResponse, err error)
 }
 
 type VideoServicePublishVideoArgs struct {
@@ -993,5 +1410,385 @@ func (p *VideoServiceGetVideoStreamResult) String() string {
 }
 
 var fieldIDToName_VideoServiceGetVideoStreamResult = map[int16]string{
+	0: "success",
+}
+
+type VideoServiceQueryVideoByIDArgs struct {
+	Req *QueryVideoByIDRequest `thrift:"req,1" frugal:"1,default,QueryVideoByIDRequest" json:"req"`
+}
+
+func NewVideoServiceQueryVideoByIDArgs() *VideoServiceQueryVideoByIDArgs {
+	return &VideoServiceQueryVideoByIDArgs{}
+}
+
+func (p *VideoServiceQueryVideoByIDArgs) InitDefault() {
+}
+
+var VideoServiceQueryVideoByIDArgs_Req_DEFAULT *QueryVideoByIDRequest
+
+func (p *VideoServiceQueryVideoByIDArgs) GetReq() (v *QueryVideoByIDRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceQueryVideoByIDArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceQueryVideoByIDArgs) SetReq(val *QueryVideoByIDRequest) {
+	p.Req = val
+}
+
+func (p *VideoServiceQueryVideoByIDArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceQueryVideoByIDArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceQueryVideoByIDArgs(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceQueryVideoByIDArgs = map[int16]string{
+	1: "req",
+}
+
+type VideoServiceQueryVideoByIDResult struct {
+	Success *QueryVideoByIDResponse `thrift:"success,0,optional" frugal:"0,optional,QueryVideoByIDResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceQueryVideoByIDResult() *VideoServiceQueryVideoByIDResult {
+	return &VideoServiceQueryVideoByIDResult{}
+}
+
+func (p *VideoServiceQueryVideoByIDResult) InitDefault() {
+}
+
+var VideoServiceQueryVideoByIDResult_Success_DEFAULT *QueryVideoByIDResponse
+
+func (p *VideoServiceQueryVideoByIDResult) GetSuccess() (v *QueryVideoByIDResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceQueryVideoByIDResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceQueryVideoByIDResult) SetSuccess(x interface{}) {
+	p.Success = x.(*QueryVideoByIDResponse)
+}
+
+func (p *VideoServiceQueryVideoByIDResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceQueryVideoByIDResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceQueryVideoByIDResult(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceQueryVideoByIDResult = map[int16]string{
+	0: "success",
+}
+
+type VideoServiceQueryVideosByIDsArgs struct {
+	Req *QueryVideosByIDsRequest `thrift:"req,1" frugal:"1,default,QueryVideosByIDsRequest" json:"req"`
+}
+
+func NewVideoServiceQueryVideosByIDsArgs() *VideoServiceQueryVideosByIDsArgs {
+	return &VideoServiceQueryVideosByIDsArgs{}
+}
+
+func (p *VideoServiceQueryVideosByIDsArgs) InitDefault() {
+}
+
+var VideoServiceQueryVideosByIDsArgs_Req_DEFAULT *QueryVideosByIDsRequest
+
+func (p *VideoServiceQueryVideosByIDsArgs) GetReq() (v *QueryVideosByIDsRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceQueryVideosByIDsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceQueryVideosByIDsArgs) SetReq(val *QueryVideosByIDsRequest) {
+	p.Req = val
+}
+
+func (p *VideoServiceQueryVideosByIDsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceQueryVideosByIDsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceQueryVideosByIDsArgs(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceQueryVideosByIDsArgs = map[int16]string{
+	1: "req",
+}
+
+type VideoServiceQueryVideosByIDsResult struct {
+	Success *QueryVideosByIDsResponse `thrift:"success,0,optional" frugal:"0,optional,QueryVideosByIDsResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceQueryVideosByIDsResult() *VideoServiceQueryVideosByIDsResult {
+	return &VideoServiceQueryVideosByIDsResult{}
+}
+
+func (p *VideoServiceQueryVideosByIDsResult) InitDefault() {
+}
+
+var VideoServiceQueryVideosByIDsResult_Success_DEFAULT *QueryVideosByIDsResponse
+
+func (p *VideoServiceQueryVideosByIDsResult) GetSuccess() (v *QueryVideosByIDsResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceQueryVideosByIDsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceQueryVideosByIDsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*QueryVideosByIDsResponse)
+}
+
+func (p *VideoServiceQueryVideosByIDsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceQueryVideosByIDsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceQueryVideosByIDsResult(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceQueryVideosByIDsResult = map[int16]string{
+	0: "success",
+}
+
+type VideoServiceGetVideoLikeCountArgs struct {
+	Req *GetVideoLikeCountRequest `thrift:"req,1" frugal:"1,default,GetVideoLikeCountRequest" json:"req"`
+}
+
+func NewVideoServiceGetVideoLikeCountArgs() *VideoServiceGetVideoLikeCountArgs {
+	return &VideoServiceGetVideoLikeCountArgs{}
+}
+
+func (p *VideoServiceGetVideoLikeCountArgs) InitDefault() {
+}
+
+var VideoServiceGetVideoLikeCountArgs_Req_DEFAULT *GetVideoLikeCountRequest
+
+func (p *VideoServiceGetVideoLikeCountArgs) GetReq() (v *GetVideoLikeCountRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceGetVideoLikeCountArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceGetVideoLikeCountArgs) SetReq(val *GetVideoLikeCountRequest) {
+	p.Req = val
+}
+
+func (p *VideoServiceGetVideoLikeCountArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceGetVideoLikeCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceGetVideoLikeCountArgs(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceGetVideoLikeCountArgs = map[int16]string{
+	1: "req",
+}
+
+type VideoServiceGetVideoLikeCountResult struct {
+	Success *GetVideoLikeCountResponse `thrift:"success,0,optional" frugal:"0,optional,GetVideoLikeCountResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceGetVideoLikeCountResult() *VideoServiceGetVideoLikeCountResult {
+	return &VideoServiceGetVideoLikeCountResult{}
+}
+
+func (p *VideoServiceGetVideoLikeCountResult) InitDefault() {
+}
+
+var VideoServiceGetVideoLikeCountResult_Success_DEFAULT *GetVideoLikeCountResponse
+
+func (p *VideoServiceGetVideoLikeCountResult) GetSuccess() (v *GetVideoLikeCountResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceGetVideoLikeCountResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceGetVideoLikeCountResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetVideoLikeCountResponse)
+}
+
+func (p *VideoServiceGetVideoLikeCountResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceGetVideoLikeCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceGetVideoLikeCountResult(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceGetVideoLikeCountResult = map[int16]string{
+	0: "success",
+}
+
+type VideoServiceSetVideoLikeCountArgs struct {
+	Req *SetVideoLikeCountRequest `thrift:"req,1" frugal:"1,default,SetVideoLikeCountRequest" json:"req"`
+}
+
+func NewVideoServiceSetVideoLikeCountArgs() *VideoServiceSetVideoLikeCountArgs {
+	return &VideoServiceSetVideoLikeCountArgs{}
+}
+
+func (p *VideoServiceSetVideoLikeCountArgs) InitDefault() {
+}
+
+var VideoServiceSetVideoLikeCountArgs_Req_DEFAULT *SetVideoLikeCountRequest
+
+func (p *VideoServiceSetVideoLikeCountArgs) GetReq() (v *SetVideoLikeCountRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceSetVideoLikeCountArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceSetVideoLikeCountArgs) SetReq(val *SetVideoLikeCountRequest) {
+	p.Req = val
+}
+
+func (p *VideoServiceSetVideoLikeCountArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceSetVideoLikeCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceSetVideoLikeCountArgs(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceSetVideoLikeCountArgs = map[int16]string{
+	1: "req",
+}
+
+type VideoServiceSetVideoLikeCountResult struct {
+	Success *SetVideoLikeCountResponse `thrift:"success,0,optional" frugal:"0,optional,SetVideoLikeCountResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceSetVideoLikeCountResult() *VideoServiceSetVideoLikeCountResult {
+	return &VideoServiceSetVideoLikeCountResult{}
+}
+
+func (p *VideoServiceSetVideoLikeCountResult) InitDefault() {
+}
+
+var VideoServiceSetVideoLikeCountResult_Success_DEFAULT *SetVideoLikeCountResponse
+
+func (p *VideoServiceSetVideoLikeCountResult) GetSuccess() (v *SetVideoLikeCountResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceSetVideoLikeCountResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceSetVideoLikeCountResult) SetSuccess(x interface{}) {
+	p.Success = x.(*SetVideoLikeCountResponse)
+}
+
+func (p *VideoServiceSetVideoLikeCountResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceSetVideoLikeCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceSetVideoLikeCountResult(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceSetVideoLikeCountResult = map[int16]string{
+	0: "success",
+}
+
+type VideoServiceUpdateVideoLikeCountArgs struct {
+	Req *UpdateVideoLikeCountRequest `thrift:"req,1" frugal:"1,default,UpdateVideoLikeCountRequest" json:"req"`
+}
+
+func NewVideoServiceUpdateVideoLikeCountArgs() *VideoServiceUpdateVideoLikeCountArgs {
+	return &VideoServiceUpdateVideoLikeCountArgs{}
+}
+
+func (p *VideoServiceUpdateVideoLikeCountArgs) InitDefault() {
+}
+
+var VideoServiceUpdateVideoLikeCountArgs_Req_DEFAULT *UpdateVideoLikeCountRequest
+
+func (p *VideoServiceUpdateVideoLikeCountArgs) GetReq() (v *UpdateVideoLikeCountRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceUpdateVideoLikeCountArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceUpdateVideoLikeCountArgs) SetReq(val *UpdateVideoLikeCountRequest) {
+	p.Req = val
+}
+
+func (p *VideoServiceUpdateVideoLikeCountArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceUpdateVideoLikeCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceUpdateVideoLikeCountArgs(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceUpdateVideoLikeCountArgs = map[int16]string{
+	1: "req",
+}
+
+type VideoServiceUpdateVideoLikeCountResult struct {
+	Success *UpdateVideoLikeCountResponse `thrift:"success,0,optional" frugal:"0,optional,UpdateVideoLikeCountResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceUpdateVideoLikeCountResult() *VideoServiceUpdateVideoLikeCountResult {
+	return &VideoServiceUpdateVideoLikeCountResult{}
+}
+
+func (p *VideoServiceUpdateVideoLikeCountResult) InitDefault() {
+}
+
+var VideoServiceUpdateVideoLikeCountResult_Success_DEFAULT *UpdateVideoLikeCountResponse
+
+func (p *VideoServiceUpdateVideoLikeCountResult) GetSuccess() (v *UpdateVideoLikeCountResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceUpdateVideoLikeCountResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceUpdateVideoLikeCountResult) SetSuccess(x interface{}) {
+	p.Success = x.(*UpdateVideoLikeCountResponse)
+}
+
+func (p *VideoServiceUpdateVideoLikeCountResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceUpdateVideoLikeCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceUpdateVideoLikeCountResult(%+v)", *p)
+}
+
+var fieldIDToName_VideoServiceUpdateVideoLikeCountResult = map[int16]string{
 	0: "success",
 }

@@ -33,10 +33,11 @@ const (
 )
 
 const (
-	APIServiceName    = "api"
-	UserServiceName   = "user"
-	VideoServiceName  = "video"
-	SocialServiceName = "social"
+	APIServiceName         = "api"
+	UserServiceName        = "user"
+	VideoServiceName       = "video"
+	SocialServiceName      = "social"
+	InteractionServiceName = "interaction"
 )
 
 const (

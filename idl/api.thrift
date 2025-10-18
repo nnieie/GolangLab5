@@ -145,13 +145,13 @@ struct GetLikeListResponse{
     2: list<base.Video> data,
 }
 
-struct CommentRequest{
+struct PublishCommentRequest{
     1: optional i64 video_id,
     2: optional i64 comment_id,
     3: string content,
 }
 
-struct CommentResponse{
+struct PublishCommentResponse{
     1: base.BaseResp base,
 }
 
@@ -179,7 +179,7 @@ struct DeleteCommentResponse{
 service InteractionService{
    LikeActionResponse LikeAction(1:LikeActionRequest req)(api.post="/like/action"),
    GetLikeListResponse GetLikeList(1:GetLikeListRequest req)(api.get="/like/list"),
-   CommentResponse CommentVideo(1:CommentRequest req)(api.post="/comment/publish"),
+   PublishCommentResponse PublishComment(1:PublishCommentRequest req)(api.post="/comment/publish"),
    GetCommentListResponse GetCommentList(1:GetCommentListRequest req)(api.get="/comment/list"),
    DeleteCommentResponse DeleteComment(1:DeleteCommentRequest req)(api.delete="/comment/delete")
 }

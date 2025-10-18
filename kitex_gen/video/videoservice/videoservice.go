@@ -48,6 +48,41 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"QueryVideoByID": kitex.NewMethodInfo(
+		queryVideoByIDHandler,
+		newVideoServiceQueryVideoByIDArgs,
+		newVideoServiceQueryVideoByIDResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"QueryVideosByIDs": kitex.NewMethodInfo(
+		queryVideosByIDsHandler,
+		newVideoServiceQueryVideosByIDsArgs,
+		newVideoServiceQueryVideosByIDsResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"GetVideoLikeCount": kitex.NewMethodInfo(
+		getVideoLikeCountHandler,
+		newVideoServiceGetVideoLikeCountArgs,
+		newVideoServiceGetVideoLikeCountResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"SetVideoLikeCount": kitex.NewMethodInfo(
+		setVideoLikeCountHandler,
+		newVideoServiceSetVideoLikeCountArgs,
+		newVideoServiceSetVideoLikeCountResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"UpdateVideoLikeCount": kitex.NewMethodInfo(
+		updateVideoLikeCountHandler,
+		newVideoServiceUpdateVideoLikeCountArgs,
+		newVideoServiceUpdateVideoLikeCountResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -204,6 +239,96 @@ func newVideoServiceGetVideoStreamResult() interface{} {
 	return video.NewVideoServiceGetVideoStreamResult()
 }
 
+func queryVideoByIDHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceQueryVideoByIDArgs)
+	realResult := result.(*video.VideoServiceQueryVideoByIDResult)
+	success, err := handler.(video.VideoService).QueryVideoByID(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceQueryVideoByIDArgs() interface{} {
+	return video.NewVideoServiceQueryVideoByIDArgs()
+}
+
+func newVideoServiceQueryVideoByIDResult() interface{} {
+	return video.NewVideoServiceQueryVideoByIDResult()
+}
+
+func queryVideosByIDsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceQueryVideosByIDsArgs)
+	realResult := result.(*video.VideoServiceQueryVideosByIDsResult)
+	success, err := handler.(video.VideoService).QueryVideosByIDs(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceQueryVideosByIDsArgs() interface{} {
+	return video.NewVideoServiceQueryVideosByIDsArgs()
+}
+
+func newVideoServiceQueryVideosByIDsResult() interface{} {
+	return video.NewVideoServiceQueryVideosByIDsResult()
+}
+
+func getVideoLikeCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceGetVideoLikeCountArgs)
+	realResult := result.(*video.VideoServiceGetVideoLikeCountResult)
+	success, err := handler.(video.VideoService).GetVideoLikeCount(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceGetVideoLikeCountArgs() interface{} {
+	return video.NewVideoServiceGetVideoLikeCountArgs()
+}
+
+func newVideoServiceGetVideoLikeCountResult() interface{} {
+	return video.NewVideoServiceGetVideoLikeCountResult()
+}
+
+func setVideoLikeCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceSetVideoLikeCountArgs)
+	realResult := result.(*video.VideoServiceSetVideoLikeCountResult)
+	success, err := handler.(video.VideoService).SetVideoLikeCount(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceSetVideoLikeCountArgs() interface{} {
+	return video.NewVideoServiceSetVideoLikeCountArgs()
+}
+
+func newVideoServiceSetVideoLikeCountResult() interface{} {
+	return video.NewVideoServiceSetVideoLikeCountResult()
+}
+
+func updateVideoLikeCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceUpdateVideoLikeCountArgs)
+	realResult := result.(*video.VideoServiceUpdateVideoLikeCountResult)
+	success, err := handler.(video.VideoService).UpdateVideoLikeCount(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceUpdateVideoLikeCountArgs() interface{} {
+	return video.NewVideoServiceUpdateVideoLikeCountArgs()
+}
+
+func newVideoServiceUpdateVideoLikeCountResult() interface{} {
+	return video.NewVideoServiceUpdateVideoLikeCountResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -259,6 +384,56 @@ func (p *kClient) GetVideoStream(ctx context.Context, req *video.VideoStreamRequ
 	_args.Req = req
 	var _result video.VideoServiceGetVideoStreamResult
 	if err = p.c.Call(ctx, "GetVideoStream", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) QueryVideoByID(ctx context.Context, req *video.QueryVideoByIDRequest) (r *video.QueryVideoByIDResponse, err error) {
+	var _args video.VideoServiceQueryVideoByIDArgs
+	_args.Req = req
+	var _result video.VideoServiceQueryVideoByIDResult
+	if err = p.c.Call(ctx, "QueryVideoByID", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) QueryVideosByIDs(ctx context.Context, req *video.QueryVideosByIDsRequest) (r *video.QueryVideosByIDsResponse, err error) {
+	var _args video.VideoServiceQueryVideosByIDsArgs
+	_args.Req = req
+	var _result video.VideoServiceQueryVideosByIDsResult
+	if err = p.c.Call(ctx, "QueryVideosByIDs", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetVideoLikeCount(ctx context.Context, req *video.GetVideoLikeCountRequest) (r *video.GetVideoLikeCountResponse, err error) {
+	var _args video.VideoServiceGetVideoLikeCountArgs
+	_args.Req = req
+	var _result video.VideoServiceGetVideoLikeCountResult
+	if err = p.c.Call(ctx, "GetVideoLikeCount", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SetVideoLikeCount(ctx context.Context, req *video.SetVideoLikeCountRequest) (r *video.SetVideoLikeCountResponse, err error) {
+	var _args video.VideoServiceSetVideoLikeCountArgs
+	_args.Req = req
+	var _result video.VideoServiceSetVideoLikeCountResult
+	if err = p.c.Call(ctx, "SetVideoLikeCount", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateVideoLikeCount(ctx context.Context, req *video.UpdateVideoLikeCountRequest) (r *video.UpdateVideoLikeCountResponse, err error) {
+	var _args video.VideoServiceUpdateVideoLikeCountArgs
+	_args.Req = req
+	var _result video.VideoServiceUpdateVideoLikeCountResult
+	if err = p.c.Call(ctx, "UpdateVideoLikeCount", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

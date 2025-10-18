@@ -29,7 +29,7 @@ const (
 	VideoIsNotExistErrCode
 	CommentIsNotExistErrCode
 	LikeIsNotExistErrCode
-	LikeHadExistErrCode
+	LikeAlreadyExistErrCode
 	FollowIsNotExistErrCode
 	FollowAlreadyExistErrCode
 	ContentIsEmptyErrCode
@@ -56,7 +56,7 @@ const (
 	VideoIsNotExistErrMsg    = "video is not exist"
 	CommentIsNotExistErrMsg  = "comment is not exist"
 	LikeIsNotExistErrMsg     = "like is not exist"
-	LikeHadExistErrMsg       = "like had existed"
+	LikeAlreadyExistErrMsg   = "like already exists"
 	FollowIsNotExistErrMsg   = "follow is not exist"
 	FollowAlreadyExistErrMsg = "follow already exists"
 	ContentIsEmptyErrMsg     = "content is empty"
@@ -107,7 +107,7 @@ var (
 	VideoIsNotExistErr    = NewErrNo(VideoIsNotExistErrCode, VideoIsNotExistErrMsg)
 	CommentIsNotExistErr  = NewErrNo(CommentIsNotExistErrCode, CommentIsNotExistErrMsg)
 	LikeIsNotExistErr     = NewErrNo(LikeIsNotExistErrCode, LikeIsNotExistErrMsg)
-	LikeHadExistErr       = NewErrNo(LikeHadExistErrCode, LikeHadExistErrMsg)
+	LikeAlreadyExistErr   = NewErrNo(LikeAlreadyExistErrCode, LikeAlreadyExistErrMsg)
 	FollowIsNotExistErr   = NewErrNo(FollowIsNotExistErrCode, FollowIsNotExistErrMsg)
 	FollowAlreadyExistErr = NewErrNo(FollowAlreadyExistErrCode, FollowAlreadyExistErrMsg)
 	ContentIsEmptyErr     = NewErrNo(ContentIsEmptyErrCode, ContentIsEmptyErrMsg)

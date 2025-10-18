@@ -40,3 +40,32 @@ CREATE TABLE follows (
     INDEX idx_user_id (user_id),
     INDEX idx_follower_id (follower_id)
 );
+
+CREATE TABLE IF NOT EXISTS likes (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    target_id BIGINT NOT NULL,
+    type BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_target_id (target_id),
+    INDEX idx_type (type)
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    video_id BIGINT NOT NULL,
+    parent_id BIGINT NOT NULL DEFAULT 0,
+    like_count BIGINT DEFAULT 0,
+    child_count BIGINT DEFAULT 0,
+    content TEXT,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_video_id (video_id),
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_user_id (user_id)
+);
