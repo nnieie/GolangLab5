@@ -6,16 +6,27 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	base "github.com/nnieie/golanglab5/cmd/api/biz/model/base"
+	"github.com/hertz-contrib/websocket"
+	chat "github.com/nnieie/golanglab5/cmd/api/ws"
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
+
+var upgrader = websocket.HertzUpgrader{
+	CheckOrigin: func(ctx *app.RequestContext) bool {
+		return true
+	},
+}
 
 // Chat .
 // @router /ws [GET]
 func Chat(ctx context.Context, c *app.RequestContext) {
-	// var err error
+	err := upgrader.Upgrade(c, func(conn *websocket.Conn) {
+		svc := chat.NewChatService(ctx, c)
+		chat.ServeWs(svc, conn)
+	})
 
-	resp := new(base.BaseResp)
-
-	c.JSON(consts.StatusOK, resp)
+	if err != nil {
+		logger.Errorf("ws upgrader err: %v", err)
+		return
+	}
 }

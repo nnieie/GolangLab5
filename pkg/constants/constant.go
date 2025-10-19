@@ -11,7 +11,7 @@ const (
 
 	PrivateMessageTableName = "private_messages"
 	GroupMessageTableName   = "group_messages"
-	LastLogoutTimeTableName = "last_logout_time"
+	LastLogoutTimeTableName = "last_logout_times"
 	GroupMembersTableName   = "group_members"
 )
 
@@ -38,6 +38,7 @@ const (
 	VideoServiceName       = "video"
 	SocialServiceName      = "social"
 	InteractionServiceName = "interaction"
+	ChatServiceName        = "chat"
 )
 
 const (

@@ -8,129 +8,87 @@ import (
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 )
 
-type SendMessageRequest struct {
-	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
-	UserId     int64  `thrift:"user_id,2" frugal:"2,default,i64" json:"user_id"`
-	ToUserId   int64  `thrift:"to_user_id,3" frugal:"3,default,i64" json:"to_user_id"`
-	GroupId    int64  `thrift:"group_id,4" frugal:"4,default,i64" json:"group_id"`
-	Type       int64  `thrift:"type,5" frugal:"5,default,i64" json:"type"`
-	Content    string `thrift:"content,6" frugal:"6,default,string" json:"content"`
-	CreateTime int64  `thrift:"create_time,7" frugal:"7,default,i64" json:"create_time"`
+type SendPrivateMessageRequest struct {
+	Data *base.PrivateMessage `thrift:"data,1" frugal:"1,default,base.PrivateMessage" json:"data"`
 }
 
-func NewSendMessageRequest() *SendMessageRequest {
-	return &SendMessageRequest{}
+func NewSendPrivateMessageRequest() *SendPrivateMessageRequest {
+	return &SendPrivateMessageRequest{}
 }
 
-func (p *SendMessageRequest) InitDefault() {
+func (p *SendPrivateMessageRequest) InitDefault() {
 }
 
-func (p *SendMessageRequest) GetId() (v int64) {
-	return p.Id
+var SendPrivateMessageRequest_Data_DEFAULT *base.PrivateMessage
+
+func (p *SendPrivateMessageRequest) GetData() (v *base.PrivateMessage) {
+	if !p.IsSetData() {
+		return SendPrivateMessageRequest_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *SendPrivateMessageRequest) SetData(val *base.PrivateMessage) {
+	p.Data = val
 }
 
-func (p *SendMessageRequest) GetUserId() (v int64) {
-	return p.UserId
+func (p *SendPrivateMessageRequest) IsSetData() bool {
+	return p.Data != nil
 }
 
-func (p *SendMessageRequest) GetToUserId() (v int64) {
-	return p.ToUserId
-}
-
-func (p *SendMessageRequest) GetGroupId() (v int64) {
-	return p.GroupId
-}
-
-func (p *SendMessageRequest) GetType() (v int64) {
-	return p.Type
-}
-
-func (p *SendMessageRequest) GetContent() (v string) {
-	return p.Content
-}
-
-func (p *SendMessageRequest) GetCreateTime() (v int64) {
-	return p.CreateTime
-}
-func (p *SendMessageRequest) SetId(val int64) {
-	p.Id = val
-}
-func (p *SendMessageRequest) SetUserId(val int64) {
-	p.UserId = val
-}
-func (p *SendMessageRequest) SetToUserId(val int64) {
-	p.ToUserId = val
-}
-func (p *SendMessageRequest) SetGroupId(val int64) {
-	p.GroupId = val
-}
-func (p *SendMessageRequest) SetType(val int64) {
-	p.Type = val
-}
-func (p *SendMessageRequest) SetContent(val string) {
-	p.Content = val
-}
-func (p *SendMessageRequest) SetCreateTime(val int64) {
-	p.CreateTime = val
-}
-
-func (p *SendMessageRequest) String() string {
+func (p *SendPrivateMessageRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("SendMessageRequest(%+v)", *p)
+	return fmt.Sprintf("SendPrivateMessageRequest(%+v)", *p)
 }
 
-var fieldIDToName_SendMessageRequest = map[int16]string{
-	1: "id",
-	2: "user_id",
-	3: "to_user_id",
-	4: "group_id",
-	5: "type",
-	6: "content",
-	7: "create_time",
+var fieldIDToName_SendPrivateMessageRequest = map[int16]string{
+	1: "data",
 }
 
-type SendMessageResponse struct {
+type SendPrivateMessageResponse struct {
 	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
 }
 
-func NewSendMessageResponse() *SendMessageResponse {
-	return &SendMessageResponse{}
+func NewSendPrivateMessageResponse() *SendPrivateMessageResponse {
+	return &SendPrivateMessageResponse{}
 }
 
-func (p *SendMessageResponse) InitDefault() {
+func (p *SendPrivateMessageResponse) InitDefault() {
 }
 
-var SendMessageResponse_Base_DEFAULT *base.BaseResp
+var SendPrivateMessageResponse_Base_DEFAULT *base.BaseResp
 
-func (p *SendMessageResponse) GetBase() (v *base.BaseResp) {
+func (p *SendPrivateMessageResponse) GetBase() (v *base.BaseResp) {
 	if !p.IsSetBase() {
-		return SendMessageResponse_Base_DEFAULT
+		return SendPrivateMessageResponse_Base_DEFAULT
 	}
 	return p.Base
 }
-func (p *SendMessageResponse) SetBase(val *base.BaseResp) {
+func (p *SendPrivateMessageResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
 
-func (p *SendMessageResponse) IsSetBase() bool {
+func (p *SendPrivateMessageResponse) IsSetBase() bool {
 	return p.Base != nil
 }
 
-func (p *SendMessageResponse) String() string {
+func (p *SendPrivateMessageResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("SendMessageResponse(%+v)", *p)
+	return fmt.Sprintf("SendPrivateMessageResponse(%+v)", *p)
 }
 
-var fieldIDToName_SendMessageResponse = map[int16]string{
+var fieldIDToName_SendPrivateMessageResponse = map[int16]string{
 	1: "base",
 }
 
 type QueryPrivateOfflineMessageRequest struct {
-	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	ToUserId int64 `thrift:"to_user_id,2" frugal:"2,default,i64" json:"to_user_id"`
+	PageNum  int64 `thrift:"page_num,3" frugal:"3,default,i64" json:"page_num"`
+	PageSize int64 `thrift:"page_size,4" frugal:"4,default,i64" json:"page_size"`
 }
 
 func NewQueryPrivateOfflineMessageRequest() *QueryPrivateOfflineMessageRequest {
@@ -143,8 +101,29 @@ func (p *QueryPrivateOfflineMessageRequest) InitDefault() {
 func (p *QueryPrivateOfflineMessageRequest) GetUserId() (v int64) {
 	return p.UserId
 }
+
+func (p *QueryPrivateOfflineMessageRequest) GetToUserId() (v int64) {
+	return p.ToUserId
+}
+
+func (p *QueryPrivateOfflineMessageRequest) GetPageNum() (v int64) {
+	return p.PageNum
+}
+
+func (p *QueryPrivateOfflineMessageRequest) GetPageSize() (v int64) {
+	return p.PageSize
+}
 func (p *QueryPrivateOfflineMessageRequest) SetUserId(val int64) {
 	p.UserId = val
+}
+func (p *QueryPrivateOfflineMessageRequest) SetToUserId(val int64) {
+	p.ToUserId = val
+}
+func (p *QueryPrivateOfflineMessageRequest) SetPageNum(val int64) {
+	p.PageNum = val
+}
+func (p *QueryPrivateOfflineMessageRequest) SetPageSize(val int64) {
+	p.PageSize = val
 }
 
 func (p *QueryPrivateOfflineMessageRequest) String() string {
@@ -156,11 +135,14 @@ func (p *QueryPrivateOfflineMessageRequest) String() string {
 
 var fieldIDToName_QueryPrivateOfflineMessageRequest = map[int16]string{
 	1: "user_id",
+	2: "to_user_id",
+	3: "page_num",
+	4: "page_size",
 }
 
 type QueryPrivateOfflineMessageResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data []*base.Message `thrift:"data,2,optional" frugal:"2,optional,list<base.Message>" json:"data,omitempty"`
+	Base *base.BaseResp         `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data []*base.PrivateMessage `thrift:"data,2,optional" frugal:"2,optional,list<base.PrivateMessage>" json:"data,omitempty"`
 }
 
 func NewQueryPrivateOfflineMessageResponse() *QueryPrivateOfflineMessageResponse {
@@ -179,9 +161,9 @@ func (p *QueryPrivateOfflineMessageResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var QueryPrivateOfflineMessageResponse_Data_DEFAULT []*base.Message
+var QueryPrivateOfflineMessageResponse_Data_DEFAULT []*base.PrivateMessage
 
-func (p *QueryPrivateOfflineMessageResponse) GetData() (v []*base.Message) {
+func (p *QueryPrivateOfflineMessageResponse) GetData() (v []*base.PrivateMessage) {
 	if !p.IsSetData() {
 		return QueryPrivateOfflineMessageResponse_Data_DEFAULT
 	}
@@ -190,7 +172,7 @@ func (p *QueryPrivateOfflineMessageResponse) GetData() (v []*base.Message) {
 func (p *QueryPrivateOfflineMessageResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *QueryPrivateOfflineMessageResponse) SetData(val []*base.Message) {
+func (p *QueryPrivateOfflineMessageResponse) SetData(val []*base.PrivateMessage) {
 	p.Data = val
 }
 
@@ -216,7 +198,7 @@ var fieldIDToName_QueryPrivateOfflineMessageResponse = map[int16]string{
 
 type QueryPrivateHistoryMessageRequest struct {
 	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	ToId     int64 `thrift:"to_id,2" frugal:"2,default,i64" json:"to_id"`
+	ToUserId int64 `thrift:"to_user_id,2" frugal:"2,default,i64" json:"to_user_id"`
 	PageNum  int64 `thrift:"page_num,3" frugal:"3,default,i64" json:"page_num"`
 	PageSize int64 `thrift:"page_size,4" frugal:"4,default,i64" json:"page_size"`
 }
@@ -232,8 +214,8 @@ func (p *QueryPrivateHistoryMessageRequest) GetUserId() (v int64) {
 	return p.UserId
 }
 
-func (p *QueryPrivateHistoryMessageRequest) GetToId() (v int64) {
-	return p.ToId
+func (p *QueryPrivateHistoryMessageRequest) GetToUserId() (v int64) {
+	return p.ToUserId
 }
 
 func (p *QueryPrivateHistoryMessageRequest) GetPageNum() (v int64) {
@@ -246,8 +228,8 @@ func (p *QueryPrivateHistoryMessageRequest) GetPageSize() (v int64) {
 func (p *QueryPrivateHistoryMessageRequest) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *QueryPrivateHistoryMessageRequest) SetToId(val int64) {
-	p.ToId = val
+func (p *QueryPrivateHistoryMessageRequest) SetToUserId(val int64) {
+	p.ToUserId = val
 }
 func (p *QueryPrivateHistoryMessageRequest) SetPageNum(val int64) {
 	p.PageNum = val
@@ -265,14 +247,14 @@ func (p *QueryPrivateHistoryMessageRequest) String() string {
 
 var fieldIDToName_QueryPrivateHistoryMessageRequest = map[int16]string{
 	1: "user_id",
-	2: "to_id",
+	2: "to_user_id",
 	3: "page_num",
 	4: "page_size",
 }
 
 type QueryPrivateHistoryMessageResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data []*base.Message `thrift:"data,2,optional" frugal:"2,optional,list<base.Message>" json:"data,omitempty"`
+	Base *base.BaseResp         `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data []*base.PrivateMessage `thrift:"data,2,optional" frugal:"2,optional,list<base.PrivateMessage>" json:"data,omitempty"`
 }
 
 func NewQueryPrivateHistoryMessageResponse() *QueryPrivateHistoryMessageResponse {
@@ -291,9 +273,9 @@ func (p *QueryPrivateHistoryMessageResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var QueryPrivateHistoryMessageResponse_Data_DEFAULT []*base.Message
+var QueryPrivateHistoryMessageResponse_Data_DEFAULT []*base.PrivateMessage
 
-func (p *QueryPrivateHistoryMessageResponse) GetData() (v []*base.Message) {
+func (p *QueryPrivateHistoryMessageResponse) GetData() (v []*base.PrivateMessage) {
 	if !p.IsSetData() {
 		return QueryPrivateHistoryMessageResponse_Data_DEFAULT
 	}
@@ -302,7 +284,7 @@ func (p *QueryPrivateHistoryMessageResponse) GetData() (v []*base.Message) {
 func (p *QueryPrivateHistoryMessageResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *QueryPrivateHistoryMessageResponse) SetData(val []*base.Message) {
+func (p *QueryPrivateHistoryMessageResponse) SetData(val []*base.PrivateMessage) {
 	p.Data = val
 }
 
@@ -328,7 +310,7 @@ var fieldIDToName_QueryPrivateHistoryMessageResponse = map[int16]string{
 
 type QueryGroupHistoryMessageRequest struct {
 	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	ToId     int64 `thrift:"to_id,2" frugal:"2,default,i64" json:"to_id"`
+	GroupId  int64 `thrift:"group_id,2" frugal:"2,default,i64" json:"group_id"`
 	PageNum  int64 `thrift:"page_num,3" frugal:"3,default,i64" json:"page_num"`
 	PageSize int64 `thrift:"page_size,4" frugal:"4,default,i64" json:"page_size"`
 }
@@ -344,8 +326,8 @@ func (p *QueryGroupHistoryMessageRequest) GetUserId() (v int64) {
 	return p.UserId
 }
 
-func (p *QueryGroupHistoryMessageRequest) GetToId() (v int64) {
-	return p.ToId
+func (p *QueryGroupHistoryMessageRequest) GetGroupId() (v int64) {
+	return p.GroupId
 }
 
 func (p *QueryGroupHistoryMessageRequest) GetPageNum() (v int64) {
@@ -358,8 +340,8 @@ func (p *QueryGroupHistoryMessageRequest) GetPageSize() (v int64) {
 func (p *QueryGroupHistoryMessageRequest) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *QueryGroupHistoryMessageRequest) SetToId(val int64) {
-	p.ToId = val
+func (p *QueryGroupHistoryMessageRequest) SetGroupId(val int64) {
+	p.GroupId = val
 }
 func (p *QueryGroupHistoryMessageRequest) SetPageNum(val int64) {
 	p.PageNum = val
@@ -377,14 +359,202 @@ func (p *QueryGroupHistoryMessageRequest) String() string {
 
 var fieldIDToName_QueryGroupHistoryMessageRequest = map[int16]string{
 	1: "user_id",
-	2: "to_id",
+	2: "group_id",
 	3: "page_num",
 	4: "page_size",
 }
 
+type SendGroupMessageRequest struct {
+	Data *base.GroupMessage `thrift:"data,1" frugal:"1,default,base.GroupMessage" json:"data"`
+}
+
+func NewSendGroupMessageRequest() *SendGroupMessageRequest {
+	return &SendGroupMessageRequest{}
+}
+
+func (p *SendGroupMessageRequest) InitDefault() {
+}
+
+var SendGroupMessageRequest_Data_DEFAULT *base.GroupMessage
+
+func (p *SendGroupMessageRequest) GetData() (v *base.GroupMessage) {
+	if !p.IsSetData() {
+		return SendGroupMessageRequest_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *SendGroupMessageRequest) SetData(val *base.GroupMessage) {
+	p.Data = val
+}
+
+func (p *SendGroupMessageRequest) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *SendGroupMessageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SendGroupMessageRequest(%+v)", *p)
+}
+
+var fieldIDToName_SendGroupMessageRequest = map[int16]string{
+	1: "data",
+}
+
+type SendGroupMessageResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+}
+
+func NewSendGroupMessageResponse() *SendGroupMessageResponse {
+	return &SendGroupMessageResponse{}
+}
+
+func (p *SendGroupMessageResponse) InitDefault() {
+}
+
+var SendGroupMessageResponse_Base_DEFAULT *base.BaseResp
+
+func (p *SendGroupMessageResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return SendGroupMessageResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *SendGroupMessageResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+
+func (p *SendGroupMessageResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *SendGroupMessageResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SendGroupMessageResponse(%+v)", *p)
+}
+
+var fieldIDToName_SendGroupMessageResponse = map[int16]string{
+	1: "base",
+}
+
+type QueryGroupOfflineMessageRequest struct {
+	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	GroupId  int64 `thrift:"group_id,2" frugal:"2,default,i64" json:"group_id"`
+	PageNum  int64 `thrift:"page_num,3" frugal:"3,default,i64" json:"page_num"`
+	PageSize int64 `thrift:"page_size,4" frugal:"4,default,i64" json:"page_size"`
+}
+
+func NewQueryGroupOfflineMessageRequest() *QueryGroupOfflineMessageRequest {
+	return &QueryGroupOfflineMessageRequest{}
+}
+
+func (p *QueryGroupOfflineMessageRequest) InitDefault() {
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetGroupId() (v int64) {
+	return p.GroupId
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetPageNum() (v int64) {
+	return p.PageNum
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetPageSize() (v int64) {
+	return p.PageSize
+}
+func (p *QueryGroupOfflineMessageRequest) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *QueryGroupOfflineMessageRequest) SetGroupId(val int64) {
+	p.GroupId = val
+}
+func (p *QueryGroupOfflineMessageRequest) SetPageNum(val int64) {
+	p.PageNum = val
+}
+func (p *QueryGroupOfflineMessageRequest) SetPageSize(val int64) {
+	p.PageSize = val
+}
+
+func (p *QueryGroupOfflineMessageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryGroupOfflineMessageRequest(%+v)", *p)
+}
+
+var fieldIDToName_QueryGroupOfflineMessageRequest = map[int16]string{
+	1: "user_id",
+	2: "group_id",
+	3: "page_num",
+	4: "page_size",
+}
+
+type QueryGroupOfflineMessageResponse struct {
+	Base *base.BaseResp       `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data []*base.GroupMessage `thrift:"data,2,optional" frugal:"2,optional,list<base.GroupMessage>" json:"data,omitempty"`
+}
+
+func NewQueryGroupOfflineMessageResponse() *QueryGroupOfflineMessageResponse {
+	return &QueryGroupOfflineMessageResponse{}
+}
+
+func (p *QueryGroupOfflineMessageResponse) InitDefault() {
+}
+
+var QueryGroupOfflineMessageResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryGroupOfflineMessageResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryGroupOfflineMessageResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryGroupOfflineMessageResponse_Data_DEFAULT []*base.GroupMessage
+
+func (p *QueryGroupOfflineMessageResponse) GetData() (v []*base.GroupMessage) {
+	if !p.IsSetData() {
+		return QueryGroupOfflineMessageResponse_Data_DEFAULT
+	}
+	return p.Data
+}
+func (p *QueryGroupOfflineMessageResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *QueryGroupOfflineMessageResponse) SetData(val []*base.GroupMessage) {
+	p.Data = val
+}
+
+func (p *QueryGroupOfflineMessageResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryGroupOfflineMessageResponse) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *QueryGroupOfflineMessageResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryGroupOfflineMessageResponse(%+v)", *p)
+}
+
+var fieldIDToName_QueryGroupOfflineMessageResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
 type QueryGroupHistoryMessageResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data []*base.Message `thrift:"data,2,optional" frugal:"2,optional,list<base.Message>" json:"data,omitempty"`
+	Base *base.BaseResp       `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data []*base.GroupMessage `thrift:"data,2,optional" frugal:"2,optional,list<base.GroupMessage>" json:"data,omitempty"`
 }
 
 func NewQueryGroupHistoryMessageResponse() *QueryGroupHistoryMessageResponse {
@@ -403,9 +573,9 @@ func (p *QueryGroupHistoryMessageResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var QueryGroupHistoryMessageResponse_Data_DEFAULT []*base.Message
+var QueryGroupHistoryMessageResponse_Data_DEFAULT []*base.GroupMessage
 
-func (p *QueryGroupHistoryMessageResponse) GetData() (v []*base.Message) {
+func (p *QueryGroupHistoryMessageResponse) GetData() (v []*base.GroupMessage) {
 	if !p.IsSetData() {
 		return QueryGroupHistoryMessageResponse_Data_DEFAULT
 	}
@@ -414,7 +584,7 @@ func (p *QueryGroupHistoryMessageResponse) GetData() (v []*base.Message) {
 func (p *QueryGroupHistoryMessageResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *QueryGroupHistoryMessageResponse) SetData(val []*base.Message) {
+func (p *QueryGroupHistoryMessageResponse) SetData(val []*base.GroupMessage) {
 	p.Data = val
 }
 
@@ -438,89 +608,276 @@ var fieldIDToName_QueryGroupHistoryMessageResponse = map[int16]string{
 	2: "data",
 }
 
+type QueryGroupMembersRequest struct {
+	GroupId int64 `thrift:"group_id,1" frugal:"1,default,i64" json:"group_id"`
+}
+
+func NewQueryGroupMembersRequest() *QueryGroupMembersRequest {
+	return &QueryGroupMembersRequest{}
+}
+
+func (p *QueryGroupMembersRequest) InitDefault() {
+}
+
+func (p *QueryGroupMembersRequest) GetGroupId() (v int64) {
+	return p.GroupId
+}
+func (p *QueryGroupMembersRequest) SetGroupId(val int64) {
+	p.GroupId = val
+}
+
+func (p *QueryGroupMembersRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryGroupMembersRequest(%+v)", *p)
+}
+
+var fieldIDToName_QueryGroupMembersRequest = map[int16]string{
+	1: "group_id",
+}
+
+type QueryGroupMembersResponse struct {
+	Base    *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Members []int64        `thrift:"members,2,optional" frugal:"2,optional,list<i64>" json:"members,omitempty"`
+}
+
+func NewQueryGroupMembersResponse() *QueryGroupMembersResponse {
+	return &QueryGroupMembersResponse{}
+}
+
+func (p *QueryGroupMembersResponse) InitDefault() {
+}
+
+var QueryGroupMembersResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryGroupMembersResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryGroupMembersResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var QueryGroupMembersResponse_Members_DEFAULT []int64
+
+func (p *QueryGroupMembersResponse) GetMembers() (v []int64) {
+	if !p.IsSetMembers() {
+		return QueryGroupMembersResponse_Members_DEFAULT
+	}
+	return p.Members
+}
+func (p *QueryGroupMembersResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *QueryGroupMembersResponse) SetMembers(val []int64) {
+	p.Members = val
+}
+
+func (p *QueryGroupMembersResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryGroupMembersResponse) IsSetMembers() bool {
+	return p.Members != nil
+}
+
+func (p *QueryGroupMembersResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryGroupMembersResponse(%+v)", *p)
+}
+
+var fieldIDToName_QueryGroupMembersResponse = map[int16]string{
+	1: "base",
+	2: "members",
+}
+
+type CheckUserExistInGroupRequest struct {
+	UserId  int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	GroupId int64 `thrift:"group_id,2" frugal:"2,default,i64" json:"group_id"`
+}
+
+func NewCheckUserExistInGroupRequest() *CheckUserExistInGroupRequest {
+	return &CheckUserExistInGroupRequest{}
+}
+
+func (p *CheckUserExistInGroupRequest) InitDefault() {
+}
+
+func (p *CheckUserExistInGroupRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *CheckUserExistInGroupRequest) GetGroupId() (v int64) {
+	return p.GroupId
+}
+func (p *CheckUserExistInGroupRequest) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *CheckUserExistInGroupRequest) SetGroupId(val int64) {
+	p.GroupId = val
+}
+
+func (p *CheckUserExistInGroupRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CheckUserExistInGroupRequest(%+v)", *p)
+}
+
+var fieldIDToName_CheckUserExistInGroupRequest = map[int16]string{
+	1: "user_id",
+	2: "group_id",
+}
+
+type CheckUserExistInGroupResponse struct {
+	Base  *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Exist *bool          `thrift:"exist,2,optional" frugal:"2,optional,bool" json:"exist,omitempty"`
+}
+
+func NewCheckUserExistInGroupResponse() *CheckUserExistInGroupResponse {
+	return &CheckUserExistInGroupResponse{}
+}
+
+func (p *CheckUserExistInGroupResponse) InitDefault() {
+}
+
+var CheckUserExistInGroupResponse_Base_DEFAULT *base.BaseResp
+
+func (p *CheckUserExistInGroupResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return CheckUserExistInGroupResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var CheckUserExistInGroupResponse_Exist_DEFAULT bool
+
+func (p *CheckUserExistInGroupResponse) GetExist() (v bool) {
+	if !p.IsSetExist() {
+		return CheckUserExistInGroupResponse_Exist_DEFAULT
+	}
+	return *p.Exist
+}
+func (p *CheckUserExistInGroupResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *CheckUserExistInGroupResponse) SetExist(val *bool) {
+	p.Exist = val
+}
+
+func (p *CheckUserExistInGroupResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *CheckUserExistInGroupResponse) IsSetExist() bool {
+	return p.Exist != nil
+}
+
+func (p *CheckUserExistInGroupResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CheckUserExistInGroupResponse(%+v)", *p)
+}
+
+var fieldIDToName_CheckUserExistInGroupResponse = map[int16]string{
+	1: "base",
+	2: "exist",
+}
+
 type ChatService interface {
-	SendMessage(ctx context.Context, req *SendMessageRequest) (r *SendMessageResponse, err error)
+	SendPrivateMessage(ctx context.Context, req *SendPrivateMessageRequest) (r *SendPrivateMessageResponse, err error)
 
 	QueryPrivateOfflineMessage(ctx context.Context, req *QueryPrivateOfflineMessageRequest) (r *QueryPrivateOfflineMessageResponse, err error)
 
 	QueryPrivateHistoryMessage(ctx context.Context, req *QueryPrivateHistoryMessageRequest) (r *QueryPrivateHistoryMessageResponse, err error)
 
+	SendGroupMessage(ctx context.Context, req *SendGroupMessageRequest) (r *SendGroupMessageResponse, err error)
+
+	QueryGroupOfflineMessage(ctx context.Context, req *QueryGroupOfflineMessageRequest) (r *QueryGroupOfflineMessageResponse, err error)
+
 	QueryGroupHistoryMessage(ctx context.Context, req *QueryGroupHistoryMessageRequest) (r *QueryGroupHistoryMessageResponse, err error)
+
+	QueryGroupMembers(ctx context.Context, req *QueryGroupMembersRequest) (r *QueryGroupMembersResponse, err error)
+
+	CheckUserExistInGroup(ctx context.Context, req *CheckUserExistInGroupRequest) (r *CheckUserExistInGroupResponse, err error)
 }
 
-type ChatServiceSendMessageArgs struct {
-	Req *SendMessageRequest `thrift:"req,1" frugal:"1,default,SendMessageRequest" json:"req"`
+type ChatServiceSendPrivateMessageArgs struct {
+	Req *SendPrivateMessageRequest `thrift:"req,1" frugal:"1,default,SendPrivateMessageRequest" json:"req"`
 }
 
-func NewChatServiceSendMessageArgs() *ChatServiceSendMessageArgs {
-	return &ChatServiceSendMessageArgs{}
+func NewChatServiceSendPrivateMessageArgs() *ChatServiceSendPrivateMessageArgs {
+	return &ChatServiceSendPrivateMessageArgs{}
 }
 
-func (p *ChatServiceSendMessageArgs) InitDefault() {
+func (p *ChatServiceSendPrivateMessageArgs) InitDefault() {
 }
 
-var ChatServiceSendMessageArgs_Req_DEFAULT *SendMessageRequest
+var ChatServiceSendPrivateMessageArgs_Req_DEFAULT *SendPrivateMessageRequest
 
-func (p *ChatServiceSendMessageArgs) GetReq() (v *SendMessageRequest) {
+func (p *ChatServiceSendPrivateMessageArgs) GetReq() (v *SendPrivateMessageRequest) {
 	if !p.IsSetReq() {
-		return ChatServiceSendMessageArgs_Req_DEFAULT
+		return ChatServiceSendPrivateMessageArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *ChatServiceSendMessageArgs) SetReq(val *SendMessageRequest) {
+func (p *ChatServiceSendPrivateMessageArgs) SetReq(val *SendPrivateMessageRequest) {
 	p.Req = val
 }
 
-func (p *ChatServiceSendMessageArgs) IsSetReq() bool {
+func (p *ChatServiceSendPrivateMessageArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *ChatServiceSendMessageArgs) String() string {
+func (p *ChatServiceSendPrivateMessageArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ChatServiceSendMessageArgs(%+v)", *p)
+	return fmt.Sprintf("ChatServiceSendPrivateMessageArgs(%+v)", *p)
 }
 
-var fieldIDToName_ChatServiceSendMessageArgs = map[int16]string{
+var fieldIDToName_ChatServiceSendPrivateMessageArgs = map[int16]string{
 	1: "req",
 }
 
-type ChatServiceSendMessageResult struct {
-	Success *SendMessageResponse `thrift:"success,0,optional" frugal:"0,optional,SendMessageResponse" json:"success,omitempty"`
+type ChatServiceSendPrivateMessageResult struct {
+	Success *SendPrivateMessageResponse `thrift:"success,0,optional" frugal:"0,optional,SendPrivateMessageResponse" json:"success,omitempty"`
 }
 
-func NewChatServiceSendMessageResult() *ChatServiceSendMessageResult {
-	return &ChatServiceSendMessageResult{}
+func NewChatServiceSendPrivateMessageResult() *ChatServiceSendPrivateMessageResult {
+	return &ChatServiceSendPrivateMessageResult{}
 }
 
-func (p *ChatServiceSendMessageResult) InitDefault() {
+func (p *ChatServiceSendPrivateMessageResult) InitDefault() {
 }
 
-var ChatServiceSendMessageResult_Success_DEFAULT *SendMessageResponse
+var ChatServiceSendPrivateMessageResult_Success_DEFAULT *SendPrivateMessageResponse
 
-func (p *ChatServiceSendMessageResult) GetSuccess() (v *SendMessageResponse) {
+func (p *ChatServiceSendPrivateMessageResult) GetSuccess() (v *SendPrivateMessageResponse) {
 	if !p.IsSetSuccess() {
-		return ChatServiceSendMessageResult_Success_DEFAULT
+		return ChatServiceSendPrivateMessageResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *ChatServiceSendMessageResult) SetSuccess(x interface{}) {
-	p.Success = x.(*SendMessageResponse)
+func (p *ChatServiceSendPrivateMessageResult) SetSuccess(x interface{}) {
+	p.Success = x.(*SendPrivateMessageResponse)
 }
 
-func (p *ChatServiceSendMessageResult) IsSetSuccess() bool {
+func (p *ChatServiceSendPrivateMessageResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *ChatServiceSendMessageResult) String() string {
+func (p *ChatServiceSendPrivateMessageResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ChatServiceSendMessageResult(%+v)", *p)
+	return fmt.Sprintf("ChatServiceSendPrivateMessageResult(%+v)", *p)
 }
 
-var fieldIDToName_ChatServiceSendMessageResult = map[int16]string{
+var fieldIDToName_ChatServiceSendPrivateMessageResult = map[int16]string{
 	0: "success",
 }
 
@@ -676,6 +1033,158 @@ var fieldIDToName_ChatServiceQueryPrivateHistoryMessageResult = map[int16]string
 	0: "success",
 }
 
+type ChatServiceSendGroupMessageArgs struct {
+	Req *SendGroupMessageRequest `thrift:"req,1" frugal:"1,default,SendGroupMessageRequest" json:"req"`
+}
+
+func NewChatServiceSendGroupMessageArgs() *ChatServiceSendGroupMessageArgs {
+	return &ChatServiceSendGroupMessageArgs{}
+}
+
+func (p *ChatServiceSendGroupMessageArgs) InitDefault() {
+}
+
+var ChatServiceSendGroupMessageArgs_Req_DEFAULT *SendGroupMessageRequest
+
+func (p *ChatServiceSendGroupMessageArgs) GetReq() (v *SendGroupMessageRequest) {
+	if !p.IsSetReq() {
+		return ChatServiceSendGroupMessageArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ChatServiceSendGroupMessageArgs) SetReq(val *SendGroupMessageRequest) {
+	p.Req = val
+}
+
+func (p *ChatServiceSendGroupMessageArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ChatServiceSendGroupMessageArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceSendGroupMessageArgs(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceSendGroupMessageArgs = map[int16]string{
+	1: "req",
+}
+
+type ChatServiceSendGroupMessageResult struct {
+	Success *SendGroupMessageResponse `thrift:"success,0,optional" frugal:"0,optional,SendGroupMessageResponse" json:"success,omitempty"`
+}
+
+func NewChatServiceSendGroupMessageResult() *ChatServiceSendGroupMessageResult {
+	return &ChatServiceSendGroupMessageResult{}
+}
+
+func (p *ChatServiceSendGroupMessageResult) InitDefault() {
+}
+
+var ChatServiceSendGroupMessageResult_Success_DEFAULT *SendGroupMessageResponse
+
+func (p *ChatServiceSendGroupMessageResult) GetSuccess() (v *SendGroupMessageResponse) {
+	if !p.IsSetSuccess() {
+		return ChatServiceSendGroupMessageResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *ChatServiceSendGroupMessageResult) SetSuccess(x interface{}) {
+	p.Success = x.(*SendGroupMessageResponse)
+}
+
+func (p *ChatServiceSendGroupMessageResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ChatServiceSendGroupMessageResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceSendGroupMessageResult(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceSendGroupMessageResult = map[int16]string{
+	0: "success",
+}
+
+type ChatServiceQueryGroupOfflineMessageArgs struct {
+	Req *QueryGroupOfflineMessageRequest `thrift:"req,1" frugal:"1,default,QueryGroupOfflineMessageRequest" json:"req"`
+}
+
+func NewChatServiceQueryGroupOfflineMessageArgs() *ChatServiceQueryGroupOfflineMessageArgs {
+	return &ChatServiceQueryGroupOfflineMessageArgs{}
+}
+
+func (p *ChatServiceQueryGroupOfflineMessageArgs) InitDefault() {
+}
+
+var ChatServiceQueryGroupOfflineMessageArgs_Req_DEFAULT *QueryGroupOfflineMessageRequest
+
+func (p *ChatServiceQueryGroupOfflineMessageArgs) GetReq() (v *QueryGroupOfflineMessageRequest) {
+	if !p.IsSetReq() {
+		return ChatServiceQueryGroupOfflineMessageArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ChatServiceQueryGroupOfflineMessageArgs) SetReq(val *QueryGroupOfflineMessageRequest) {
+	p.Req = val
+}
+
+func (p *ChatServiceQueryGroupOfflineMessageArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ChatServiceQueryGroupOfflineMessageArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceQueryGroupOfflineMessageArgs(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceQueryGroupOfflineMessageArgs = map[int16]string{
+	1: "req",
+}
+
+type ChatServiceQueryGroupOfflineMessageResult struct {
+	Success *QueryGroupOfflineMessageResponse `thrift:"success,0,optional" frugal:"0,optional,QueryGroupOfflineMessageResponse" json:"success,omitempty"`
+}
+
+func NewChatServiceQueryGroupOfflineMessageResult() *ChatServiceQueryGroupOfflineMessageResult {
+	return &ChatServiceQueryGroupOfflineMessageResult{}
+}
+
+func (p *ChatServiceQueryGroupOfflineMessageResult) InitDefault() {
+}
+
+var ChatServiceQueryGroupOfflineMessageResult_Success_DEFAULT *QueryGroupOfflineMessageResponse
+
+func (p *ChatServiceQueryGroupOfflineMessageResult) GetSuccess() (v *QueryGroupOfflineMessageResponse) {
+	if !p.IsSetSuccess() {
+		return ChatServiceQueryGroupOfflineMessageResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *ChatServiceQueryGroupOfflineMessageResult) SetSuccess(x interface{}) {
+	p.Success = x.(*QueryGroupOfflineMessageResponse)
+}
+
+func (p *ChatServiceQueryGroupOfflineMessageResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ChatServiceQueryGroupOfflineMessageResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceQueryGroupOfflineMessageResult(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceQueryGroupOfflineMessageResult = map[int16]string{
+	0: "success",
+}
+
 type ChatServiceQueryGroupHistoryMessageArgs struct {
 	Req *QueryGroupHistoryMessageRequest `thrift:"req,1" frugal:"1,default,QueryGroupHistoryMessageRequest" json:"req"`
 }
@@ -749,5 +1258,157 @@ func (p *ChatServiceQueryGroupHistoryMessageResult) String() string {
 }
 
 var fieldIDToName_ChatServiceQueryGroupHistoryMessageResult = map[int16]string{
+	0: "success",
+}
+
+type ChatServiceQueryGroupMembersArgs struct {
+	Req *QueryGroupMembersRequest `thrift:"req,1" frugal:"1,default,QueryGroupMembersRequest" json:"req"`
+}
+
+func NewChatServiceQueryGroupMembersArgs() *ChatServiceQueryGroupMembersArgs {
+	return &ChatServiceQueryGroupMembersArgs{}
+}
+
+func (p *ChatServiceQueryGroupMembersArgs) InitDefault() {
+}
+
+var ChatServiceQueryGroupMembersArgs_Req_DEFAULT *QueryGroupMembersRequest
+
+func (p *ChatServiceQueryGroupMembersArgs) GetReq() (v *QueryGroupMembersRequest) {
+	if !p.IsSetReq() {
+		return ChatServiceQueryGroupMembersArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ChatServiceQueryGroupMembersArgs) SetReq(val *QueryGroupMembersRequest) {
+	p.Req = val
+}
+
+func (p *ChatServiceQueryGroupMembersArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ChatServiceQueryGroupMembersArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceQueryGroupMembersArgs(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceQueryGroupMembersArgs = map[int16]string{
+	1: "req",
+}
+
+type ChatServiceQueryGroupMembersResult struct {
+	Success *QueryGroupMembersResponse `thrift:"success,0,optional" frugal:"0,optional,QueryGroupMembersResponse" json:"success,omitempty"`
+}
+
+func NewChatServiceQueryGroupMembersResult() *ChatServiceQueryGroupMembersResult {
+	return &ChatServiceQueryGroupMembersResult{}
+}
+
+func (p *ChatServiceQueryGroupMembersResult) InitDefault() {
+}
+
+var ChatServiceQueryGroupMembersResult_Success_DEFAULT *QueryGroupMembersResponse
+
+func (p *ChatServiceQueryGroupMembersResult) GetSuccess() (v *QueryGroupMembersResponse) {
+	if !p.IsSetSuccess() {
+		return ChatServiceQueryGroupMembersResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *ChatServiceQueryGroupMembersResult) SetSuccess(x interface{}) {
+	p.Success = x.(*QueryGroupMembersResponse)
+}
+
+func (p *ChatServiceQueryGroupMembersResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ChatServiceQueryGroupMembersResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceQueryGroupMembersResult(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceQueryGroupMembersResult = map[int16]string{
+	0: "success",
+}
+
+type ChatServiceCheckUserExistInGroupArgs struct {
+	Req *CheckUserExistInGroupRequest `thrift:"req,1" frugal:"1,default,CheckUserExistInGroupRequest" json:"req"`
+}
+
+func NewChatServiceCheckUserExistInGroupArgs() *ChatServiceCheckUserExistInGroupArgs {
+	return &ChatServiceCheckUserExistInGroupArgs{}
+}
+
+func (p *ChatServiceCheckUserExistInGroupArgs) InitDefault() {
+}
+
+var ChatServiceCheckUserExistInGroupArgs_Req_DEFAULT *CheckUserExistInGroupRequest
+
+func (p *ChatServiceCheckUserExistInGroupArgs) GetReq() (v *CheckUserExistInGroupRequest) {
+	if !p.IsSetReq() {
+		return ChatServiceCheckUserExistInGroupArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *ChatServiceCheckUserExistInGroupArgs) SetReq(val *CheckUserExistInGroupRequest) {
+	p.Req = val
+}
+
+func (p *ChatServiceCheckUserExistInGroupArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ChatServiceCheckUserExistInGroupArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceCheckUserExistInGroupArgs(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceCheckUserExistInGroupArgs = map[int16]string{
+	1: "req",
+}
+
+type ChatServiceCheckUserExistInGroupResult struct {
+	Success *CheckUserExistInGroupResponse `thrift:"success,0,optional" frugal:"0,optional,CheckUserExistInGroupResponse" json:"success,omitempty"`
+}
+
+func NewChatServiceCheckUserExistInGroupResult() *ChatServiceCheckUserExistInGroupResult {
+	return &ChatServiceCheckUserExistInGroupResult{}
+}
+
+func (p *ChatServiceCheckUserExistInGroupResult) InitDefault() {
+}
+
+var ChatServiceCheckUserExistInGroupResult_Success_DEFAULT *CheckUserExistInGroupResponse
+
+func (p *ChatServiceCheckUserExistInGroupResult) GetSuccess() (v *CheckUserExistInGroupResponse) {
+	if !p.IsSetSuccess() {
+		return ChatServiceCheckUserExistInGroupResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *ChatServiceCheckUserExistInGroupResult) SetSuccess(x interface{}) {
+	p.Success = x.(*CheckUserExistInGroupResponse)
+}
+
+func (p *ChatServiceCheckUserExistInGroupResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ChatServiceCheckUserExistInGroupResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChatServiceCheckUserExistInGroupResult(%+v)", *p)
+}
+
+var fieldIDToName_ChatServiceCheckUserExistInGroupResult = map[int16]string{
 	0: "success",
 }

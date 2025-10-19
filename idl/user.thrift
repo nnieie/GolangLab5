@@ -91,6 +91,24 @@ struct QueryUsersByIDsResponse {
     2: optional list<base.User> users,
 }
 
+struct GetLastLogoutTimeRequest{
+    1: i64 user_id,
+}
+
+struct GetLastLogoutTimeResponse{
+    1: base.BaseResp base,
+    2: optional i64 logout_time,
+}
+
+struct UpdateLastLogoutTimeRequest{
+    1: i64 user_id,
+    2: i64 logout_time,
+}
+
+struct UpdateLastLogoutTimeResponse{
+    1: base.BaseResp base,
+}
+
 service UserService {
     RegisterResponse Register (1: RegisterRequest req),
     LoginResponse Login(1: LoginRequest req),
@@ -101,4 +119,6 @@ service UserService {
     SearchUserIdsByNameResponse SearchUserIdsByName(1: SearchUserIdsByNameRequest req),
     QueryUserByIDResponse QueryUserByID(1: QueryUserByIDRequest req),
     QueryUsersByIDsResponse QueryUsersByIDs(1: QueryUsersByIDsRequest req),
+    GetLastLogoutTimeResponse GetLastLogoutTime(1: GetLastLogoutTimeRequest req),
+    UpdateLastLogoutTimeResponse UpdateLastLogoutTime(1: UpdateLastLogoutTimeRequest req),
 }

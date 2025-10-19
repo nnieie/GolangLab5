@@ -1560,7 +1560,7 @@ func (p *Comment) field10Length() int {
 	return l
 }
 
-func (p *Message) FastRead(buf []byte) (int, error) {
+func (p *PrivateMessage) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1620,7 +1620,7 @@ func (p *Message) FastRead(buf []byte) (int, error) {
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				l, err = p.FastReadField4(buf[offset:])
 				offset += l
 				if err != nil {
@@ -1634,36 +1634,8 @@ func (p *Message) FastRead(buf []byte) (int, error) {
 				}
 			}
 		case 5:
-			if fieldTypeId == thrift.STRING {
-				l, err = p.FastReadField5(buf[offset:])
-				offset += l
-				if err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
-				offset += l
-				if err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 6:
 			if fieldTypeId == thrift.I64 {
-				l, err = p.FastReadField6(buf[offset:])
-				offset += l
-				if err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
-				offset += l
-				if err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 7:
-			if fieldTypeId == thrift.STRING {
-				l, err = p.FastReadField7(buf[offset:])
+				l, err = p.FastReadField5(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
@@ -1688,12 +1660,12 @@ func (p *Message) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_Message[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PrivateMessage[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *Message) FastReadField1(buf []byte) (int, error) {
+func (p *PrivateMessage) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 
 	var _field int64
@@ -1707,7 +1679,7 @@ func (p *Message) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *Message) FastReadField2(buf []byte) (int, error) {
+func (p *PrivateMessage) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
 	var _field int64
@@ -1721,7 +1693,7 @@ func (p *Message) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *Message) FastReadField3(buf []byte) (int, error) {
+func (p *PrivateMessage) FastReadField3(buf []byte) (int, error) {
 	offset := 0
 
 	var _field int64
@@ -1735,21 +1707,7 @@ func (p *Message) FastReadField3(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *Message) FastReadField4(buf []byte) (int, error) {
-	offset := 0
-
-	var _field int64
-	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
-		return offset, err
-	} else {
-		offset += l
-		_field = v
-	}
-	p.GroupId = _field
-	return offset, nil
-}
-
-func (p *Message) FastReadField5(buf []byte) (int, error) {
+func (p *PrivateMessage) FastReadField4(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -1763,7 +1721,7 @@ func (p *Message) FastReadField5(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *Message) FastReadField6(buf []byte) (int, error) {
+func (p *PrivateMessage) FastReadField5(buf []byte) (int, error) {
 	offset := 0
 
 	var _field int64
@@ -1773,11 +1731,258 @@ func (p *Message) FastReadField6(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
-	p.Type = _field
+	p.CreatedAt = _field
 	return offset, nil
 }
 
-func (p *Message) FastReadField7(buf []byte) (int, error) {
+func (p *PrivateMessage) FastWrite(buf []byte) int {
+	return p.FastWriteNocopy(buf, nil)
+}
+
+func (p *PrivateMessage) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	if p != nil {
+		offset += p.fastWriteField1(buf[offset:], w)
+		offset += p.fastWriteField2(buf[offset:], w)
+		offset += p.fastWriteField3(buf[offset:], w)
+		offset += p.fastWriteField5(buf[offset:], w)
+		offset += p.fastWriteField4(buf[offset:], w)
+	}
+	offset += thrift.Binary.WriteFieldStop(buf[offset:])
+	return offset
+}
+
+func (p *PrivateMessage) BLength() int {
+	l := 0
+	if p != nil {
+		l += p.field1Length()
+		l += p.field2Length()
+		l += p.field3Length()
+		l += p.field4Length()
+		l += p.field5Length()
+	}
+	l += thrift.Binary.FieldStopLength()
+	return l
+}
+
+func (p *PrivateMessage) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 1)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.Id)
+	return offset
+}
+
+func (p *PrivateMessage) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 2)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.FromUserId)
+	return offset
+}
+
+func (p *PrivateMessage) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 3)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.ToUserId)
+	return offset
+}
+
+func (p *PrivateMessage) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 4)
+	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Content)
+	return offset
+}
+
+func (p *PrivateMessage) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 5)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.CreatedAt)
+	return offset
+}
+
+func (p *PrivateMessage) field1Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *PrivateMessage) field2Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *PrivateMessage) field3Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *PrivateMessage) field4Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.StringLengthNocopy(p.Content)
+	return l
+}
+
+func (p *PrivateMessage) field5Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.I64Length()
+	return l
+}
+
+func (p *GroupMessage) FastRead(buf []byte) (int, error) {
+
+	var err error
+	var offset int
+	var l int
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	for {
+		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
+		offset += l
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField1(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField2(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField3(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField4(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 5:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField5(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		default:
+			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+			offset += l
+			if err != nil {
+				goto SkipFieldError
+			}
+		}
+	}
+
+	return offset, nil
+ReadFieldBeginError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GroupMessage[fieldId]), err)
+SkipFieldError:
+	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+}
+
+func (p *GroupMessage) FastReadField1(buf []byte) (int, error) {
+	offset := 0
+
+	var _field int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.Id = _field
+	return offset, nil
+}
+
+func (p *GroupMessage) FastReadField2(buf []byte) (int, error) {
+	offset := 0
+
+	var _field int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.FromUserId = _field
+	return offset, nil
+}
+
+func (p *GroupMessage) FastReadField3(buf []byte) (int, error) {
+	offset := 0
+
+	var _field int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.GroupId = _field
+	return offset, nil
+}
+
+func (p *GroupMessage) FastReadField4(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -1787,30 +1992,42 @@ func (p *Message) FastReadField7(buf []byte) (int, error) {
 		offset += l
 		_field = v
 	}
+	p.Content = _field
+	return offset, nil
+}
+
+func (p *GroupMessage) FastReadField5(buf []byte) (int, error) {
+	offset := 0
+
+	var _field int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
 	p.CreatedAt = _field
 	return offset, nil
 }
 
-func (p *Message) FastWrite(buf []byte) int {
+func (p *GroupMessage) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *Message) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *GroupMessage) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField3(buf[offset:], w)
-		offset += p.fastWriteField4(buf[offset:], w)
-		offset += p.fastWriteField6(buf[offset:], w)
 		offset += p.fastWriteField5(buf[offset:], w)
-		offset += p.fastWriteField7(buf[offset:], w)
+		offset += p.fastWriteField4(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
 }
 
-func (p *Message) BLength() int {
+func (p *GroupMessage) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -1818,108 +2035,78 @@ func (p *Message) BLength() int {
 		l += p.field3Length()
 		l += p.field4Length()
 		l += p.field5Length()
-		l += p.field6Length()
-		l += p.field7Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
 }
 
-func (p *Message) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *GroupMessage) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 1)
 	offset += thrift.Binary.WriteI64(buf[offset:], p.Id)
 	return offset
 }
 
-func (p *Message) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+func (p *GroupMessage) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 2)
 	offset += thrift.Binary.WriteI64(buf[offset:], p.FromUserId)
 	return offset
 }
 
-func (p *Message) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+func (p *GroupMessage) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 3)
-	offset += thrift.Binary.WriteI64(buf[offset:], p.ToUserId)
-	return offset
-}
-
-func (p *Message) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
-	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 4)
 	offset += thrift.Binary.WriteI64(buf[offset:], p.GroupId)
 	return offset
 }
 
-func (p *Message) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
+func (p *GroupMessage) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 5)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 4)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Content)
 	return offset
 }
 
-func (p *Message) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
+func (p *GroupMessage) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 6)
-	offset += thrift.Binary.WriteI64(buf[offset:], p.Type)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 5)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.CreatedAt)
 	return offset
 }
 
-func (p *Message) fastWriteField7(buf []byte, w thrift.NocopyWriter) int {
-	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 7)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.CreatedAt)
-	return offset
-}
-
-func (p *Message) field1Length() int {
+func (p *GroupMessage) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
 	return l
 }
 
-func (p *Message) field2Length() int {
+func (p *GroupMessage) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
 	return l
 }
 
-func (p *Message) field3Length() int {
+func (p *GroupMessage) field3Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
 	return l
 }
 
-func (p *Message) field4Length() int {
-	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.I64Length()
-	return l
-}
-
-func (p *Message) field5Length() int {
+func (p *GroupMessage) field4Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Content)
 	return l
 }
 
-func (p *Message) field6Length() int {
+func (p *GroupMessage) field5Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
-	return l
-}
-
-func (p *Message) field7Length() int {
-	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.CreatedAt)
 	return l
 }
 

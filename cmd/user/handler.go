@@ -98,3 +98,21 @@ func (s *UserServiceImpl) QueryUsersByIDs(ctx context.Context, req *user.QueryUs
 	resp.Users = users
 	return
 }
+
+// GetLastLogoutTime implements the UserServiceImpl interface.
+func (s *UserServiceImpl) GetLastLogoutTime(ctx context.Context, req *user.GetLastLogoutTimeRequest) (resp *user.GetLastLogoutTimeResponse, err error) {
+	resp = new(user.GetLastLogoutTimeResponse)
+	logoutTime, err := service.NewUserService(ctx, s.Snowflake).GetLastLogoutTime(req.UserId)
+	resp.Base = utils.BuildBaseResp(err)
+	resp.LogoutTime = &logoutTime
+	return
+}
+
+// UpdateLastLogoutTime implements the UserServiceImpl interface.
+func (s *UserServiceImpl) UpdateLastLogoutTime(ctx context.Context, req *user.UpdateLastLogoutTimeRequest) (
+	resp *user.UpdateLastLogoutTimeResponse, err error) {
+	resp = new(user.UpdateLastLogoutTimeResponse)
+	err = service.NewUserService(ctx, s.Snowflake).UpdateLastLogoutTime(req.UserId, req.LogoutTime)
+	resp.Base = utils.BuildBaseResp(err)
+	return
+}

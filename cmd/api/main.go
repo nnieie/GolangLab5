@@ -6,6 +6,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	"github.com/nnieie/golanglab5/cmd/api/rpc"
+	chat "github.com/nnieie/golanglab5/cmd/api/ws"
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
@@ -19,6 +20,10 @@ func main() {
 	rpc.InitVideoRPC()
 	rpc.InitSocialRPC()
 	rpc.InitInteractionRPC()
+	rpc.InitChatRPC()
+
+	// 初始化 WebSocket Chat Hub
+	chat.InitChatHub()
 
 	h := server.Default()
 

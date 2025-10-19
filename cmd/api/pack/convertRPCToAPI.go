@@ -89,3 +89,43 @@ func CommentsRPCToComments(comments []*kitBase.Comment) []*apiBase.Comment {
 	}
 	return res
 }
+
+func PrivateMessageRPCToPrivateMessage(msg *kitBase.PrivateMessage) *apiBase.PrivateMessage {
+	if msg == nil {
+		return nil
+	}
+	return &apiBase.PrivateMessage{
+		FromUserID: msg.FromUserId,
+		ToUserID:   msg.ToUserId,
+		Content:    msg.Content,
+		CreatedAt:  msg.CreatedAt,
+	}
+}
+
+func PrivateMessagesRPCToPrivateMessages(msgs []*kitBase.PrivateMessage) []*apiBase.PrivateMessage {
+	res := make([]*apiBase.PrivateMessage, 0, len(msgs))
+	for _, msg := range msgs {
+		res = append(res, PrivateMessageRPCToPrivateMessage(msg))
+	}
+	return res
+}
+
+func GroupMessageRPCToGroupMessage(msg *kitBase.GroupMessage) *apiBase.GroupMessage {
+	if msg == nil {
+		return nil
+	}
+	return &apiBase.GroupMessage{
+		FromUserID: msg.FromUserId,
+		GroupID:    msg.GroupId,
+		Content:    msg.Content,
+		CreatedAt:  msg.CreatedAt,
+	}
+}
+
+func GroupMessagesRPCToGroupMessages(msgs []*kitBase.GroupMessage) []*apiBase.GroupMessage {
+	res := make([]*apiBase.GroupMessage, 0, len(msgs))
+	for _, msg := range msgs {
+		res = append(res, GroupMessageRPCToGroupMessage(msg))
+	}
+	return res
+}

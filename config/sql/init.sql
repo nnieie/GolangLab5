@@ -1,17 +1,17 @@
 CREATE DATABASE IF NOT EXISTS rpc CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE rpc;
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_name` VARCHAR(128) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
-  `avatar` VARCHAR(512) DEFAULT NULL,
-  `totp` VARCHAR(255) DEFAULT NULL,
-  `created_at` DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
-  `updated_at` DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-  `deleted_at` DATETIME(6) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_users_user_name` (`user_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_name VARCHAR(128) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  avatar VARCHAR(512) DEFAULT NULL,
+  totp VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  deleted_at DATETIME(6) DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_users_user_name (user_name)
+);
 
 CREATE TABLE IF NOT EXISTS videos (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -68,4 +68,48 @@ CREATE TABLE IF NOT EXISTS comments (
     INDEX idx_video_id (video_id),
     INDEX idx_parent_id (parent_id),
     INDEX idx_user_id (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS last_logout_times (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    logout_time DATETIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS private_messages (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    from_user_id BIGINT NOT NULL,
+    to_user_id BIGINT NOT NULL,
+    content TEXT,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_from_user_id (from_user_id),
+    INDEX idx_to_user_id (to_user_id),
+    INDEX idx_created_at (created_at)
+);
+
+CREATE TABLE IF NOT EXISTS group_messages (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    from_user_id BIGINT NOT NULL,
+    group_id BIGINT NOT NULL,
+    content TEXT,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_from_user_id (from_user_id),
+    INDEX idx_group_id (group_id),
+    INDEX idx_created_at (created_at)
+);
+
+CREATE TABLE IF NOT EXISTS group_members (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    group_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_group_id (group_id),
+    INDEX idx_user_id (user_id),
+    UNIQUE KEY uk_group_user (group_id, user_id)
 );

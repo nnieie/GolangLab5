@@ -845,6 +845,167 @@ var fieldIDToName_QueryUsersByIDsResponse = map[int16]string{
 	2: "users",
 }
 
+type GetLastLogoutTimeRequest struct {
+	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+}
+
+func NewGetLastLogoutTimeRequest() *GetLastLogoutTimeRequest {
+	return &GetLastLogoutTimeRequest{}
+}
+
+func (p *GetLastLogoutTimeRequest) InitDefault() {
+}
+
+func (p *GetLastLogoutTimeRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+func (p *GetLastLogoutTimeRequest) SetUserId(val int64) {
+	p.UserId = val
+}
+
+func (p *GetLastLogoutTimeRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLastLogoutTimeRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetLastLogoutTimeRequest = map[int16]string{
+	1: "user_id",
+}
+
+type GetLastLogoutTimeResponse struct {
+	Base       *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	LogoutTime *int64         `thrift:"logout_time,2,optional" frugal:"2,optional,i64" json:"logout_time,omitempty"`
+}
+
+func NewGetLastLogoutTimeResponse() *GetLastLogoutTimeResponse {
+	return &GetLastLogoutTimeResponse{}
+}
+
+func (p *GetLastLogoutTimeResponse) InitDefault() {
+}
+
+var GetLastLogoutTimeResponse_Base_DEFAULT *base.BaseResp
+
+func (p *GetLastLogoutTimeResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return GetLastLogoutTimeResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var GetLastLogoutTimeResponse_LogoutTime_DEFAULT int64
+
+func (p *GetLastLogoutTimeResponse) GetLogoutTime() (v int64) {
+	if !p.IsSetLogoutTime() {
+		return GetLastLogoutTimeResponse_LogoutTime_DEFAULT
+	}
+	return *p.LogoutTime
+}
+func (p *GetLastLogoutTimeResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+func (p *GetLastLogoutTimeResponse) SetLogoutTime(val *int64) {
+	p.LogoutTime = val
+}
+
+func (p *GetLastLogoutTimeResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *GetLastLogoutTimeResponse) IsSetLogoutTime() bool {
+	return p.LogoutTime != nil
+}
+
+func (p *GetLastLogoutTimeResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLastLogoutTimeResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetLastLogoutTimeResponse = map[int16]string{
+	1: "base",
+	2: "logout_time",
+}
+
+type UpdateLastLogoutTimeRequest struct {
+	UserId     int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	LogoutTime int64 `thrift:"logout_time,2" frugal:"2,default,i64" json:"logout_time"`
+}
+
+func NewUpdateLastLogoutTimeRequest() *UpdateLastLogoutTimeRequest {
+	return &UpdateLastLogoutTimeRequest{}
+}
+
+func (p *UpdateLastLogoutTimeRequest) InitDefault() {
+}
+
+func (p *UpdateLastLogoutTimeRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *UpdateLastLogoutTimeRequest) GetLogoutTime() (v int64) {
+	return p.LogoutTime
+}
+func (p *UpdateLastLogoutTimeRequest) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *UpdateLastLogoutTimeRequest) SetLogoutTime(val int64) {
+	p.LogoutTime = val
+}
+
+func (p *UpdateLastLogoutTimeRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateLastLogoutTimeRequest(%+v)", *p)
+}
+
+var fieldIDToName_UpdateLastLogoutTimeRequest = map[int16]string{
+	1: "user_id",
+	2: "logout_time",
+}
+
+type UpdateLastLogoutTimeResponse struct {
+	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+}
+
+func NewUpdateLastLogoutTimeResponse() *UpdateLastLogoutTimeResponse {
+	return &UpdateLastLogoutTimeResponse{}
+}
+
+func (p *UpdateLastLogoutTimeResponse) InitDefault() {
+}
+
+var UpdateLastLogoutTimeResponse_Base_DEFAULT *base.BaseResp
+
+func (p *UpdateLastLogoutTimeResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return UpdateLastLogoutTimeResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+func (p *UpdateLastLogoutTimeResponse) SetBase(val *base.BaseResp) {
+	p.Base = val
+}
+
+func (p *UpdateLastLogoutTimeResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *UpdateLastLogoutTimeResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UpdateLastLogoutTimeResponse(%+v)", *p)
+}
+
+var fieldIDToName_UpdateLastLogoutTimeResponse = map[int16]string{
+	1: "base",
+}
+
 type UserService interface {
 	Register(ctx context.Context, req *RegisterRequest) (r *RegisterResponse, err error)
 
@@ -863,6 +1024,10 @@ type UserService interface {
 	QueryUserByID(ctx context.Context, req *QueryUserByIDRequest) (r *QueryUserByIDResponse, err error)
 
 	QueryUsersByIDs(ctx context.Context, req *QueryUsersByIDsRequest) (r *QueryUsersByIDsResponse, err error)
+
+	GetLastLogoutTime(ctx context.Context, req *GetLastLogoutTimeRequest) (r *GetLastLogoutTimeResponse, err error)
+
+	UpdateLastLogoutTime(ctx context.Context, req *UpdateLastLogoutTimeRequest) (r *UpdateLastLogoutTimeResponse, err error)
 }
 
 type UserServiceRegisterArgs struct {
@@ -1546,5 +1711,157 @@ func (p *UserServiceQueryUsersByIDsResult) String() string {
 }
 
 var fieldIDToName_UserServiceQueryUsersByIDsResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceGetLastLogoutTimeArgs struct {
+	Req *GetLastLogoutTimeRequest `thrift:"req,1" frugal:"1,default,GetLastLogoutTimeRequest" json:"req"`
+}
+
+func NewUserServiceGetLastLogoutTimeArgs() *UserServiceGetLastLogoutTimeArgs {
+	return &UserServiceGetLastLogoutTimeArgs{}
+}
+
+func (p *UserServiceGetLastLogoutTimeArgs) InitDefault() {
+}
+
+var UserServiceGetLastLogoutTimeArgs_Req_DEFAULT *GetLastLogoutTimeRequest
+
+func (p *UserServiceGetLastLogoutTimeArgs) GetReq() (v *GetLastLogoutTimeRequest) {
+	if !p.IsSetReq() {
+		return UserServiceGetLastLogoutTimeArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *UserServiceGetLastLogoutTimeArgs) SetReq(val *GetLastLogoutTimeRequest) {
+	p.Req = val
+}
+
+func (p *UserServiceGetLastLogoutTimeArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UserServiceGetLastLogoutTimeArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetLastLogoutTimeArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetLastLogoutTimeArgs = map[int16]string{
+	1: "req",
+}
+
+type UserServiceGetLastLogoutTimeResult struct {
+	Success *GetLastLogoutTimeResponse `thrift:"success,0,optional" frugal:"0,optional,GetLastLogoutTimeResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceGetLastLogoutTimeResult() *UserServiceGetLastLogoutTimeResult {
+	return &UserServiceGetLastLogoutTimeResult{}
+}
+
+func (p *UserServiceGetLastLogoutTimeResult) InitDefault() {
+}
+
+var UserServiceGetLastLogoutTimeResult_Success_DEFAULT *GetLastLogoutTimeResponse
+
+func (p *UserServiceGetLastLogoutTimeResult) GetSuccess() (v *GetLastLogoutTimeResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceGetLastLogoutTimeResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceGetLastLogoutTimeResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetLastLogoutTimeResponse)
+}
+
+func (p *UserServiceGetLastLogoutTimeResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceGetLastLogoutTimeResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetLastLogoutTimeResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetLastLogoutTimeResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceUpdateLastLogoutTimeArgs struct {
+	Req *UpdateLastLogoutTimeRequest `thrift:"req,1" frugal:"1,default,UpdateLastLogoutTimeRequest" json:"req"`
+}
+
+func NewUserServiceUpdateLastLogoutTimeArgs() *UserServiceUpdateLastLogoutTimeArgs {
+	return &UserServiceUpdateLastLogoutTimeArgs{}
+}
+
+func (p *UserServiceUpdateLastLogoutTimeArgs) InitDefault() {
+}
+
+var UserServiceUpdateLastLogoutTimeArgs_Req_DEFAULT *UpdateLastLogoutTimeRequest
+
+func (p *UserServiceUpdateLastLogoutTimeArgs) GetReq() (v *UpdateLastLogoutTimeRequest) {
+	if !p.IsSetReq() {
+		return UserServiceUpdateLastLogoutTimeArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *UserServiceUpdateLastLogoutTimeArgs) SetReq(val *UpdateLastLogoutTimeRequest) {
+	p.Req = val
+}
+
+func (p *UserServiceUpdateLastLogoutTimeArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UserServiceUpdateLastLogoutTimeArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceUpdateLastLogoutTimeArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceUpdateLastLogoutTimeArgs = map[int16]string{
+	1: "req",
+}
+
+type UserServiceUpdateLastLogoutTimeResult struct {
+	Success *UpdateLastLogoutTimeResponse `thrift:"success,0,optional" frugal:"0,optional,UpdateLastLogoutTimeResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceUpdateLastLogoutTimeResult() *UserServiceUpdateLastLogoutTimeResult {
+	return &UserServiceUpdateLastLogoutTimeResult{}
+}
+
+func (p *UserServiceUpdateLastLogoutTimeResult) InitDefault() {
+}
+
+var UserServiceUpdateLastLogoutTimeResult_Success_DEFAULT *UpdateLastLogoutTimeResponse
+
+func (p *UserServiceUpdateLastLogoutTimeResult) GetSuccess() (v *UpdateLastLogoutTimeResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceUpdateLastLogoutTimeResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceUpdateLastLogoutTimeResult) SetSuccess(x interface{}) {
+	p.Success = x.(*UpdateLastLogoutTimeResponse)
+}
+
+func (p *UserServiceUpdateLastLogoutTimeResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceUpdateLastLogoutTimeResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceUpdateLastLogoutTimeResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceUpdateLastLogoutTimeResult = map[int16]string{
 	0: "success",
 }

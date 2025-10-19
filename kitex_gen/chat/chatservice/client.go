@@ -11,10 +11,14 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	SendMessage(ctx context.Context, req *chat.SendMessageRequest, callOptions ...callopt.Option) (r *chat.SendMessageResponse, err error)
+	SendPrivateMessage(ctx context.Context, req *chat.SendPrivateMessageRequest, callOptions ...callopt.Option) (r *chat.SendPrivateMessageResponse, err error)
 	QueryPrivateOfflineMessage(ctx context.Context, req *chat.QueryPrivateOfflineMessageRequest, callOptions ...callopt.Option) (r *chat.QueryPrivateOfflineMessageResponse, err error)
 	QueryPrivateHistoryMessage(ctx context.Context, req *chat.QueryPrivateHistoryMessageRequest, callOptions ...callopt.Option) (r *chat.QueryPrivateHistoryMessageResponse, err error)
+	SendGroupMessage(ctx context.Context, req *chat.SendGroupMessageRequest, callOptions ...callopt.Option) (r *chat.SendGroupMessageResponse, err error)
+	QueryGroupOfflineMessage(ctx context.Context, req *chat.QueryGroupOfflineMessageRequest, callOptions ...callopt.Option) (r *chat.QueryGroupOfflineMessageResponse, err error)
 	QueryGroupHistoryMessage(ctx context.Context, req *chat.QueryGroupHistoryMessageRequest, callOptions ...callopt.Option) (r *chat.QueryGroupHistoryMessageResponse, err error)
+	QueryGroupMembers(ctx context.Context, req *chat.QueryGroupMembersRequest, callOptions ...callopt.Option) (r *chat.QueryGroupMembersResponse, err error)
+	CheckUserExistInGroup(ctx context.Context, req *chat.CheckUserExistInGroupRequest, callOptions ...callopt.Option) (r *chat.CheckUserExistInGroupResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -46,9 +50,9 @@ type kChatServiceClient struct {
 	*kClient
 }
 
-func (p *kChatServiceClient) SendMessage(ctx context.Context, req *chat.SendMessageRequest, callOptions ...callopt.Option) (r *chat.SendMessageResponse, err error) {
+func (p *kChatServiceClient) SendPrivateMessage(ctx context.Context, req *chat.SendPrivateMessageRequest, callOptions ...callopt.Option) (r *chat.SendPrivateMessageResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.SendMessage(ctx, req)
+	return p.kClient.SendPrivateMessage(ctx, req)
 }
 
 func (p *kChatServiceClient) QueryPrivateOfflineMessage(ctx context.Context, req *chat.QueryPrivateOfflineMessageRequest, callOptions ...callopt.Option) (r *chat.QueryPrivateOfflineMessageResponse, err error) {
@@ -61,7 +65,27 @@ func (p *kChatServiceClient) QueryPrivateHistoryMessage(ctx context.Context, req
 	return p.kClient.QueryPrivateHistoryMessage(ctx, req)
 }
 
+func (p *kChatServiceClient) SendGroupMessage(ctx context.Context, req *chat.SendGroupMessageRequest, callOptions ...callopt.Option) (r *chat.SendGroupMessageResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.SendGroupMessage(ctx, req)
+}
+
+func (p *kChatServiceClient) QueryGroupOfflineMessage(ctx context.Context, req *chat.QueryGroupOfflineMessageRequest, callOptions ...callopt.Option) (r *chat.QueryGroupOfflineMessageResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.QueryGroupOfflineMessage(ctx, req)
+}
+
 func (p *kChatServiceClient) QueryGroupHistoryMessage(ctx context.Context, req *chat.QueryGroupHistoryMessageRequest, callOptions ...callopt.Option) (r *chat.QueryGroupHistoryMessageResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.QueryGroupHistoryMessage(ctx, req)
+}
+
+func (p *kChatServiceClient) QueryGroupMembers(ctx context.Context, req *chat.QueryGroupMembersRequest, callOptions ...callopt.Option) (r *chat.QueryGroupMembersResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.QueryGroupMembers(ctx, req)
+}
+
+func (p *kChatServiceClient) CheckUserExistInGroup(ctx context.Context, req *chat.CheckUserExistInGroupRequest, callOptions ...callopt.Option) (r *chat.CheckUserExistInGroupResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.CheckUserExistInGroup(ctx, req)
 }

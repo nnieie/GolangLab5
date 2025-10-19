@@ -234,51 +234,63 @@ service SocialService{
 }
 
 
-struct SendMessageRequest{
-    1: i64 id,
-    2: i64 user_id,
-    3: i64 to_user_id,
-    4: i64 group_id,
-    5: i64 type,
-    6: string content,
-    7: i64 create_time,
+struct SendPrivateMessageRequest{
+    1: base.PrivateMessage data,
 }
 
-struct SendMessageResponse{
+struct SendPrivateMessageResponse{
     1: base.BaseResp base,
 }
 
 struct QueryPrivateOfflineMessageRequest{
-    1: i64 user_id,
+    1: i64 page_num,
+    2: i64 page_size,
 }
 
 struct QueryPrivateOfflineMessageResponse{
     1: base.BaseResp base,
-    2: list<base.Message> data,
+    2: list<base.PrivateMessage> data,
 }
 
 struct QueryPrivateHistoryMessageRequest{
-    1: i64 user_id,
-    2: i64 to_id,
-    3: i64 page_num,
-    4: i64 page_size,
+    1: i64 to_id,
+    2: i64 page_num,
+    3: i64 page_size,
 }
 
 struct QueryPrivateHistoryMessageResponse{
     1: base.BaseResp base,
-    2: list<base.Message> data,
+    2: list<base.PrivateMessage> data,
+}
+
+struct SendGroupMessageRequest{
+    1: base.GroupMessage data,
+}
+
+struct SendGroupMessageResponse{
+    1: base.BaseResp base,
+}
+
+struct QueryGroupOfflineMessageRequest{
+    1: i64 group_id,
+    2: i64 page_num,
+    3: i64 page_size,
+}
+
+struct QueryGroupOfflineMessageResponse{
+    1: base.BaseResp base,
+    2: list<base.GroupMessage> data,
 }
 
 struct QueryGroupHistoryMessageRequest{
-    1: i64 user_id,
-    2: i64 to_id,
-    3: i64 page_num,
-    4: i64 page_size,
+    1: i64 group_id,
+    2: i64 page_num,
+    3: i64 page_size,
 }
 
 struct QueryGroupHistoryMessageResponse{
     1: base.BaseResp base,
-    2: list<base.Message> data,
+    2: list<base.GroupMessage> data,
 }
 
 service ChatService{

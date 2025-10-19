@@ -8072,451 +8072,35 @@ func (p *GetFriendListResponse) String() string {
 
 }
 
-type SendMessageRequest struct {
-	ID         int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
-	UserID     int64  `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
-	ToUserID   int64  `thrift:"to_user_id,3" form:"to_user_id" json:"to_user_id" query:"to_user_id"`
-	GroupID    int64  `thrift:"group_id,4" form:"group_id" json:"group_id" query:"group_id"`
-	Type       int64  `thrift:"type,5" form:"type" json:"type" query:"type"`
-	Content    string `thrift:"content,6" form:"content" json:"content" query:"content"`
-	CreateTime int64  `thrift:"create_time,7" form:"create_time" json:"create_time" query:"create_time"`
+type SendPrivateMessageRequest struct {
+	Data *base.PrivateMessage `thrift:"data,1" form:"data" json:"data" query:"data"`
 }
 
-func NewSendMessageRequest() *SendMessageRequest {
-	return &SendMessageRequest{}
+func NewSendPrivateMessageRequest() *SendPrivateMessageRequest {
+	return &SendPrivateMessageRequest{}
 }
 
-func (p *SendMessageRequest) InitDefault() {
+func (p *SendPrivateMessageRequest) InitDefault() {
 }
 
-func (p *SendMessageRequest) GetID() (v int64) {
-	return p.ID
+var SendPrivateMessageRequest_Data_DEFAULT *base.PrivateMessage
+
+func (p *SendPrivateMessageRequest) GetData() (v *base.PrivateMessage) {
+	if !p.IsSetData() {
+		return SendPrivateMessageRequest_Data_DEFAULT
+	}
+	return p.Data
 }
 
-func (p *SendMessageRequest) GetUserID() (v int64) {
-	return p.UserID
+var fieldIDToName_SendPrivateMessageRequest = map[int16]string{
+	1: "data",
 }
 
-func (p *SendMessageRequest) GetToUserID() (v int64) {
-	return p.ToUserID
+func (p *SendPrivateMessageRequest) IsSetData() bool {
+	return p.Data != nil
 }
 
-func (p *SendMessageRequest) GetGroupID() (v int64) {
-	return p.GroupID
-}
-
-func (p *SendMessageRequest) GetType() (v int64) {
-	return p.Type
-}
-
-func (p *SendMessageRequest) GetContent() (v string) {
-	return p.Content
-}
-
-func (p *SendMessageRequest) GetCreateTime() (v int64) {
-	return p.CreateTime
-}
-
-var fieldIDToName_SendMessageRequest = map[int16]string{
-	1: "id",
-	2: "user_id",
-	3: "to_user_id",
-	4: "group_id",
-	5: "type",
-	6: "content",
-	7: "create_time",
-}
-
-func (p *SendMessageRequest) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 4:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 5:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 6:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField6(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 7:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField7(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SendMessageRequest[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *SendMessageRequest) ReadField1(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.ID = _field
-	return nil
-}
-func (p *SendMessageRequest) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.UserID = _field
-	return nil
-}
-func (p *SendMessageRequest) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.ToUserID = _field
-	return nil
-}
-func (p *SendMessageRequest) ReadField4(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.GroupID = _field
-	return nil
-}
-func (p *SendMessageRequest) ReadField5(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Type = _field
-	return nil
-}
-func (p *SendMessageRequest) ReadField6(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Content = _field
-	return nil
-}
-func (p *SendMessageRequest) ReadField7(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.CreateTime = _field
-	return nil
-}
-
-func (p *SendMessageRequest) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("SendMessageRequest"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
-		if err = p.writeField6(oprot); err != nil {
-			fieldId = 6
-			goto WriteFieldError
-		}
-		if err = p.writeField7(oprot); err != nil {
-			fieldId = 7
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.ID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("to_user_id", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.ToUserID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("group_id", thrift.I64, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.GroupID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("type", thrift.I64, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.Type); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("content", thrift.STRING, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Content); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) writeField7(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("create_time", thrift.I64, 7); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.CreateTime); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
-}
-
-func (p *SendMessageRequest) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("SendMessageRequest(%+v)", *p)
-
-}
-
-type SendMessageResponse struct {
-	Base *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
-}
-
-func NewSendMessageResponse() *SendMessageResponse {
-	return &SendMessageResponse{}
-}
-
-func (p *SendMessageResponse) InitDefault() {
-}
-
-var SendMessageResponse_Base_DEFAULT *base.BaseResp
-
-func (p *SendMessageResponse) GetBase() (v *base.BaseResp) {
-	if !p.IsSetBase() {
-		return SendMessageResponse_Base_DEFAULT
-	}
-	return p.Base
-}
-
-var fieldIDToName_SendMessageResponse = map[int16]string{
-	1: "base",
-}
-
-func (p *SendMessageResponse) IsSetBase() bool {
-	return p.Base != nil
-}
-
-func (p *SendMessageResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *SendPrivateMessageRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -8562,7 +8146,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SendMessageResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SendPrivateMessageRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -8572,18 +8156,18 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *SendMessageResponse) ReadField1(iprot thrift.TProtocol) error {
-	_field := base.NewBaseResp()
+func (p *SendPrivateMessageRequest) ReadField1(iprot thrift.TProtocol) error {
+	_field := base.NewPrivateMessage()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
-	p.Base = _field
+	p.Data = _field
 	return nil
 }
 
-func (p *SendMessageResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *SendPrivateMessageRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("SendMessageResponse"); err != nil {
+	if err = oprot.WriteStructBegin("SendPrivateMessageRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -8609,7 +8193,153 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *SendMessageResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *SendPrivateMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Data.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *SendPrivateMessageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SendPrivateMessageRequest(%+v)", *p)
+
+}
+
+type SendPrivateMessageResponse struct {
+	Base *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
+}
+
+func NewSendPrivateMessageResponse() *SendPrivateMessageResponse {
+	return &SendPrivateMessageResponse{}
+}
+
+func (p *SendPrivateMessageResponse) InitDefault() {
+}
+
+var SendPrivateMessageResponse_Base_DEFAULT *base.BaseResp
+
+func (p *SendPrivateMessageResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return SendPrivateMessageResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var fieldIDToName_SendPrivateMessageResponse = map[int16]string{
+	1: "base",
+}
+
+func (p *SendPrivateMessageResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *SendPrivateMessageResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SendPrivateMessageResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *SendPrivateMessageResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := base.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+
+func (p *SendPrivateMessageResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SendPrivateMessageResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *SendPrivateMessageResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -8626,16 +8356,17 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *SendMessageResponse) String() string {
+func (p *SendPrivateMessageResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("SendMessageResponse(%+v)", *p)
+	return fmt.Sprintf("SendPrivateMessageResponse(%+v)", *p)
 
 }
 
 type QueryPrivateOfflineMessageRequest struct {
-	UserID int64 `thrift:"user_id,1" form:"user_id" json:"user_id" query:"user_id"`
+	PageNum  int64 `thrift:"page_num,1" form:"page_num" json:"page_num" query:"page_num"`
+	PageSize int64 `thrift:"page_size,2" form:"page_size" json:"page_size" query:"page_size"`
 }
 
 func NewQueryPrivateOfflineMessageRequest() *QueryPrivateOfflineMessageRequest {
@@ -8645,12 +8376,17 @@ func NewQueryPrivateOfflineMessageRequest() *QueryPrivateOfflineMessageRequest {
 func (p *QueryPrivateOfflineMessageRequest) InitDefault() {
 }
 
-func (p *QueryPrivateOfflineMessageRequest) GetUserID() (v int64) {
-	return p.UserID
+func (p *QueryPrivateOfflineMessageRequest) GetPageNum() (v int64) {
+	return p.PageNum
+}
+
+func (p *QueryPrivateOfflineMessageRequest) GetPageSize() (v int64) {
+	return p.PageSize
 }
 
 var fieldIDToName_QueryPrivateOfflineMessageRequest = map[int16]string{
-	1: "user_id",
+	1: "page_num",
+	2: "page_size",
 }
 
 func (p *QueryPrivateOfflineMessageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -8675,6 +8411,14 @@ func (p *QueryPrivateOfflineMessageRequest) Read(iprot thrift.TProtocol) (err er
 		case 1:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -8717,7 +8461,18 @@ func (p *QueryPrivateOfflineMessageRequest) ReadField1(iprot thrift.TProtocol) e
 	} else {
 		_field = v
 	}
-	p.UserID = _field
+	p.PageNum = _field
+	return nil
+}
+func (p *QueryPrivateOfflineMessageRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.PageSize = _field
 	return nil
 }
 
@@ -8729,6 +8484,10 @@ func (p *QueryPrivateOfflineMessageRequest) Write(oprot thrift.TProtocol) (err e
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -8750,10 +8509,10 @@ WriteStructEndError:
 }
 
 func (p *QueryPrivateOfflineMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("page_num", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
+	if err := oprot.WriteI64(p.PageNum); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -8766,6 +8525,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
+func (p *QueryPrivateOfflineMessageRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.PageSize); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
 func (p *QueryPrivateOfflineMessageRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -8775,8 +8551,8 @@ func (p *QueryPrivateOfflineMessageRequest) String() string {
 }
 
 type QueryPrivateOfflineMessageResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" form:"base" json:"base" query:"base"`
-	Data []*base.Message `thrift:"data,2,default,list<base.Message>" form:"data" json:"data" query:"data"`
+	Base *base.BaseResp         `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data []*base.PrivateMessage `thrift:"data,2,default,list<base.PrivateMessage>" form:"data" json:"data" query:"data"`
 }
 
 func NewQueryPrivateOfflineMessageResponse() *QueryPrivateOfflineMessageResponse {
@@ -8795,7 +8571,7 @@ func (p *QueryPrivateOfflineMessageResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-func (p *QueryPrivateOfflineMessageResponse) GetData() (v []*base.Message) {
+func (p *QueryPrivateOfflineMessageResponse) GetData() (v []*base.PrivateMessage) {
 	return p.Data
 }
 
@@ -8885,8 +8661,8 @@ func (p *QueryPrivateOfflineMessageResponse) ReadField2(iprot thrift.TProtocol) 
 	if err != nil {
 		return err
 	}
-	_field := make([]*base.Message, 0, size)
-	values := make([]base.Message, size)
+	_field := make([]*base.PrivateMessage, 0, size)
+	values := make([]base.PrivateMessage, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()
@@ -8987,10 +8763,9 @@ func (p *QueryPrivateOfflineMessageResponse) String() string {
 }
 
 type QueryPrivateHistoryMessageRequest struct {
-	UserID   int64 `thrift:"user_id,1" form:"user_id" json:"user_id" query:"user_id"`
-	ToID     int64 `thrift:"to_id,2" form:"to_id" json:"to_id" query:"to_id"`
-	PageNum  int64 `thrift:"page_num,3" form:"page_num" json:"page_num" query:"page_num"`
-	PageSize int64 `thrift:"page_size,4" form:"page_size" json:"page_size" query:"page_size"`
+	ToID     int64 `thrift:"to_id,1" form:"to_id" json:"to_id" query:"to_id"`
+	PageNum  int64 `thrift:"page_num,2" form:"page_num" json:"page_num" query:"page_num"`
+	PageSize int64 `thrift:"page_size,3" form:"page_size" json:"page_size" query:"page_size"`
 }
 
 func NewQueryPrivateHistoryMessageRequest() *QueryPrivateHistoryMessageRequest {
@@ -8998,10 +8773,6 @@ func NewQueryPrivateHistoryMessageRequest() *QueryPrivateHistoryMessageRequest {
 }
 
 func (p *QueryPrivateHistoryMessageRequest) InitDefault() {
-}
-
-func (p *QueryPrivateHistoryMessageRequest) GetUserID() (v int64) {
-	return p.UserID
 }
 
 func (p *QueryPrivateHistoryMessageRequest) GetToID() (v int64) {
@@ -9017,10 +8788,9 @@ func (p *QueryPrivateHistoryMessageRequest) GetPageSize() (v int64) {
 }
 
 var fieldIDToName_QueryPrivateHistoryMessageRequest = map[int16]string{
-	1: "user_id",
-	2: "to_id",
-	3: "page_num",
-	4: "page_size",
+	1: "to_id",
+	2: "page_num",
+	3: "page_size",
 }
 
 func (p *QueryPrivateHistoryMessageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -9066,14 +8836,6 @@ func (p *QueryPrivateHistoryMessageRequest) Read(iprot thrift.TProtocol) (err er
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 4:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -9111,7 +8873,7 @@ func (p *QueryPrivateHistoryMessageRequest) ReadField1(iprot thrift.TProtocol) e
 	} else {
 		_field = v
 	}
-	p.UserID = _field
+	p.ToID = _field
 	return nil
 }
 func (p *QueryPrivateHistoryMessageRequest) ReadField2(iprot thrift.TProtocol) error {
@@ -9122,21 +8884,10 @@ func (p *QueryPrivateHistoryMessageRequest) ReadField2(iprot thrift.TProtocol) e
 	} else {
 		_field = v
 	}
-	p.ToID = _field
-	return nil
-}
-func (p *QueryPrivateHistoryMessageRequest) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
 	p.PageNum = _field
 	return nil
 }
-func (p *QueryPrivateHistoryMessageRequest) ReadField4(iprot thrift.TProtocol) error {
+func (p *QueryPrivateHistoryMessageRequest) ReadField3(iprot thrift.TProtocol) error {
 
 	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
@@ -9166,10 +8917,6 @@ func (p *QueryPrivateHistoryMessageRequest) Write(oprot thrift.TProtocol) (err e
 			fieldId = 3
 			goto WriteFieldError
 		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -9189,10 +8936,10 @@ WriteStructEndError:
 }
 
 func (p *QueryPrivateHistoryMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("to_id", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
+	if err := oprot.WriteI64(p.ToID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9206,10 +8953,10 @@ WriteFieldEndError:
 }
 
 func (p *QueryPrivateHistoryMessageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("to_id", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("page_num", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ToID); err != nil {
+	if err := oprot.WriteI64(p.PageNum); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9223,10 +8970,10 @@ WriteFieldEndError:
 }
 
 func (p *QueryPrivateHistoryMessageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("page_num", thrift.I64, 3); err != nil {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.PageNum); err != nil {
+	if err := oprot.WriteI64(p.PageSize); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9239,23 +8986,6 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *QueryPrivateHistoryMessageRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.PageSize); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
 func (p *QueryPrivateHistoryMessageRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -9265,8 +8995,8 @@ func (p *QueryPrivateHistoryMessageRequest) String() string {
 }
 
 type QueryPrivateHistoryMessageResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" form:"base" json:"base" query:"base"`
-	Data []*base.Message `thrift:"data,2,default,list<base.Message>" form:"data" json:"data" query:"data"`
+	Base *base.BaseResp         `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data []*base.PrivateMessage `thrift:"data,2,default,list<base.PrivateMessage>" form:"data" json:"data" query:"data"`
 }
 
 func NewQueryPrivateHistoryMessageResponse() *QueryPrivateHistoryMessageResponse {
@@ -9285,7 +9015,7 @@ func (p *QueryPrivateHistoryMessageResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-func (p *QueryPrivateHistoryMessageResponse) GetData() (v []*base.Message) {
+func (p *QueryPrivateHistoryMessageResponse) GetData() (v []*base.PrivateMessage) {
 	return p.Data
 }
 
@@ -9375,8 +9105,8 @@ func (p *QueryPrivateHistoryMessageResponse) ReadField2(iprot thrift.TProtocol) 
 	if err != nil {
 		return err
 	}
-	_field := make([]*base.Message, 0, size)
-	values := make([]base.Message, size)
+	_field := make([]*base.PrivateMessage, 0, size)
+	values := make([]base.PrivateMessage, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()
@@ -9476,11 +9206,746 @@ func (p *QueryPrivateHistoryMessageResponse) String() string {
 
 }
 
+type SendGroupMessageRequest struct {
+	Data *base.GroupMessage `thrift:"data,1" form:"data" json:"data" query:"data"`
+}
+
+func NewSendGroupMessageRequest() *SendGroupMessageRequest {
+	return &SendGroupMessageRequest{}
+}
+
+func (p *SendGroupMessageRequest) InitDefault() {
+}
+
+var SendGroupMessageRequest_Data_DEFAULT *base.GroupMessage
+
+func (p *SendGroupMessageRequest) GetData() (v *base.GroupMessage) {
+	if !p.IsSetData() {
+		return SendGroupMessageRequest_Data_DEFAULT
+	}
+	return p.Data
+}
+
+var fieldIDToName_SendGroupMessageRequest = map[int16]string{
+	1: "data",
+}
+
+func (p *SendGroupMessageRequest) IsSetData() bool {
+	return p.Data != nil
+}
+
+func (p *SendGroupMessageRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SendGroupMessageRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *SendGroupMessageRequest) ReadField1(iprot thrift.TProtocol) error {
+	_field := base.NewGroupMessage()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Data = _field
+	return nil
+}
+
+func (p *SendGroupMessageRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SendGroupMessageRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *SendGroupMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Data.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *SendGroupMessageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SendGroupMessageRequest(%+v)", *p)
+
+}
+
+type SendGroupMessageResponse struct {
+	Base *base.BaseResp `thrift:"base,1" form:"base" json:"base" query:"base"`
+}
+
+func NewSendGroupMessageResponse() *SendGroupMessageResponse {
+	return &SendGroupMessageResponse{}
+}
+
+func (p *SendGroupMessageResponse) InitDefault() {
+}
+
+var SendGroupMessageResponse_Base_DEFAULT *base.BaseResp
+
+func (p *SendGroupMessageResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return SendGroupMessageResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var fieldIDToName_SendGroupMessageResponse = map[int16]string{
+	1: "base",
+}
+
+func (p *SendGroupMessageResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *SendGroupMessageResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SendGroupMessageResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *SendGroupMessageResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := base.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+
+func (p *SendGroupMessageResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SendGroupMessageResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *SendGroupMessageResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *SendGroupMessageResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SendGroupMessageResponse(%+v)", *p)
+
+}
+
+type QueryGroupOfflineMessageRequest struct {
+	GroupID  int64 `thrift:"group_id,1" form:"group_id" json:"group_id" query:"group_id"`
+	PageNum  int64 `thrift:"page_num,2" form:"page_num" json:"page_num" query:"page_num"`
+	PageSize int64 `thrift:"page_size,3" form:"page_size" json:"page_size" query:"page_size"`
+}
+
+func NewQueryGroupOfflineMessageRequest() *QueryGroupOfflineMessageRequest {
+	return &QueryGroupOfflineMessageRequest{}
+}
+
+func (p *QueryGroupOfflineMessageRequest) InitDefault() {
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetGroupID() (v int64) {
+	return p.GroupID
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetPageNum() (v int64) {
+	return p.PageNum
+}
+
+func (p *QueryGroupOfflineMessageRequest) GetPageSize() (v int64) {
+	return p.PageSize
+}
+
+var fieldIDToName_QueryGroupOfflineMessageRequest = map[int16]string{
+	1: "group_id",
+	2: "page_num",
+	3: "page_size",
+}
+
+func (p *QueryGroupOfflineMessageRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_QueryGroupOfflineMessageRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.GroupID = _field
+	return nil
+}
+func (p *QueryGroupOfflineMessageRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.PageNum = _field
+	return nil
+}
+func (p *QueryGroupOfflineMessageRequest) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.PageSize = _field
+	return nil
+}
+
+func (p *QueryGroupOfflineMessageRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("QueryGroupOfflineMessageRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("group_id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.GroupID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("page_num", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.PageNum); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.PageSize); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryGroupOfflineMessageRequest(%+v)", *p)
+
+}
+
+type QueryGroupOfflineMessageResponse struct {
+	Base *base.BaseResp       `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data []*base.GroupMessage `thrift:"data,2,default,list<base.GroupMessage>" form:"data" json:"data" query:"data"`
+}
+
+func NewQueryGroupOfflineMessageResponse() *QueryGroupOfflineMessageResponse {
+	return &QueryGroupOfflineMessageResponse{}
+}
+
+func (p *QueryGroupOfflineMessageResponse) InitDefault() {
+}
+
+var QueryGroupOfflineMessageResponse_Base_DEFAULT *base.BaseResp
+
+func (p *QueryGroupOfflineMessageResponse) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return QueryGroupOfflineMessageResponse_Base_DEFAULT
+	}
+	return p.Base
+}
+
+func (p *QueryGroupOfflineMessageResponse) GetData() (v []*base.GroupMessage) {
+	return p.Data
+}
+
+var fieldIDToName_QueryGroupOfflineMessageResponse = map[int16]string{
+	1: "base",
+	2: "data",
+}
+
+func (p *QueryGroupOfflineMessageResponse) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *QueryGroupOfflineMessageResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_QueryGroupOfflineMessageResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := base.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+func (p *QueryGroupOfflineMessageResponse) ReadField2(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make([]*base.GroupMessage, 0, size)
+	values := make([]base.GroupMessage, size)
+	for i := 0; i < size; i++ {
+		_elem := &values[i]
+		_elem.InitDefault()
+
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.Data = _field
+	return nil
+}
+
+func (p *QueryGroupOfflineMessageResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("QueryGroupOfflineMessageResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Data)); err != nil {
+		return err
+	}
+	for _, v := range p.Data {
+		if err := v.Write(oprot); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *QueryGroupOfflineMessageResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryGroupOfflineMessageResponse(%+v)", *p)
+
+}
+
 type QueryGroupHistoryMessageRequest struct {
-	UserID   int64 `thrift:"user_id,1" form:"user_id" json:"user_id" query:"user_id"`
-	ToID     int64 `thrift:"to_id,2" form:"to_id" json:"to_id" query:"to_id"`
-	PageNum  int64 `thrift:"page_num,3" form:"page_num" json:"page_num" query:"page_num"`
-	PageSize int64 `thrift:"page_size,4" form:"page_size" json:"page_size" query:"page_size"`
+	GroupID  int64 `thrift:"group_id,1" form:"group_id" json:"group_id" query:"group_id"`
+	PageNum  int64 `thrift:"page_num,2" form:"page_num" json:"page_num" query:"page_num"`
+	PageSize int64 `thrift:"page_size,3" form:"page_size" json:"page_size" query:"page_size"`
 }
 
 func NewQueryGroupHistoryMessageRequest() *QueryGroupHistoryMessageRequest {
@@ -9490,12 +9955,8 @@ func NewQueryGroupHistoryMessageRequest() *QueryGroupHistoryMessageRequest {
 func (p *QueryGroupHistoryMessageRequest) InitDefault() {
 }
 
-func (p *QueryGroupHistoryMessageRequest) GetUserID() (v int64) {
-	return p.UserID
-}
-
-func (p *QueryGroupHistoryMessageRequest) GetToID() (v int64) {
-	return p.ToID
+func (p *QueryGroupHistoryMessageRequest) GetGroupID() (v int64) {
+	return p.GroupID
 }
 
 func (p *QueryGroupHistoryMessageRequest) GetPageNum() (v int64) {
@@ -9507,10 +9968,9 @@ func (p *QueryGroupHistoryMessageRequest) GetPageSize() (v int64) {
 }
 
 var fieldIDToName_QueryGroupHistoryMessageRequest = map[int16]string{
-	1: "user_id",
-	2: "to_id",
-	3: "page_num",
-	4: "page_size",
+	1: "group_id",
+	2: "page_num",
+	3: "page_size",
 }
 
 func (p *QueryGroupHistoryMessageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -9556,14 +10016,6 @@ func (p *QueryGroupHistoryMessageRequest) Read(iprot thrift.TProtocol) (err erro
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
-		case 4:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -9601,7 +10053,7 @@ func (p *QueryGroupHistoryMessageRequest) ReadField1(iprot thrift.TProtocol) err
 	} else {
 		_field = v
 	}
-	p.UserID = _field
+	p.GroupID = _field
 	return nil
 }
 func (p *QueryGroupHistoryMessageRequest) ReadField2(iprot thrift.TProtocol) error {
@@ -9612,21 +10064,10 @@ func (p *QueryGroupHistoryMessageRequest) ReadField2(iprot thrift.TProtocol) err
 	} else {
 		_field = v
 	}
-	p.ToID = _field
-	return nil
-}
-func (p *QueryGroupHistoryMessageRequest) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
 	p.PageNum = _field
 	return nil
 }
-func (p *QueryGroupHistoryMessageRequest) ReadField4(iprot thrift.TProtocol) error {
+func (p *QueryGroupHistoryMessageRequest) ReadField3(iprot thrift.TProtocol) error {
 
 	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
@@ -9656,10 +10097,6 @@ func (p *QueryGroupHistoryMessageRequest) Write(oprot thrift.TProtocol) (err err
 			fieldId = 3
 			goto WriteFieldError
 		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -9679,10 +10116,10 @@ WriteStructEndError:
 }
 
 func (p *QueryGroupHistoryMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("group_id", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.UserID); err != nil {
+	if err := oprot.WriteI64(p.GroupID); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9696,10 +10133,10 @@ WriteFieldEndError:
 }
 
 func (p *QueryGroupHistoryMessageRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("to_id", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("page_num", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ToID); err != nil {
+	if err := oprot.WriteI64(p.PageNum); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9713,10 +10150,10 @@ WriteFieldEndError:
 }
 
 func (p *QueryGroupHistoryMessageRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("page_num", thrift.I64, 3); err != nil {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.PageNum); err != nil {
+	if err := oprot.WriteI64(p.PageSize); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9729,23 +10166,6 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *QueryGroupHistoryMessageRequest) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.PageSize); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
 func (p *QueryGroupHistoryMessageRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -9755,8 +10175,8 @@ func (p *QueryGroupHistoryMessageRequest) String() string {
 }
 
 type QueryGroupHistoryMessageResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" form:"base" json:"base" query:"base"`
-	Data []*base.Message `thrift:"data,2,default,list<base.Message>" form:"data" json:"data" query:"data"`
+	Base *base.BaseResp       `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data []*base.GroupMessage `thrift:"data,2,default,list<base.GroupMessage>" form:"data" json:"data" query:"data"`
 }
 
 func NewQueryGroupHistoryMessageResponse() *QueryGroupHistoryMessageResponse {
@@ -9775,7 +10195,7 @@ func (p *QueryGroupHistoryMessageResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-func (p *QueryGroupHistoryMessageResponse) GetData() (v []*base.Message) {
+func (p *QueryGroupHistoryMessageResponse) GetData() (v []*base.GroupMessage) {
 	return p.Data
 }
 
@@ -9865,8 +10285,8 @@ func (p *QueryGroupHistoryMessageResponse) ReadField2(iprot thrift.TProtocol) er
 	if err != nil {
 		return err
 	}
-	_field := make([]*base.Message, 0, size)
-	values := make([]base.Message, size)
+	_field := make([]*base.GroupMessage, 0, size)
+	values := make([]base.GroupMessage, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()

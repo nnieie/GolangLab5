@@ -356,87 +356,134 @@ var fieldIDToName_Comment = map[int16]string{
 	10: "deleted_at",
 }
 
-type Message struct {
+type PrivateMessage struct {
 	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
 	FromUserId int64  `thrift:"from_user_id,2" frugal:"2,default,i64" json:"from_user_id"`
 	ToUserId   int64  `thrift:"to_user_id,3" frugal:"3,default,i64" json:"to_user_id"`
-	GroupId    int64  `thrift:"group_id,4" frugal:"4,default,i64" json:"group_id"`
-	Content    string `thrift:"content,5" frugal:"5,default,string" json:"content"`
-	Type       int64  `thrift:"type,6" frugal:"6,default,i64" json:"type"`
-	CreatedAt  string `thrift:"created_at,7" frugal:"7,default,string" json:"created_at"`
+	Content    string `thrift:"content,4" frugal:"4,default,string" json:"content"`
+	CreatedAt  int64  `thrift:"created_at,5" frugal:"5,default,i64" json:"created_at"`
 }
 
-func NewMessage() *Message {
-	return &Message{}
+func NewPrivateMessage() *PrivateMessage {
+	return &PrivateMessage{}
 }
 
-func (p *Message) InitDefault() {
+func (p *PrivateMessage) InitDefault() {
 }
 
-func (p *Message) GetId() (v int64) {
+func (p *PrivateMessage) GetId() (v int64) {
 	return p.Id
 }
 
-func (p *Message) GetFromUserId() (v int64) {
+func (p *PrivateMessage) GetFromUserId() (v int64) {
 	return p.FromUserId
 }
 
-func (p *Message) GetToUserId() (v int64) {
+func (p *PrivateMessage) GetToUserId() (v int64) {
 	return p.ToUserId
 }
 
-func (p *Message) GetGroupId() (v int64) {
-	return p.GroupId
-}
-
-func (p *Message) GetContent() (v string) {
+func (p *PrivateMessage) GetContent() (v string) {
 	return p.Content
 }
 
-func (p *Message) GetType() (v int64) {
-	return p.Type
-}
-
-func (p *Message) GetCreatedAt() (v string) {
+func (p *PrivateMessage) GetCreatedAt() (v int64) {
 	return p.CreatedAt
 }
-func (p *Message) SetId(val int64) {
+func (p *PrivateMessage) SetId(val int64) {
 	p.Id = val
 }
-func (p *Message) SetFromUserId(val int64) {
+func (p *PrivateMessage) SetFromUserId(val int64) {
 	p.FromUserId = val
 }
-func (p *Message) SetToUserId(val int64) {
+func (p *PrivateMessage) SetToUserId(val int64) {
 	p.ToUserId = val
 }
-func (p *Message) SetGroupId(val int64) {
-	p.GroupId = val
-}
-func (p *Message) SetContent(val string) {
+func (p *PrivateMessage) SetContent(val string) {
 	p.Content = val
 }
-func (p *Message) SetType(val int64) {
-	p.Type = val
-}
-func (p *Message) SetCreatedAt(val string) {
+func (p *PrivateMessage) SetCreatedAt(val int64) {
 	p.CreatedAt = val
 }
 
-func (p *Message) String() string {
+func (p *PrivateMessage) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("Message(%+v)", *p)
+	return fmt.Sprintf("PrivateMessage(%+v)", *p)
 }
 
-var fieldIDToName_Message = map[int16]string{
+var fieldIDToName_PrivateMessage = map[int16]string{
 	1: "id",
 	2: "from_user_id",
 	3: "to_user_id",
-	4: "group_id",
-	5: "content",
-	6: "type",
-	7: "created_at",
+	4: "content",
+	5: "created_at",
+}
+
+type GroupMessage struct {
+	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+	FromUserId int64  `thrift:"from_user_id,2" frugal:"2,default,i64" json:"from_user_id"`
+	GroupId    int64  `thrift:"group_id,3" frugal:"3,default,i64" json:"group_id"`
+	Content    string `thrift:"content,4" frugal:"4,default,string" json:"content"`
+	CreatedAt  int64  `thrift:"created_at,5" frugal:"5,default,i64" json:"created_at"`
+}
+
+func NewGroupMessage() *GroupMessage {
+	return &GroupMessage{}
+}
+
+func (p *GroupMessage) InitDefault() {
+}
+
+func (p *GroupMessage) GetId() (v int64) {
+	return p.Id
+}
+
+func (p *GroupMessage) GetFromUserId() (v int64) {
+	return p.FromUserId
+}
+
+func (p *GroupMessage) GetGroupId() (v int64) {
+	return p.GroupId
+}
+
+func (p *GroupMessage) GetContent() (v string) {
+	return p.Content
+}
+
+func (p *GroupMessage) GetCreatedAt() (v int64) {
+	return p.CreatedAt
+}
+func (p *GroupMessage) SetId(val int64) {
+	p.Id = val
+}
+func (p *GroupMessage) SetFromUserId(val int64) {
+	p.FromUserId = val
+}
+func (p *GroupMessage) SetGroupId(val int64) {
+	p.GroupId = val
+}
+func (p *GroupMessage) SetContent(val string) {
+	p.Content = val
+}
+func (p *GroupMessage) SetCreatedAt(val int64) {
+	p.CreatedAt = val
+}
+
+func (p *GroupMessage) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GroupMessage(%+v)", *p)
+}
+
+var fieldIDToName_GroupMessage = map[int16]string{
+	1: "id",
+	2: "from_user_id",
+	3: "group_id",
+	4: "content",
+	5: "created_at",
 }
 
 type MFAQrcode struct {

@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
@@ -16,6 +17,10 @@ type User struct {
 	Avatar   string
 	TOTP     string
 	gorm.Model
+}
+
+func (User) TableName() string {
+	return constants.UserTableName
 }
 
 func CreateUser(ctx context.Context, user *User) (int64, error) {
@@ -114,7 +119,7 @@ func UpdateAvatar(ctx context.Context, userID int64, avatar string) (*User, erro
 
 func SearchUserIdsByName(ctx context.Context, pattern string, page, pageSize int64) ([]int64, error) {
 	userIds := make([]int64, 0)
-	err := DB.WithContext(ctx).
+	err := DB.WithContext(ctx).Model(&User{}).
 		Where("user_name LIKE ?", "%"+pattern+"%").
 		Limit(int(pageSize)).Offset(int((page-1)*pageSize)).
 		Pluck("id", &userIds).Error
