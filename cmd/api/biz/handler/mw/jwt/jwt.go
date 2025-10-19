@@ -25,7 +25,7 @@ func InitJwt() {
 		Key:         []byte(constants.AccessTokenSecretKey),
 		Timeout:     time.Hour,
 		IdentityKey: identityKey,
-		TokenLookup: "header: Access-Token, cookie: access_token",
+		TokenLookup: "header: Access-Token, cookie: access_token, query: token",
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*base.User); ok {
 				return jwt.MapClaims{identityKey: v.ID}

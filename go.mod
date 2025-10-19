@@ -14,6 +14,7 @@ require (
 	github.com/cloudwego/hertz v0.10.2
 	github.com/cloudwego/kitex v0.15.1
 	github.com/hertz-contrib/jwt v1.0.4
+	github.com/hertz-contrib/websocket v0.2.0
 	github.com/kitex-contrib/registry-etcd v0.3.0
 	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.14.0

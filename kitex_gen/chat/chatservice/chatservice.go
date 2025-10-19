@@ -13,10 +13,10 @@ import (
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
 
 var serviceMethods = map[string]kitex.MethodInfo{
-	"SendMessage": kitex.NewMethodInfo(
-		sendMessageHandler,
-		newChatServiceSendMessageArgs,
-		newChatServiceSendMessageResult,
+	"SendPrivateMessage": kitex.NewMethodInfo(
+		sendPrivateMessageHandler,
+		newChatServiceSendPrivateMessageArgs,
+		newChatServiceSendPrivateMessageResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -34,10 +34,38 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"SendGroupMessage": kitex.NewMethodInfo(
+		sendGroupMessageHandler,
+		newChatServiceSendGroupMessageArgs,
+		newChatServiceSendGroupMessageResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"QueryGroupOfflineMessage": kitex.NewMethodInfo(
+		queryGroupOfflineMessageHandler,
+		newChatServiceQueryGroupOfflineMessageArgs,
+		newChatServiceQueryGroupOfflineMessageResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"QueryGroupHistoryMessage": kitex.NewMethodInfo(
 		queryGroupHistoryMessageHandler,
 		newChatServiceQueryGroupHistoryMessageArgs,
 		newChatServiceQueryGroupHistoryMessageResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"QueryGroupMembers": kitex.NewMethodInfo(
+		queryGroupMembersHandler,
+		newChatServiceQueryGroupMembersArgs,
+		newChatServiceQueryGroupMembersResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"CheckUserExistInGroup": kitex.NewMethodInfo(
+		checkUserExistInGroupHandler,
+		newChatServiceCheckUserExistInGroupArgs,
+		newChatServiceCheckUserExistInGroupResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -107,22 +135,22 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 	return svcInfo
 }
 
-func sendMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*chat.ChatServiceSendMessageArgs)
-	realResult := result.(*chat.ChatServiceSendMessageResult)
-	success, err := handler.(chat.ChatService).SendMessage(ctx, realArg.Req)
+func sendPrivateMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*chat.ChatServiceSendPrivateMessageArgs)
+	realResult := result.(*chat.ChatServiceSendPrivateMessageResult)
+	success, err := handler.(chat.ChatService).SendPrivateMessage(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newChatServiceSendMessageArgs() interface{} {
-	return chat.NewChatServiceSendMessageArgs()
+func newChatServiceSendPrivateMessageArgs() interface{} {
+	return chat.NewChatServiceSendPrivateMessageArgs()
 }
 
-func newChatServiceSendMessageResult() interface{} {
-	return chat.NewChatServiceSendMessageResult()
+func newChatServiceSendPrivateMessageResult() interface{} {
+	return chat.NewChatServiceSendPrivateMessageResult()
 }
 
 func queryPrivateOfflineMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -161,6 +189,42 @@ func newChatServiceQueryPrivateHistoryMessageResult() interface{} {
 	return chat.NewChatServiceQueryPrivateHistoryMessageResult()
 }
 
+func sendGroupMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*chat.ChatServiceSendGroupMessageArgs)
+	realResult := result.(*chat.ChatServiceSendGroupMessageResult)
+	success, err := handler.(chat.ChatService).SendGroupMessage(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newChatServiceSendGroupMessageArgs() interface{} {
+	return chat.NewChatServiceSendGroupMessageArgs()
+}
+
+func newChatServiceSendGroupMessageResult() interface{} {
+	return chat.NewChatServiceSendGroupMessageResult()
+}
+
+func queryGroupOfflineMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*chat.ChatServiceQueryGroupOfflineMessageArgs)
+	realResult := result.(*chat.ChatServiceQueryGroupOfflineMessageResult)
+	success, err := handler.(chat.ChatService).QueryGroupOfflineMessage(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newChatServiceQueryGroupOfflineMessageArgs() interface{} {
+	return chat.NewChatServiceQueryGroupOfflineMessageArgs()
+}
+
+func newChatServiceQueryGroupOfflineMessageResult() interface{} {
+	return chat.NewChatServiceQueryGroupOfflineMessageResult()
+}
+
 func queryGroupHistoryMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*chat.ChatServiceQueryGroupHistoryMessageArgs)
 	realResult := result.(*chat.ChatServiceQueryGroupHistoryMessageResult)
@@ -179,6 +243,42 @@ func newChatServiceQueryGroupHistoryMessageResult() interface{} {
 	return chat.NewChatServiceQueryGroupHistoryMessageResult()
 }
 
+func queryGroupMembersHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*chat.ChatServiceQueryGroupMembersArgs)
+	realResult := result.(*chat.ChatServiceQueryGroupMembersResult)
+	success, err := handler.(chat.ChatService).QueryGroupMembers(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newChatServiceQueryGroupMembersArgs() interface{} {
+	return chat.NewChatServiceQueryGroupMembersArgs()
+}
+
+func newChatServiceQueryGroupMembersResult() interface{} {
+	return chat.NewChatServiceQueryGroupMembersResult()
+}
+
+func checkUserExistInGroupHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*chat.ChatServiceCheckUserExistInGroupArgs)
+	realResult := result.(*chat.ChatServiceCheckUserExistInGroupResult)
+	success, err := handler.(chat.ChatService).CheckUserExistInGroup(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newChatServiceCheckUserExistInGroupArgs() interface{} {
+	return chat.NewChatServiceCheckUserExistInGroupArgs()
+}
+
+func newChatServiceCheckUserExistInGroupResult() interface{} {
+	return chat.NewChatServiceCheckUserExistInGroupResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -189,11 +289,11 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) SendMessage(ctx context.Context, req *chat.SendMessageRequest) (r *chat.SendMessageResponse, err error) {
-	var _args chat.ChatServiceSendMessageArgs
+func (p *kClient) SendPrivateMessage(ctx context.Context, req *chat.SendPrivateMessageRequest) (r *chat.SendPrivateMessageResponse, err error) {
+	var _args chat.ChatServiceSendPrivateMessageArgs
 	_args.Req = req
-	var _result chat.ChatServiceSendMessageResult
-	if err = p.c.Call(ctx, "SendMessage", &_args, &_result); err != nil {
+	var _result chat.ChatServiceSendPrivateMessageResult
+	if err = p.c.Call(ctx, "SendPrivateMessage", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -219,11 +319,51 @@ func (p *kClient) QueryPrivateHistoryMessage(ctx context.Context, req *chat.Quer
 	return _result.GetSuccess(), nil
 }
 
+func (p *kClient) SendGroupMessage(ctx context.Context, req *chat.SendGroupMessageRequest) (r *chat.SendGroupMessageResponse, err error) {
+	var _args chat.ChatServiceSendGroupMessageArgs
+	_args.Req = req
+	var _result chat.ChatServiceSendGroupMessageResult
+	if err = p.c.Call(ctx, "SendGroupMessage", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) QueryGroupOfflineMessage(ctx context.Context, req *chat.QueryGroupOfflineMessageRequest) (r *chat.QueryGroupOfflineMessageResponse, err error) {
+	var _args chat.ChatServiceQueryGroupOfflineMessageArgs
+	_args.Req = req
+	var _result chat.ChatServiceQueryGroupOfflineMessageResult
+	if err = p.c.Call(ctx, "QueryGroupOfflineMessage", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
 func (p *kClient) QueryGroupHistoryMessage(ctx context.Context, req *chat.QueryGroupHistoryMessageRequest) (r *chat.QueryGroupHistoryMessageResponse, err error) {
 	var _args chat.ChatServiceQueryGroupHistoryMessageArgs
 	_args.Req = req
 	var _result chat.ChatServiceQueryGroupHistoryMessageResult
 	if err = p.c.Call(ctx, "QueryGroupHistoryMessage", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) QueryGroupMembers(ctx context.Context, req *chat.QueryGroupMembersRequest) (r *chat.QueryGroupMembersResponse, err error) {
+	var _args chat.ChatServiceQueryGroupMembersArgs
+	_args.Req = req
+	var _result chat.ChatServiceQueryGroupMembersResult
+	if err = p.c.Call(ctx, "QueryGroupMembers", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CheckUserExistInGroup(ctx context.Context, req *chat.CheckUserExistInGroupRequest) (r *chat.CheckUserExistInGroupResponse, err error) {
+	var _args chat.ChatServiceCheckUserExistInGroupArgs
+	_args.Req = req
+	var _result chat.ChatServiceCheckUserExistInGroupResult
+	if err = p.c.Call(ctx, "CheckUserExistInGroup", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

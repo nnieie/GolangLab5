@@ -76,6 +76,20 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetLastLogoutTime": kitex.NewMethodInfo(
+		getLastLogoutTimeHandler,
+		newUserServiceGetLastLogoutTimeArgs,
+		newUserServiceGetLastLogoutTimeResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"UpdateLastLogoutTime": kitex.NewMethodInfo(
+		updateLastLogoutTimeHandler,
+		newUserServiceUpdateLastLogoutTimeArgs,
+		newUserServiceUpdateLastLogoutTimeResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -304,6 +318,42 @@ func newUserServiceQueryUsersByIDsResult() interface{} {
 	return user.NewUserServiceQueryUsersByIDsResult()
 }
 
+func getLastLogoutTimeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceGetLastLogoutTimeArgs)
+	realResult := result.(*user.UserServiceGetLastLogoutTimeResult)
+	success, err := handler.(user.UserService).GetLastLogoutTime(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceGetLastLogoutTimeArgs() interface{} {
+	return user.NewUserServiceGetLastLogoutTimeArgs()
+}
+
+func newUserServiceGetLastLogoutTimeResult() interface{} {
+	return user.NewUserServiceGetLastLogoutTimeResult()
+}
+
+func updateLastLogoutTimeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceUpdateLastLogoutTimeArgs)
+	realResult := result.(*user.UserServiceUpdateLastLogoutTimeResult)
+	success, err := handler.(user.UserService).UpdateLastLogoutTime(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceUpdateLastLogoutTimeArgs() interface{} {
+	return user.NewUserServiceUpdateLastLogoutTimeArgs()
+}
+
+func newUserServiceUpdateLastLogoutTimeResult() interface{} {
+	return user.NewUserServiceUpdateLastLogoutTimeResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -399,6 +449,26 @@ func (p *kClient) QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDs
 	_args.Req = req
 	var _result user.UserServiceQueryUsersByIDsResult
 	if err = p.c.Call(ctx, "QueryUsersByIDs", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetLastLogoutTime(ctx context.Context, req *user.GetLastLogoutTimeRequest) (r *user.GetLastLogoutTimeResponse, err error) {
+	var _args user.UserServiceGetLastLogoutTimeArgs
+	_args.Req = req
+	var _result user.UserServiceGetLastLogoutTimeResult
+	if err = p.c.Call(ctx, "GetLastLogoutTime", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateLastLogoutTime(ctx context.Context, req *user.UpdateLastLogoutTimeRequest) (r *user.UpdateLastLogoutTimeResponse, err error) {
+	var _args user.UserServiceUpdateLastLogoutTimeArgs
+	_args.Req = req
+	var _result user.UserServiceUpdateLastLogoutTimeResult
+	if err = p.c.Call(ctx, "UpdateLastLogoutTime", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

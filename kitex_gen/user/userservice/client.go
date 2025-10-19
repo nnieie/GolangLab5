@@ -20,6 +20,8 @@ type Client interface {
 	SearchUserIdsByName(ctx context.Context, req *user.SearchUserIdsByNameRequest, callOptions ...callopt.Option) (r *user.SearchUserIdsByNameResponse, err error)
 	QueryUserByID(ctx context.Context, req *user.QueryUserByIDRequest, callOptions ...callopt.Option) (r *user.QueryUserByIDResponse, err error)
 	QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDsRequest, callOptions ...callopt.Option) (r *user.QueryUsersByIDsResponse, err error)
+	GetLastLogoutTime(ctx context.Context, req *user.GetLastLogoutTimeRequest, callOptions ...callopt.Option) (r *user.GetLastLogoutTimeResponse, err error)
+	UpdateLastLogoutTime(ctx context.Context, req *user.UpdateLastLogoutTimeRequest, callOptions ...callopt.Option) (r *user.UpdateLastLogoutTimeResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -94,4 +96,14 @@ func (p *kUserServiceClient) QueryUserByID(ctx context.Context, req *user.QueryU
 func (p *kUserServiceClient) QueryUsersByIDs(ctx context.Context, req *user.QueryUsersByIDsRequest, callOptions ...callopt.Option) (r *user.QueryUsersByIDsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.QueryUsersByIDs(ctx, req)
+}
+
+func (p *kUserServiceClient) GetLastLogoutTime(ctx context.Context, req *user.GetLastLogoutTimeRequest, callOptions ...callopt.Option) (r *user.GetLastLogoutTimeResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetLastLogoutTime(ctx, req)
+}
+
+func (p *kUserServiceClient) UpdateLastLogoutTime(ctx context.Context, req *user.UpdateLastLogoutTimeRequest, callOptions ...callopt.Option) (r *user.UpdateLastLogoutTimeResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UpdateLastLogoutTime(ctx, req)
 }

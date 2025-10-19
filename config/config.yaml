@@ -22,3 +22,6 @@ services:
   interaction:
     name: interaction
     addr: 127.0.0.1:11396
+  chat:
+    name: chat
+    addr: 127.0.0.1:11397

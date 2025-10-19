@@ -42,14 +42,20 @@ struct Comment{
     10: string deleted_at,
 }
 
-struct Message {
+struct PrivateMessage {
   1: i64 id,
   2: i64 from_user_id,
   3: i64 to_user_id,
-  4: i64 group_id,
-  5: string content,
-  6: i64 type,
-  7: string created_at,
+  4: string content,
+  5: i64 created_at,
+}
+
+struct GroupMessage {
+  1: i64 id,
+  2: i64 from_user_id,
+  3: i64 group_id,
+  4: string content,
+  5: i64 created_at,
 }
 
 struct MFAQrcode{

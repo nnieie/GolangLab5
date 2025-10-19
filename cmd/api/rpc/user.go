@@ -91,3 +91,8 @@ func UserAvatar(ctx context.Context, req *user.UploadAvatarRequest) (*user.Uploa
 
 	return resp, nil
 }
+
+func UpdateUserLastLogoutTime(ctx context.Context, req *user.UpdateLastLogoutTimeRequest) error {
+	_, err := userClient.UpdateLastLogoutTime(ctx, req)
+	return err
+}
