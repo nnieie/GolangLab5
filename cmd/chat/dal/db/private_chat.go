@@ -44,3 +44,13 @@ func QueryPrivateMessageByTime(fromUser, toUser int64, pageNum, pageSize int64, 
 	}
 	return msgs, nil
 }
+
+func BatchCreatePrivateMessages(messages []*PrivateMessage) error {
+	if len(messages) == 0 {
+		return nil
+	}
+	if err := DB.CreateInBatches(messages, len(messages)).Error; err != nil {
+		return err
+	}
+	return nil
+}

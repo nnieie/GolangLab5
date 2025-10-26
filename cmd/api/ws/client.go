@@ -25,6 +25,9 @@ type Client struct {
 
 func (c *Client) readPump() {
 	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("panic in readPump: %v", r)
+		}
 		c.conn.Close()
 		hub.unregister <- c
 	}()
@@ -40,6 +43,7 @@ func (c *Client) readPump() {
 	for {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
+			logger.Debugf("read message error for user %v: %v", c.userID, err)
 			break
 		}
 
@@ -79,6 +83,7 @@ func (c *Client) writePump() {
 			}
 			writer, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
+				logger.Errorf("failed to get next writer: %v", err)
 				return
 			}
 			_, err = writer.Write(message)
@@ -89,9 +94,11 @@ func (c *Client) writePump() {
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				if _, err := writer.Write([]byte{'\n'}); err != nil {
+					logger.Errorf("write newline error: %v", err)
 					return
 				}
 				if _, err = writer.Write(<-c.send); err != nil {
+					logger.Errorf("write additional message error: %v", err)
 					return
 				}
 			}
@@ -122,15 +129,26 @@ func ServeWs(svc *ChatService, conn *websocket.Conn) {
 		}
 		return
 	}
+
+	if conn == nil {
+		logger.Errorf("websocket connection is nil")
+		return
+	}
+
 	client := &Client{
 		userID: svc.userID,
 		conn:   conn,
 		send:   make(chan []byte, maxMessageChannelSize),
 		svc:    svc,
 	}
+
+	logger.Debugf("new websocket client connected: user %v", client.userID)
 	hub.register <- client
+
 	go client.writePump()
 	client.readPump()
+
+	logger.Debugf("websocket client disconnected: user %v", client.userID)
 }
 
 func (c *Client) sendStruct(s any) {
