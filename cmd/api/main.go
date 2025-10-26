@@ -25,8 +25,9 @@ func main() {
 	// 初始化 WebSocket Chat Hub
 	chat.InitChatHub()
 
-	h := server.Default()
-
+	h := server.New(
+        server.WithHostPorts("0.0.0.0:11391"),
+    )
 	register(h)
 	h.Spin()
 }

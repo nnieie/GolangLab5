@@ -57,6 +57,7 @@ linters:
         - assign
       ignored-numbers:
         - "7"
+        - "2"
       ignored-files:
         - magic1_.+\.go$
       ignored-functions:

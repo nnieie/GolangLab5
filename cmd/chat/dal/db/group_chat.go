@@ -44,3 +44,14 @@ func QueryGroupMessageByTime(groupID int64, pageNum, pageSize int64, since time.
 	}
 	return msgs, nil
 }
+
+func BatchCreateGroupMessages(messages []*GroupMessage) error {
+	if len(messages) == 0 {
+		return nil
+	}
+	if err := DB.CreateInBatches(messages, len(messages)).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

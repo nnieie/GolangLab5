@@ -7,7 +7,7 @@ API_PATH= $(DIR)/cmd/api
 
 MODULE = github.com/nnieie/golanglab5
 
-SERVICES := api user
+SERVICES := api user video social interaction chat
 
 
 .PHONY: kitex-gen-%

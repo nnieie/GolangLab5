@@ -40,6 +40,8 @@ const (
 	TOTPSecretExpiredErrCode
 	NotGenerateTotpErrCode
 	MFAInvalidCodeErrCode
+
+	CacheMissErrCode
 )
 
 const (
@@ -67,6 +69,8 @@ const (
 	TOTPSecretExpiredErrMsg = "TOTP secret has expired"
 	NotGenerateTotpErrMsg   = "TOTP secret not generated or invalidated"
 	MFAInvalidCodeErrMsg    = "MFA code is invalid"
+
+	CacheMissErrMsg = "cache miss"
 )
 
 type ErrNo struct {
@@ -118,6 +122,8 @@ var (
 	TOTPSecretExpiredErr = NewErrNo(TOTPSecretExpiredErrCode, TOTPSecretExpiredErrMsg)
 	NotGenerateTotpErr   = NewErrNo(NotGenerateTotpErrCode, NotGenerateTotpErrMsg)
 	MFAInvalidCodeErr    = NewErrNo(MFAInvalidCodeErrCode, MFAInvalidCodeErrMsg)
+
+	CacheMissErr = NewErrNo(CacheMissErrCode, CacheMissErrMsg)
 )
 
 // ConvertErr convert error to Errno

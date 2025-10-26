@@ -1,6 +1,7 @@
 package pack
 
 import (
+	"github.com/nnieie/golanglab5/cmd/chat/dal/cache"
 	"github.com/nnieie/golanglab5/cmd/chat/dal/db"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 )
@@ -41,4 +42,31 @@ func DBGroupMessagesToChatGroupMessages(dbMsgs []*db.GroupMessage) []*base.Group
 		chatMsgs = append(chatMsgs, DBGroupMessageToChatGroupMessage(msg))
 	}
 	return chatMsgs
+}
+
+func ConvertCachedToBaseMessages(cachedMsgs []*cache.CachedPrivateMessage) []*base.PrivateMessage {
+	baseMsgs := make([]*base.PrivateMessage, 0, len(cachedMsgs))
+	for _, cachedMsg := range cachedMsgs {
+		baseMsgs = append(baseMsgs, &base.PrivateMessage{
+			FromUserId: cachedMsg.FromUserID,
+			ToUserId:   cachedMsg.ToUserID,
+			Content:    cachedMsg.Content,
+			CreatedAt:  cachedMsg.CreatedAt.Unix(),
+		})
+	}
+	return baseMsgs
+}
+
+// 转换缓存的群聊消息为基础消息
+func ConvertCachedGroupToBaseMessages(cachedMsgs []*cache.CachedGroupMessage) []*base.GroupMessage {
+	baseMsgs := make([]*base.GroupMessage, 0, len(cachedMsgs))
+	for _, cachedMsg := range cachedMsgs {
+		baseMsgs = append(baseMsgs, &base.GroupMessage{
+			FromUserId: cachedMsg.FromUserID,
+			GroupId:    cachedMsg.GroupID,
+			Content:    cachedMsg.Content,
+			CreatedAt:  cachedMsg.CreatedAt.Unix(),
+		})
+	}
+	return baseMsgs
 }

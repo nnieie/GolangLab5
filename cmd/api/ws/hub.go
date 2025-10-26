@@ -59,15 +59,17 @@ func (h *Hub) run() {
 				}
 			}
 		case msg := <-h.broadcast:
-			for _, uid := range msg.TargetUserIDs {
-				if client, ok := h.clients[uid]; ok {
-					select {
-					case client.send <- msg.Payload:
-					default:
-						h.unregister <- h.clients[uid]
+			go func() {
+				for _, uid := range msg.TargetUserIDs {
+					if client, ok := h.clients[uid]; ok {
+						select {
+						case client.send <- msg.Payload:
+						default:
+							h.unregister <- h.clients[uid]
+						}
 					}
 				}
-			}
+			}()
 		}
 	}
 }
