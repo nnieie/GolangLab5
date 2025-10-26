@@ -28,7 +28,7 @@ func (s *UserService) BindMFA(code, secret string, userID int64) (bool, error) {
 		return false, errno.MFAInvalidCodeErr
 	}
 
-	ok := utils.CheckTotp(code, cacheEncryptedSecret)
+	ok := utils.CheckTotp(code, cacheSecret)
 	if !ok {
 		logger.Infof("user %d bind mfa err: invalid code, %s %s", userID, code, cacheSecret)
 		return false, errno.MFAInvalidCodeErr

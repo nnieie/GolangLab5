@@ -13,11 +13,7 @@ func GenerateTotp(userName string) (*otp.Key, error) {
 	})
 }
 
-// CheckTotp 验证AES加密后的 TOTP
-func CheckTotp(passcode string, encryptedSecret string) bool {
-	secret, err := Decrypt(encryptedSecret)
-	if err != nil {
-		return false
-	}
+// CheckTotp 验证 TOTP
+func CheckTotp(passcode string, secret string) bool {
 	return totp.Validate(passcode, secret)
 }
