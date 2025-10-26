@@ -55,6 +55,10 @@ const (
 )
 
 const (
+	CryptKey = "aes256114514aes2561919810aes2566" // 32 bytes key for AES-256
+)
+
+const (
 	WriteWait      = 10 * time.Second
 	PongWait       = 60 * time.Second
 	PingPeriod     = 50 * time.Second

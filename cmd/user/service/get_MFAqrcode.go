@@ -41,8 +41,14 @@ func (s *UserService) GetMFAqrcode(userID int64) (string, string, error) {
 	}
 	base64Qrcode := base64.StdEncoding.EncodeToString(buf.Bytes())
 
-	// 将 secret 存入redis, 便于绑定验证
-	err = cache.SetTOTPSecret(s.ctx, secret, userID)
+	// 加密 secret
+	encryptedSecret, err := utils.Encrypt(secret)
+	if err != nil {
+		return "", "", err
+	}
+
+	// 将 encryptedSecret 存入redis, 便于绑定验证
+	err = cache.SetTOTPSecret(s.ctx, encryptedSecret, userID)
 	if err != nil {
 		return "", "", err
 	}
