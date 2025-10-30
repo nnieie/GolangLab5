@@ -2,6 +2,7 @@ package db
 
 import (
 	"time"
+	"context"
 
 	"gorm.io/gorm"
 
@@ -19,14 +20,14 @@ func (GroupMessage) TableName() string {
 	return constants.GroupMessageTableName
 }
 
-func CreateGroupMessage(msg *GroupMessage) error {
-	err := DB.Create(msg).Error
+func CreateGroupMessage(ctx context.Context, msg *GroupMessage) error {
+	err := DB.WithContext(ctx).Create(msg).Error
 	return err
 }
 
-func QueryGroupHistoryMessage(groupID int64, pageNum, pageSize int64) ([]*GroupMessage, error) {
+func QueryGroupHistoryMessage(ctx context.Context, groupID int64, pageNum, pageSize int64) ([]*GroupMessage, error) {
 	var msgs []*GroupMessage
-	err := DB.Where("group_id = ?", groupID).
+	err := DB.WithContext(ctx).Where("group_id = ?", groupID).
 		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
 	if err != nil {
 		return nil, err
@@ -34,9 +35,9 @@ func QueryGroupHistoryMessage(groupID int64, pageNum, pageSize int64) ([]*GroupM
 	return msgs, nil
 }
 
-func QueryGroupMessageByTime(groupID int64, pageNum, pageSize int64, since time.Time) ([]*GroupMessage, error) {
+func QueryGroupMessageByTime(ctx context.Context, groupID int64, pageNum, pageSize int64, since time.Time) ([]*GroupMessage, error) {
 	var msgs []*GroupMessage
-	err := DB.Where("group_id = ?", groupID).
+	err := DB.WithContext(ctx).Where("group_id = ?", groupID).
 		Where("created_at >= ?", since).
 		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
 	if err != nil {
@@ -45,11 +46,12 @@ func QueryGroupMessageByTime(groupID int64, pageNum, pageSize int64, since time.
 	return msgs, nil
 }
 
-func BatchCreateGroupMessages(messages []*GroupMessage) error {
+func BatchCreateGroupMessages(ctx context.Context, messages []*GroupMessage) error {
 	if len(messages) == 0 {
 		return nil
 	}
-	if err := DB.CreateInBatches(messages, len(messages)).Error; err != nil {
+	batchSize := 200
+	if err := DB.WithContext(ctx).CreateInBatches(messages, batchSize).Error; err != nil {
 		return err
 	}
 

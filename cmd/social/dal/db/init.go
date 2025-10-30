@@ -2,12 +2,12 @@ package db
 
 import (
 	"strings"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"github.com/nnieie/golanglab5/config"
-	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
@@ -25,6 +25,14 @@ func InitMySQL() {
 	if err != nil {
 		logger.Fatalf("mysql connect error: %v", err)
 	}
+	// 配置连接池
+    sqlDB, err := DB.DB()
+    if err != nil {
+        logger.Fatalf("get db instance error: %v", err)
+    }
+    sqlDB.SetMaxOpenConns(100)
+    sqlDB.SetMaxIdleConns(20)
+    sqlDB.SetConnMaxLifetime(time.Hour)
+    sqlDB.SetConnMaxIdleTime(10 * time.Minute)
 	logger.Infof("mysql connected")
-	DB = DB.Table(constants.FollowsTableName)
 }

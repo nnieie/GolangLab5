@@ -31,7 +31,7 @@ func (s *ChatService) GetGroupHistoryMessage(groupID int64, pageNum, pageSize in
 	}
 
 	// Redis没有数据，从MySQL获取
-	msg, err := db.QueryGroupHistoryMessage(groupID, pageNum, pageSize)
+	msg, err := db.QueryGroupHistoryMessage(s.ctx, groupID, pageNum, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (s *ChatService) QueryGroupMessageByTime(groupID int64, pageNum, pageSize i
 		return pack.ConvertCachedGroupToBaseMessages(cacheMsg), nil
 	}
 
-	msg, err := db.QueryGroupMessageByTime(groupID, pageNum, pageSize, time.Unix(since, 0))
+	msg, err := db.QueryGroupMessageByTime(s.ctx, groupID, pageNum, pageSize, time.Unix(since, 0))
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *ChatService) GetOfflineGroupMessage(userID, groupID int64, pageNum, pag
 	if err != nil {
 		return nil, err
 	}
-	msg, err := db.QueryGroupMessageByTime(groupID, pageNum, pageSize, time.Unix(since, 0))
+	msg, err := db.QueryGroupMessageByTime(s.ctx, groupID, pageNum, pageSize, time.Unix(since, 0))
 	if err != nil {
 		return nil, err
 	}

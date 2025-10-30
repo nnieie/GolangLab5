@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"context"
 
 	"gorm.io/gorm"
 
@@ -19,9 +20,9 @@ func (GroupMembers) TableName() string {
 	return constants.GroupMembersTableName
 }
 
-func CheckUserExistInGroup(userID, groupID int64) (bool, error) {
+func CheckUserExistInGroup(ctx context.Context, userID, groupID int64) (bool, error) {
 	var gm GroupMembers
-	err := DB.Where("group_id = ? AND user_id = ?", groupID, userID).First(&gm).Error
+	err := DB.WithContext(ctx).Where("group_id = ? AND user_id = ?", groupID, userID).First(&gm).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
@@ -31,14 +32,16 @@ func CheckUserExistInGroup(userID, groupID int64) (bool, error) {
 	return true, nil
 }
 
-func CreatGroup(userID int64) error {
+func CreateGroup(ctx context.Context, userID int64) error {
+	// TODO: CreateGroup 逻辑，再创建一个表放群信息¿
 	var maxID int64
-	err := DB.Model(&GroupMembers{}).Select("MAX(group_id)").Scan(&maxID).Error
+	err := DB.WithContext(ctx).Model(&GroupMembers{}).Select("MAX(group_id)").Scan(&maxID).Error
 	if err != nil {
 		return err
 	}
+	// TODO: 并发Boooooom💥
 	groupID := maxID + 1
-	err = DB.Create(&GroupMembers{
+	err = DB.WithContext(ctx).Create(&GroupMembers{
 		GroupID: groupID,
 		UserID:  userID,
 	}).Error
@@ -48,8 +51,8 @@ func CreatGroup(userID int64) error {
 	return nil
 }
 
-func AddGroupMember(groupID, userID int64) error {
-	err := DB.Create(&GroupMembers{
+func AddGroupMember(ctx context.Context, groupID, userID int64) error {
+	err := DB.WithContext(ctx).Create(&GroupMembers{
 		GroupID: groupID,
 		UserID:  userID,
 	}).Error
@@ -59,9 +62,9 @@ func AddGroupMember(groupID, userID int64) error {
 	return nil
 }
 
-func QueryGroupMemberIDList(groupID int64) ([]int64, error) {
+func QueryGroupMemberIDList(ctx context.Context, groupID int64) ([]int64, error) {
 	ids := make([]int64, 0)
-	err := DB.Model(&GroupMembers{}).Where("group_id = ?", groupID).Pluck("user_id", &ids).Error
+	err := DB.WithContext(ctx).Model(&GroupMembers{}).Where("group_id = ?", groupID).Pluck("user_id", &ids).Error
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 
 	"gorm.io/gorm"
 
@@ -15,16 +16,16 @@ type Follow struct {
 	gorm.Model
 }
 
+func (Follow) TableName() string {
+	return constants.FollowsTableName
+}
+
 func CreateFollows(ctx context.Context, follow *Follow) error {
-	FollowExist, err := CheckFollowExist(ctx, follow.UserID, follow.FollowerID)
+	err := DB.WithContext(ctx).Create(follow).Error
 	if err != nil {
-		return err
-	}
-	if FollowExist {
-		return errno.FollowAlreadyExistErr
-	}
-	err = DB.WithContext(ctx).Create(follow).Error
-	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return errno.FollowAlreadyExistErr
+		}
 		return err
 	}
 	return nil
@@ -58,12 +59,10 @@ func QueryFollowingList(ctx context.Context, userID int64, pageNum, pageSize int
 	if pageSize <= 0 || pageSize > 100 {
 		pageSize = 20
 	}
-	err := DB.WithContext(ctx).Model(&Follow{}).Where("follower_id = ?", userID).Limit(int(pageSize)).Offset(int(pageNum)-1).Pluck("user_id", &follows).Error
+	err := DB.WithContext(ctx).Model(&Follow{}).Where("follower_id = ?", userID).Order("created_at DESC").
+		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Pluck("user_id", &follows).Error
 	if err != nil {
 		return nil, err
-	}
-	if len(follows) == 0 {
-		return nil, errno.FollowIsNotExistErr
 	}
 	return follows, nil
 }
@@ -79,12 +78,10 @@ func QueryFollowingCount(ctx context.Context, userID int64) (int64, error) {
 
 func QueryFollowerList(ctx context.Context, userID int64, pageNum, pageSize int64) ([]int64, error) {
 	var follows []int64
-	err := DB.WithContext(ctx).Model(&Follow{}).Where("user_id = ?", userID).Limit(int(pageSize)).Offset(int(pageNum)-1).Pluck("follower_id", &follows).Error
+	err := DB.WithContext(ctx).Model(&Follow{}).Where("user_id = ?", userID).Order("created_at DESC").
+		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Pluck("follower_id", &follows).Error
 	if err != nil {
 		return nil, err
-	}
-	if len(follows) == 0 {
-		return nil, errno.FollowIsNotExistErr
 	}
 	return follows, nil
 }
@@ -112,18 +109,14 @@ func QueryFriendList(ctx context.Context, userID int64, pageNum, pageSize int64)
 	// t2 代表关注 user_id 的人的记录 (B -> A)
 	// 通过 JOIN 将这两个关系连接起来，找到互相关注的记录
 	err := DB.WithContext(ctx).Table(constants.FollowsTableName+" as t1").
-		Select("t1.user_id").
 		Joins("JOIN "+constants.FollowsTableName+" as t2 ON t1.user_id = t2.follower_id AND t1.follower_id = t2.user_id").
 		Where("t1.follower_id = ? AND t1.deleted_at IS NULL AND t2.deleted_at IS NULL", userID).
-		Offset(int(pageNum)-1).
+		Offset(int((pageNum - 1) * pageSize)).
 		Limit(int(pageSize)).
 		Pluck("user_id", &friends).Error
 
 	if err != nil {
 		return nil, err
-	}
-	if len(friends) == 0 {
-		return nil, errno.FriendIsNotExistErr
 	}
 	return friends, nil
 }

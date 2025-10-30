@@ -4,10 +4,12 @@ import (
 	"context"
 	"strings"
 	"time"
+	"errors"
 
 	"gorm.io/gorm"
 
 	"github.com/nnieie/golanglab5/cmd/video/rpc"
+	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
@@ -24,6 +26,10 @@ type Video struct {
 	gorm.Model
 }
 
+func (Video) TableName() string {
+	return constants.VideoTableName
+}
+
 const (
 	maxSearchPageSize = 100
 )
@@ -38,19 +44,19 @@ func CreateVideo(ctx context.Context, video *Video) (int64, error) {
 
 func QueryVideoByID(ctx context.Context, videoID int64) (*Video, error) {
 	var video Video
-	err := DB.WithContext(ctx).Where("id = ?", videoID).Find(&video).Error
+	err := DB.WithContext(ctx).Where("id = ?", videoID).First(&video).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errno.VideoIsNotExistErr
+		}
 		return nil, err
-	}
-	if video == (Video{}) {
-		return nil, errno.VideoIsNotExistErr
 	}
 	return &video, nil
 }
 
 func QueryVideosByIDs(ctx context.Context, videoIDs []int64) ([]*Video, error) {
 	var videos []*Video
-	// 使用 WHERE id IN (?) 保持传入 ID 的顺序
+	// 使用 FIELD 保持传入 ID 的顺序
 	err := DB.WithContext(ctx).Where("id IN (?)", videoIDs).Order(gorm.Expr("FIELD(id, ?)", videoIDs)).Find(&videos).Error
 	if err != nil {
 		return nil, err
@@ -64,9 +70,6 @@ func QueryVideoByLatestTime(ctx context.Context, latestTime time.Time) ([]*Video
 	if err != nil {
 		return nil, err
 	}
-	if len(videos) == 0 {
-		return nil, errno.VideoIsNotExistErr
-	}
 	return videos, nil
 }
 
@@ -75,9 +78,6 @@ func QueryVideoByUserID(ctx context.Context, userID int64, pageNum, pageSize int
 	err := DB.WithContext(ctx).Where("user_id = ?", userID).Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
 	if err != nil {
 		return nil, err
-	}
-	if len(videos) == 0 {
-		return nil, errno.VideoIsNotExistErr
 	}
 	return videos, nil
 }
@@ -97,9 +97,6 @@ func QueryVideoByPopular(ctx context.Context, pageNum, pageSize int64) ([]*Video
 	if err != nil {
 		return nil, err
 	}
-	if len(videos) == 0 {
-		return nil, errno.VideoIsNotExistErr
-	}
 	return videos, nil
 }
 
@@ -113,7 +110,7 @@ func SearchVideos(
 	var videos []*Video
 	logger.Debugf("SearchVideos keywords: %s, pageNum: %d, pageSize: %d, fromDate: %v, toDate: %v, username: %v",
 		keywords, pageNum, pageSize, fromDate, toDate, username)
-	query := DB.WithContext(ctx)
+	query := DB.WithContext(ctx).Model(&Video{})
 
 	if strings.TrimSpace(keywords) != "" {
 		likePattern := "%" + keywords + "%"
@@ -134,25 +131,22 @@ func SearchVideos(
 		}
 		query = query.Where("user_id IN ?", userIds)
 	}
-
-	err := query.Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
-	if err != nil {
-		return nil, 0, err
-	}
-	if len(videos) == 0 {
-		return nil, 0, errno.VideoIsNotExistErr
-	}
 	var count int64
-	err = query.Count(&count).Error
+	// 先 Count，再 Limit/Offset
+	err := query.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-
+	
+	err = query.Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
+	if err != nil {
+		return nil, 0, err
+	}
 	return videos, count, nil
 }
 
 func IncVideoVisitCount(ctx context.Context, videoID int64) error {
-	return DB.WithContext(ctx).Where("id = ?", videoID).UpdateColumn("visit_count", gorm.Expr("visit_count + 1")).Error
+	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", videoID).UpdateColumn("visit_count", gorm.Expr("visit_count + 1")).Error
 }
 
 func QueryVideoLikeCount(ctx context.Context, videoID int64) (int64, error) {
