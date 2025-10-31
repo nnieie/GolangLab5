@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/retry"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
+	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 	"github.com/nnieie/golanglab5/kitex_gen/video"
 	"github.com/nnieie/golanglab5/kitex_gen/video/videoservice"
@@ -16,7 +17,8 @@ import (
 var videoClient videoservice.Client
 
 func InitVideoRPC() {
-	r, err := etcd.NewEtcdResolver([]string{constants.EtcdAddr})
+	config.Init(constants.VideoServiceName)
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)
 	}

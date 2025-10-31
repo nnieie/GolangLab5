@@ -25,6 +25,14 @@ func InitMySQL() {
 	if err != nil {
 		logger.Fatalf("mysql connect error: %v", err)
 	}
+	// 配置连接池
+	sqlDB, err := DB.DB()
+	if err != nil {
+		logger.Fatalf("get db instance error: %v", err)
+	}
+	sqlDB.SetMaxOpenConns(constants.DBMaxOpenConns)
+	sqlDB.SetMaxIdleConns(constants.DBMaxIdleConns)
+	sqlDB.SetConnMaxLifetime(constants.DBConnMaxLifetime)
+	sqlDB.SetConnMaxIdleTime(constants.DBConnMaxIdleTime)
 	logger.Infof("mysql connected")
-	DB = DB.Table(constants.FollowsTableName)
 }

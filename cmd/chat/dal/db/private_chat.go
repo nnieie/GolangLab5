@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"time"
 
 	"gorm.io/gorm"
@@ -19,37 +20,65 @@ func (PrivateMessage) TableName() string {
 	return constants.PrivateMessageTableName
 }
 
-func CreatePrivateMessage(msg *PrivateMessage) error {
-	err := DB.Create(msg).Error
+func CreatePrivateMessage(ctx context.Context, msg *PrivateMessage) error {
+	err := DB.WithContext(ctx).Create(msg).Error
 	return err
 }
 
-func QueryPrivateHistoryMessage(fromUser, toUser int64, pageNum, pageSize int64) ([]*PrivateMessage, error) {
+func QueryPrivateHistoryMessage(ctx context.Context, fromUser, toUser int64, pageNum, pageSize int64) ([]*PrivateMessage, error) {
 	var msgs []*PrivateMessage
-	err := DB.Where("from_user_id = ? AND to_user_id = ? OR from_user_id = ? AND to_user_id = ?", fromUser, toUser, toUser, fromUser).
-		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
-	if err != nil {
-		return nil, err
-	}
-	return msgs, nil
+
+	// 使用原生 SQL
+	// 用 UNION ALL 解决 from_user_id = ? AND to_user_id = ? OR from_user_id = ? AND to_user_id = ? 使用 OR 索引失效问题
+	sql := `
+        (SELECT * FROM private_messages 
+         WHERE from_user_id = ? AND to_user_id = ? AND deleted_at IS NULL
+         ORDER BY created_at DESC)
+        UNION ALL
+        (SELECT * FROM private_messages 
+         WHERE from_user_id = ? AND to_user_id = ? AND deleted_at IS NULL
+         ORDER BY created_at DESC)
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+    `
+
+	offset := (pageNum - 1) * pageSize
+	err := DB.WithContext(ctx).Raw(sql,
+		fromUser, toUser,
+		toUser, fromUser,
+		pageSize, offset).Scan(&msgs).Error
+
+	return msgs, err
 }
 
-func QueryPrivateMessageByTime(fromUser, toUser int64, pageNum, pageSize int64, since time.Time) ([]*PrivateMessage, error) {
+func QueryPrivateMessageByTime(ctx context.Context, fromUser, toUser int64, pageNum, pageSize int64, since time.Time) ([]*PrivateMessage, error) {
 	var msgs []*PrivateMessage
-	err := DB.Where("from_user_id = ? AND to_user_id = ? OR from_user_id = ? AND to_user_id = ?", fromUser, toUser, toUser, fromUser).
-		Where("created_at >= ?", since).
-		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
-	if err != nil {
-		return nil, err
-	}
-	return msgs, nil
+	sql := `
+        (SELECT * FROM private_messages 
+         WHERE from_user_id = ? AND to_user_id = ? AND created_at >= ? AND deleted_at IS NULL
+         ORDER BY created_at DESC)
+        UNION ALL
+        (SELECT * FROM private_messages 
+         WHERE from_user_id = ? AND to_user_id = ? AND created_at >= ? AND deleted_at IS NULL
+         ORDER BY created_at DESC)
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+    `
+
+	offset := (pageNum - 1) * pageSize
+	err := DB.WithContext(ctx).Raw(sql,
+		fromUser, toUser, since,
+		toUser, fromUser, since,
+		pageSize, offset).Scan(&msgs).Error
+	return msgs, err
 }
 
-func BatchCreatePrivateMessages(messages []*PrivateMessage) error {
+func BatchCreatePrivateMessages(ctx context.Context, messages []*PrivateMessage) error {
 	if len(messages) == 0 {
 		return nil
 	}
-	if err := DB.CreateInBatches(messages, len(messages)).Error; err != nil {
+	batchSize := 200
+	if err := DB.WithContext(ctx).CreateInBatches(messages, batchSize).Error; err != nil {
 		return err
 	}
 	return nil

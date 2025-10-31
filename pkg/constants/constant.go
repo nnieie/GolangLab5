@@ -16,6 +16,13 @@ const (
 )
 
 const (
+	DBMaxOpenConns    = 100
+	DBMaxIdleConns    = 20
+	DBConnMaxLifetime = time.Hour
+	DBConnMaxIdleTime = 10 * time.Minute
+)
+
+const (
 	IdentityKey           = "user_id"
 	AccessTokenSecretKey  = "nnieie"
 	RefreshTokenSecretKey = "nnieiee"

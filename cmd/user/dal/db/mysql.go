@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
@@ -26,6 +27,9 @@ func (User) TableName() string {
 func CreateUser(ctx context.Context, user *User) (int64, error) {
 	err := DB.WithContext(ctx).Create(user).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return 0, errno.UserAlreadyExistErr
+		}
 		logger.Errorf("create user err: %v", err)
 		return 0, err
 	}
@@ -42,9 +46,6 @@ func QueryUserByID(ctx context.Context, userID int64) (*User, error) {
 		}
 		return nil, err
 	}
-	if user == (User{}) {
-		return nil, errno.UserIsNotExistErr
-	}
 	user.Password = ""
 	return &user, nil
 }
@@ -57,9 +58,6 @@ func QueryUserByName(ctx context.Context, username string) (*User, error) {
 			return nil, errno.UserIsNotExistErr
 		}
 		return nil, err
-	}
-	if user == (User{}) {
-		return nil, errno.UserIsNotExistErr
 	}
 	user.Password = ""
 	return &user, nil
@@ -74,16 +72,10 @@ func QueryUserByNameWithPassword(ctx context.Context, username string) (*User, e
 		}
 		return nil, err
 	}
-	if user == (User{}) {
-		return nil, errno.UserIsNotExistErr
-	}
 	return &user, nil
 }
 
 func QueryUserByIDList(ctx context.Context, userIds []int64) ([]*User, error) {
-	if len(userIds) == 0 {
-		return nil, errno.UserIsNotExistErr
-	}
 	users := make([]*User, 0, len(userIds))
 
 	if err := DB.WithContext(ctx).Where("id IN ?", userIds).Order(gorm.Expr("FIELD(id, ?)", userIds)).Find(&users).Error; err != nil {
@@ -102,16 +94,11 @@ func UpdateMFA(ctx context.Context, secret string, userID int64) error {
 }
 
 func UpdateAvatar(ctx context.Context, userID int64, avatar string) (*User, error) {
-	// 先执行更新
-	if err := DB.WithContext(ctx).Model(&User{}).Where("id = ?", userID).Update("avatar", avatar).Error; err != nil {
+	user := &User{}
+	// 使用 Clauses(clause.Returning{}) 在一次查询中完成更新和返回
+	err := DB.WithContext(ctx).Model(user).Clauses(clause.Returning{}).Where("id = ?", userID).Update("avatar", avatar).Error
+	if err != nil {
 		logger.Errorf("update avatar err: %v", err)
-		return nil, err
-	}
-
-	// 再单独查询最新记录
-	user := new(User)
-	if err := DB.WithContext(ctx).Where("id = ?", userID).First(user).Error; err != nil {
-		logger.Errorf("query updated user err: %v", err)
 		return nil, err
 	}
 	return user, nil
@@ -125,9 +112,6 @@ func SearchUserIdsByName(ctx context.Context, pattern string, page, pageSize int
 		Pluck("id", &userIds).Error
 	if err != nil {
 		return nil, err
-	}
-	if len(userIds) == 0 {
-		return nil, errno.UserIsNotExistErr
 	}
 	return userIds, nil
 }

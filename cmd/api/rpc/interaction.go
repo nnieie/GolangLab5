@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/retry"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
+	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/kitex_gen/interaction"
 	"github.com/nnieie/golanglab5/kitex_gen/interaction/interactionservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
@@ -15,7 +16,8 @@ import (
 var interactionClient interactionservice.Client
 
 func InitInteractionRPC() {
-	r, err := etcd.NewEtcdResolver([]string{constants.EtcdAddr})
+	config.Init(constants.InteractionServiceName)
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)
 	}

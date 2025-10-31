@@ -31,7 +31,7 @@ func (s *ChatService) GetPrivateHistoryMessage(fromUser, toUser int64, pageNum, 
 	}
 
 	// Redis没有数据，从MySQL获取
-	msg, err := db.QueryPrivateHistoryMessage(fromUser, toUser, pageNum, pageSize)
+	msg, err := db.QueryPrivateHistoryMessage(s.ctx, fromUser, toUser, pageNum, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (s *ChatService) GetPrivateMessageByTime(fromUser, toUser int64, pageNum, p
 		return pack.ConvertCachedToBaseMessages(cacheMsg), nil
 	}
 
-	msg, err := db.QueryPrivateMessageByTime(fromUser, toUser, pageNum, pageSize, time.Unix(since, 0))
+	msg, err := db.QueryPrivateMessageByTime(s.ctx, fromUser, toUser, pageNum, pageSize, time.Unix(since, 0))
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *ChatService) GetOfflinePrivateMessage(fromUser, toUser int64, pageNum, 
 	if err != nil {
 		return nil, err
 	}
-	msg, err := db.QueryPrivateMessageByTime(fromUser, toUser, pageNum, pageSize, time.Unix(since, 0))
+	msg, err := db.QueryPrivateMessageByTime(s.ctx, fromUser, toUser, pageNum, pageSize, time.Unix(since, 0))
 	if err != nil {
 		return nil, err
 	}

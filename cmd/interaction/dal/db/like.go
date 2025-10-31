@@ -31,94 +31,95 @@ func (Like) TableName() string {
 }
 
 func LikeAction(ctx context.Context, like *Like) (int64, error) {
-	switch like.Type {
-	case VideoLikeType:
-		if video, err := rpc.QueryVideoByID(ctx, like.TargetID); err != nil {
-			return 0, err
-		} else if video == nil {
-			return 0, errno.VideoIsNotExistErr
+	err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(like).Error; err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				return errno.LikeAlreadyExistErr
+			}
+			return err
 		}
-	case CommentLikeType:
-		if _, err := QueryCommentByID(ctx, like.TargetID); err != nil {
-			return 0, err
+		// 更新点赞数
+		var updateErr error
+		switch like.Type {
+		case VideoLikeType:
+			_, updateErr = rpc.UpdateVideoLikeCount(ctx, like.TargetID, 1)
+		case CommentLikeType:
+			updateErr = tx.Model(&Comment{}).Where("id = ?", like.TargetID).Update("like_count", gorm.Expr("like_count + 1")).Error
 		}
-	}
-	dbLike, err := QueryLikeByUserIDAndTargetIDAndType(ctx, like.UserID, like.TargetID, like.Type)
-	if err != nil {
-		return 0, err
-	}
-	if dbLike != nil {
-		return 0, errno.LikeAlreadyExistErr
-	}
 
-	err = DB.Create(like).Error
-	if err != nil {
-		return 0, err
-	}
+		if updateErr != nil {
+			return updateErr
+		}
 
-	switch like.Type {
-	case VideoLikeType:
-		_, err = rpc.UpdateVideoLikeCount(ctx, like.TargetID, 1)
-	case CommentLikeType:
-		err = DB.Model(&Comment{}).Where("id = ?", like.TargetID).Update("like_count", gorm.Expr("like_count + 1")).Error
-	}
+		return nil
+	})
+
 	if err != nil {
 		return 0, err
 	}
 	return int64(like.ID), nil
 }
 
-func UnlikeAction(ctx context.Context, targetID int64, likeType int64) error {
-	var result *gorm.DB
-	switch likeType {
-	case VideoLikeType:
-		result = DB.WithContext(ctx).Where("target_id = ? AND type = ?", targetID, VideoLikeType).Delete(&Like{})
-	case CommentLikeType:
-		result = DB.WithContext(ctx).Where("target_id = ? AND type = ?", targetID, CommentLikeType).Delete(&Like{})
-	default:
-		return errno.ParamErr
-	}
+func UnlikeAction(ctx context.Context, userID, targetID int64, likeType int64) error {
+	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var result *gorm.DB
+		switch likeType {
+		case VideoLikeType:
+			result = tx.Where("user_id = ? AND target_id = ? AND type = ?", userID, targetID, VideoLikeType).Delete(&Like{})
+		case CommentLikeType:
+			result = tx.Where("user_id = ? AND target_id = ? AND type = ?", userID, targetID, CommentLikeType).Delete(&Like{})
+		default:
+			return errno.ParamErr
+		}
 
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		return errno.LikeIsNotExistErr
-	}
-	var err error
-	switch likeType {
-	case VideoLikeType:
-		_, err = rpc.UpdateVideoLikeCount(ctx, targetID, -1)
-	case CommentLikeType:
-		err = DB.WithContext(ctx).Model(&Comment{}).Where("id = ?", targetID).Update("like_count", gorm.Expr("like_count - 1")).Error
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return errno.LikeIsNotExistErr
+		}
+
+		var err error
+		switch likeType {
+		case VideoLikeType:
+			_, err = rpc.UpdateVideoLikeCount(ctx, targetID, -1)
+		case CommentLikeType:
+			err = tx.Model(&Comment{}).Where("id = ?", targetID).Update("like_count", gorm.Expr("like_count - 1")).Error
+		}
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 func UnlikeActionByID(ctx context.Context, id int64, likeType int64) error {
-	var targetID int64
-	result := DB.WithContext(ctx).Where("id = ?", id).Pluck("target_id", &targetID)
-	if result.Error != nil {
-		return result.Error
-	}
-	result.Delete(&Like{})
-	if result.RowsAffected == 0 {
-		return errno.LikeIsNotExistErr
-	}
-	var err error
-	switch likeType {
-	case VideoLikeType:
-		_, err = rpc.UpdateVideoLikeCount(ctx, targetID, -1)
-	case CommentLikeType:
-		err = DB.WithContext(ctx).Model(&Comment{}).Where("id = ?", targetID).Update("like_count", gorm.Expr("like_count - 1")).Error
-	}
-	if err != nil {
+	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var likeToDelete Like
+		// 查询要删除的 Like 记录
+		if err := tx.Where("id = ?", id).First(&likeToDelete).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errno.LikeIsNotExistErr
+			}
+			return err
+		}
+
+		// 根据 ID 删除
+		if err := tx.Delete(&Like{}, id).Error; err != nil {
+			return err
+		}
+
+		// 更新计数器
+		var err error
+		switch likeType {
+		case VideoLikeType:
+			_, err = rpc.UpdateVideoLikeCount(ctx, likeToDelete.TargetID, -1)
+		case CommentLikeType:
+			err = tx.Model(&Comment{}).Where("id = ?", likeToDelete.TargetID).Update("like_count", gorm.Expr("like_count - 1")).Error
+		}
+
 		return err
-	}
-	return nil
+	})
 }
 
 func QueryLikeVideoListByUserID(ctx context.Context, userID int64, pageNum, pageSize int64) ([]int64, error) {
@@ -129,20 +130,17 @@ func QueryLikeVideoListByUserID(ctx context.Context, userID int64, pageNum, page
 	if pageSize <= 0 {
 		pageSize = 20
 	}
-	err := DB.WithContext(ctx).Model(&Like{}).Where("type = 1 AND user_id = ?", userID).Pluck("target_id", &likes).
-		Offset(int(pageNum) - 1).Limit(int(pageSize)).Error
+	err := DB.WithContext(ctx).Model(&Like{}).Where("type = 1 AND user_id = ?", userID).Order("created_at DESC").Pluck("target_id", &likes).
+		Offset(int((pageNum - 1) * pageSize)).Limit(int(pageSize)).Error
 	if err != nil {
 		return nil, err
-	}
-	if len(likes) == 0 {
-		return nil, errno.LikeIsNotExistErr
 	}
 	return likes, nil
 }
 
 func QueryLikeByUserIDAndTargetIDAndType(ctx context.Context, userID, targetID int64, likeType int64) (*Like, error) {
 	var like Like
-	err := DB.WithContext(ctx).Where("user_id = ? AND target_id = ? AND type = ?", userID, targetID, likeType).First(&like).Error
+	err := DB.WithContext(ctx).Where("user_id = ? AND target_id = ? AND type = ?", userID, targetID, likeType).Order("created_at DESC").First(&like).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

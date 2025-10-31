@@ -85,7 +85,7 @@ func (w *SyncWorker) syncPrivateMessages() error {
 	syncCount := 0
 
 	if len(privateMessages) > 0 {
-		if err := db.BatchCreatePrivateMessages(privateMessages); err != nil {
+		if err := db.BatchCreatePrivateMessages(ctx, privateMessages); err != nil {
 			return err
 		}
 		syncCount += len(privateMessages)
@@ -146,7 +146,7 @@ func (w *SyncWorker) syncGroupMessages() error {
 	syncCount := 0
 
 	if len(groupMessages) > 0 {
-		if err := db.BatchCreateGroupMessages(groupMessages); err != nil {
+		if err := db.BatchCreateGroupMessages(ctx, groupMessages); err != nil {
 			return err
 		}
 		syncCount += len(groupMessages)

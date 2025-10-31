@@ -9,6 +9,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/nnieie/golanglab5/pkg/errno"
 )
@@ -166,42 +167,30 @@ func TestQueryUserByName(t *testing.T) {
 
 func TestUpdateAvatar(t *testing.T) {
 	type testCase struct {
-		name                 string
-		userID               int64
-		avatarURL            string
-		mockError            error
-		expectingResult      *User
-		expectingUpdateError bool
-		expectingQueryError  bool
+		name            string
+		userID          int64
+		avatarURL       string
+		mockError       error
+		expectingResult *User
+		expectingError  bool
 	}
 
 	testCases := []testCase{
 		{
-			name:                 "UpdateAvatar success",
-			userID:               1,
-			avatarURL:            "http://example.com/avatar.png",
-			mockError:            nil,
-			expectingResult:      &User{UserName: "test", Avatar: "http://example.com/avatar.png", Model: gorm.Model{ID: 1}},
-			expectingUpdateError: false,
-			expectingQueryError:  false,
+			name:            "UpdateAvatar success",
+			userID:          1,
+			avatarURL:       "http://example.com/avatar.png",
+			mockError:       nil,
+			expectingResult: &User{UserName: "test", Avatar: "http://example.com/avatar.png", Model: gorm.Model{ID: 1}},
+			expectingError:  false,
 		},
 		{
-			name:                 "UpdateAvatar db update err",
-			userID:               1,
-			avatarURL:            "http://example.com/avatar.png",
-			mockError:            errors.New("db update err"),
-			expectingResult:      nil,
-			expectingUpdateError: true,
-			expectingQueryError:  false,
-		},
-		{
-			name:                 "UpdateAvatar db query err",
-			userID:               1,
-			avatarURL:            "http://example.com/avatar.png",
-			mockError:            errors.New("db query err"),
-			expectingResult:      nil,
-			expectingUpdateError: false,
-			expectingQueryError:  true,
+			name:            "UpdateAvatar db update err",
+			userID:          1,
+			avatarURL:       "http://example.com/avatar.png",
+			mockError:       errors.New("db update err"),
+			expectingResult: nil,
+			expectingError:  true,
 		},
 	}
 
@@ -209,30 +198,41 @@ func TestUpdateAvatar(t *testing.T) {
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
 			mockDB := new(gorm.DB)
+			var capturedUser *User
 
-			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB { return mockDB }).Build()
-			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB { return mockDB }).Build()
-			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB { return mockDB }).Build()
+			// Mock WithContext - 返回 mockDB
+			mockey.Mock((*gorm.DB).WithContext).To(func(ctx context.Context) *gorm.DB {
+				return mockDB
+			}).Build()
 
+			// Mock Model - 捕获传入的 user 指针并返回 mockDB
+			mockey.Mock((*gorm.DB).Model).To(func(value interface{}) *gorm.DB {
+				// 捕获传入的 user 指针
+				if user, ok := value.(*User); ok {
+					capturedUser = user
+				}
+				return mockDB
+			}).Build()
+
+			// Mock Clauses - 返回 mockDB
+			mockey.Mock((*gorm.DB).Clauses).To(func(conds ...clause.Expression) *gorm.DB {
+				return mockDB
+			}).Build()
+
+			// Mock Where - 返回 mockDB
+			mockey.Mock((*gorm.DB).Where).To(func(query interface{}, args ...interface{}) *gorm.DB {
+				return mockDB
+			}).Build()
+
+			// Mock Update - 模拟 Returning 效果
 			mockey.Mock((*gorm.DB).Update).To(func(column string, value interface{}) *gorm.DB {
 				if tc.mockError != nil {
 					mockDB.Error = tc.mockError
 					return mockDB
 				}
-				return mockDB
-			}).Build()
 
-			mockey.Mock((*gorm.DB).First).To(func(dest interface{}, conds ...interface{}) *gorm.DB {
-				if tc.expectingQueryError {
-					mockDB.Error = tc.mockError
-					return mockDB
-				}
-
-				user, ok := dest.(*User)
-				if ok && tc.expectingResult != nil {
-					*user = *tc.expectingResult
-				}
-				mockDB.Error = nil
+				// 模拟 Returning 效果：把预期结果写入 capturedUser
+				*capturedUser = *tc.expectingResult
 				return mockDB
 			}).Build()
 
@@ -240,11 +240,14 @@ func TestUpdateAvatar(t *testing.T) {
 			user, err := UpdateAvatar(context.Background(), tc.userID, tc.avatarURL)
 
 			// 检查结果
-			if tc.expectingUpdateError || tc.expectingQueryError {
+			if tc.expectingError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectingResult, user)
+				assert.NotNil(t, user)
+				assert.Equal(t, tc.expectingResult.ID, user.ID)
+				assert.Equal(t, tc.expectingResult.UserName, user.UserName)
+				assert.Equal(t, tc.expectingResult.Avatar, user.Avatar)
 			}
 		})
 	}

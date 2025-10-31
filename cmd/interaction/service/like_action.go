@@ -25,7 +25,7 @@ func (s *interactionService) LikeAction(userID, actionType int64, videoID, comme
 			Type:     likeType,
 		})
 	case db.UnlikeActionType:
-		err = db.UnlikeAction(s.ctx, targetID, likeType)
+		err = db.UnlikeAction(s.ctx, userID, targetID, likeType)
 	}
 
 	return err
