@@ -2,10 +2,13 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 
 	"github.com/nnieie/golanglab5/cmd/chat/dal/db"
@@ -35,11 +38,24 @@ func (w *SyncWorker) Start() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if err := w.syncPrivateMessages(); err != nil {
-			logger.Errorf("sync private messages failed: %v", err)
-		}
-		if err := w.syncGroupMessages(); err != nil {
-			logger.Errorf("sync group messages failed: %v", err)
+		eg := &errgroup.Group{}
+		eg.Go(func() error {
+			if err := w.syncPrivateMessages(); err != nil {
+				logger.Errorf("sync private messages failed: %v", err)
+				return err
+			}
+			return nil
+		})
+
+		eg.Go(func() error {
+			if err := w.syncGroupMessages(); err != nil {
+				logger.Errorf("sync group messages failed: %v", err)
+				return err
+			}
+			return nil
+		})
+		if err := eg.Wait(); err != nil {
+			logger.Errorf("sync messages failed: %v", err)
 		}
 	}
 }
@@ -48,7 +64,7 @@ func (w *SyncWorker) Start() {
 func (w *SyncWorker) syncPrivateMessages() error {
 	ctx := context.Background()
 
-	// 批量获取待同步消息
+	// 批量获取待同步消息ID
 	privateMsgIDs, err := rChat.LRange(ctx, PrivateMessageQueueKey, 0, int64(w.batchSize-1)).Result()
 	if err != nil {
 		logger.Errorf("sync message to mysql err: %v", err)
@@ -64,26 +80,67 @@ func (w *SyncWorker) syncPrivateMessages() error {
 	var privateMessages []*db.PrivateMessage
 	var processedMsgs []string
 
-	// 处理每条消息
+	// 使用 Pipeline 批量获取所有消息
+	pipe := rChat.Pipeline()
+	cmds := make(map[string]*redis.MapStringStringCmd, len(privateMsgIDs))
+
 	for _, msgID := range privateMsgIDs {
-		if msg, err := w.getPrivateMessageFromCache(msgID); err == nil {
-			privateMessages = append(privateMessages, &db.PrivateMessage{
-				FromUserID: msg.FromUserID,
-				ToUserID:   msg.ToUserID,
-				Content:    msg.Content,
-				Model: gorm.Model{
-					CreatedAt: msg.CreatedAt,
-				},
-			})
-			processedMsgs = append(processedMsgs, msgID)
-		} else {
-			logger.Warnf("Failed to get private message %s from cache: %v", msgID, err)
+		key := fmt.Sprintf("%s%s", PrivateMessagePrefix, msgID)
+		cmds[msgID] = pipe.HGetAll(ctx, key) // 使用 HGetAll 获取所有字段
+	}
+
+	// 一次性执行所有 Redis 命令
+	_, err = pipe.Exec(ctx)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		logger.Errorf("Failed to execute pipeline: %v", err)
+		return err
+	}
+
+	// 遍历所有命令结果
+	for msgID, cmd := range cmds {
+		msgData, err := cmd.Result()
+		if err != nil {
+			if errors.Is(err, redis.Nil) {
+				logger.Warnf("Message %s not found in cache", msgID)
+			} else {
+				logger.Warnf("Failed to get message %s from cache: %v", msgID, err)
+			}
+			continue
 		}
+
+		// msgData 是 map[string]string
+		if len(msgData) == 0 {
+			logger.Warnf("Message %s is empty", msgID)
+			continue
+		}
+
+		// 解析字段
+		fromUserID, _ := strconv.ParseInt(msgData["from_user_id"], 10, 64)
+		toUserID, _ := strconv.ParseInt(msgData["to_user_id"], 10, 64)
+		content := msgData["content"]
+		createdAtStr := msgData["created_at"]
+
+		// 解析时间
+		createdAt, err := time.Parse(time.RFC3339Nano, createdAtStr)
+		if err != nil {
+			logger.Warnf("Failed to parse created_at for message %s: %v", msgID, err)
+			createdAt = time.Now()
+		}
+
+		// 组装数据
+		privateMessages = append(privateMessages, &db.PrivateMessage{
+			FromUserID: fromUserID,
+			ToUserID:   toUserID,
+			Content:    content,
+			Model: gorm.Model{
+				CreatedAt: createdAt,
+			},
+		})
+		processedMsgs = append(processedMsgs, msgID)
 	}
 
 	// 批量写入MySQL
 	syncCount := 0
-
 	if len(privateMessages) > 0 {
 		if err := db.BatchCreatePrivateMessages(ctx, privateMessages); err != nil {
 			return err
@@ -103,7 +160,6 @@ func (w *SyncWorker) syncPrivateMessages() error {
 		}
 	}
 
-	// 记录同步指标
 	logger.Infof("successfully synced %d private messages to MySQL", syncCount)
 	return nil
 }
@@ -112,6 +168,7 @@ func (w *SyncWorker) syncPrivateMessages() error {
 func (w *SyncWorker) syncGroupMessages() error {
 	ctx := context.Background()
 
+	// 批量获取待同步消息ID
 	groupMsgIDs, err := rChat.LRange(ctx, GroupMessageQueueKey, 0, int64(w.batchSize-1)).Result()
 	if err != nil {
 		logger.Errorf("sync message to mysql err: %v", err)
@@ -127,24 +184,67 @@ func (w *SyncWorker) syncGroupMessages() error {
 	var groupMessages []*db.GroupMessage
 	var processedMsgs []string
 
+	// 使用 Pipeline 批量获取所有消息
+	pipe := rChat.Pipeline()
+	cmds := make(map[string]*redis.MapStringStringCmd, len(groupMsgIDs))
+
 	for _, msgID := range groupMsgIDs {
-		if msg, err := w.getGroupMessageFromCache(msgID); err == nil {
-			groupMessages = append(groupMessages, &db.GroupMessage{
-				FromUserID: msg.FromUserID,
-				GroupID:    msg.GroupID,
-				Content:    msg.Content,
-				Model: gorm.Model{
-					CreatedAt: msg.CreatedAt,
-				},
-			})
-			processedMsgs = append(processedMsgs, msgID)
-		} else {
-			logger.Warnf("Failed to get group message %s from cache: %v", msgID, err)
-		}
+		key := fmt.Sprintf("%s%s", GroupMessagePrefix, msgID)
+		cmds[msgID] = pipe.HGetAll(ctx, key) // 使用 HGetAll 获取所有字段
 	}
 
-	syncCount := 0
+	// 一次性执行所有 Redis 命令
+	_, err = pipe.Exec(ctx)
+	if err != nil && !errors.Is(err, redis.Nil) {
+		logger.Errorf("Failed to execute pipeline: %v", err)
+		return err
+	}
 
+	// 遍历所有命令结果
+	for msgID, cmd := range cmds {
+		msgData, err := cmd.Result()
+		if err != nil {
+			if errors.Is(err, redis.Nil) {
+				logger.Warnf("Message %s not found in cache", msgID)
+			} else {
+				logger.Warnf("Failed to get message %s from cache: %v", msgID, err)
+			}
+			continue
+		}
+
+		// msgData 是 map[string]string
+		if len(msgData) == 0 {
+			logger.Warnf("Message %s is empty", msgID)
+			continue
+		}
+
+		// 解析字段
+		fromUserID, _ := strconv.ParseInt(msgData["from_user_id"], 10, 64)
+		groupID, _ := strconv.ParseInt(msgData["group_id"], 10, 64)
+		content := msgData["content"]
+		createdAtStr := msgData["created_at"]
+
+		// 解析时间
+		createdAt, err := time.Parse(time.RFC3339Nano, createdAtStr)
+		if err != nil {
+			logger.Warnf("Failed to parse created_at for message %s: %v", msgID, err)
+			createdAt = time.Now()
+		}
+
+		// 组装数据
+		groupMessages = append(groupMessages, &db.GroupMessage{
+			FromUserID: fromUserID,
+			GroupID:    groupID,
+			Content:    content,
+			Model: gorm.Model{
+				CreatedAt: createdAt,
+			},
+		})
+		processedMsgs = append(processedMsgs, msgID)
+	}
+
+	// 批量写入MySQL
+	syncCount := 0
 	if len(groupMessages) > 0 {
 		if err := db.BatchCreateGroupMessages(ctx, groupMessages); err != nil {
 			return err
@@ -157,51 +257,13 @@ func (w *SyncWorker) syncGroupMessages() error {
 	if len(processedMsgs) > 0 {
 		pipe := rChat.Pipeline()
 		for _, msgID := range processedMsgs {
-			pipe.LRem(ctx, PrivateMessageQueueKey, 1, msgID)
+			pipe.LRem(ctx, GroupMessageQueueKey, 1, msgID)
 		}
 		if _, err := pipe.Exec(ctx); err != nil {
 			logger.Errorf("Failed to remove processed messages from queue: %v", err)
 		}
 	}
 
-	// 记录同步指标
 	logger.Infof("successfully synced %d group messages to MySQL", syncCount)
-
 	return nil
-}
-
-// 从缓存获取私聊消息
-func (w *SyncWorker) getPrivateMessageFromCache(msgID string) (*CachedPrivateMessage, error) {
-	ctx := context.Background()
-	key := fmt.Sprintf("%s%s", PrivateMessagePrefix, msgID)
-
-	msgData, err := rChat.HGet(ctx, key, "data").Result()
-	if err != nil {
-		return nil, err
-	}
-
-	var msg CachedPrivateMessage
-	if err := json.Unmarshal([]byte(msgData), &msg); err != nil {
-		return nil, err
-	}
-
-	return &msg, nil
-}
-
-// 从缓存获取群聊消息
-func (w *SyncWorker) getGroupMessageFromCache(msgID string) (*CachedGroupMessage, error) {
-	ctx := context.Background()
-	key := fmt.Sprintf("%s%s", GroupMessagePrefix, msgID)
-
-	msgData, err := rChat.HGet(ctx, key, "data").Result()
-	if err != nil {
-		return nil, err
-	}
-
-	var msg CachedGroupMessage
-	if err := json.Unmarshal([]byte(msgData), &msg); err != nil {
-		return nil, err
-	}
-
-	return &msg, nil
 }
