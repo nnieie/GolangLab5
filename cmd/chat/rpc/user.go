@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/retry"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
+	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/kitex_gen/user"
 	"github.com/nnieie/golanglab5/kitex_gen/user/userservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
@@ -15,7 +16,8 @@ import (
 var userClient userservice.Client
 
 func InitUserRPC() {
-	r, err := etcd.NewEtcdResolver([]string{constants.EtcdAddr})
+	config.Init(constants.UserServiceName)
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)
 	}

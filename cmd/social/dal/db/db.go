@@ -60,7 +60,7 @@ func QueryFollowingList(ctx context.Context, userID int64, pageNum, pageSize int
 		pageSize = 20
 	}
 	err := DB.WithContext(ctx).Model(&Follow{}).Where("follower_id = ?", userID).Order("created_at DESC").
-		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Pluck("user_id", &follows).Error
+		Limit(int(pageSize)).Offset(int((pageNum-1)*pageSize)).Pluck("user_id", &follows).Error
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func QueryFollowingCount(ctx context.Context, userID int64) (int64, error) {
 func QueryFollowerList(ctx context.Context, userID int64, pageNum, pageSize int64) ([]int64, error) {
 	var follows []int64
 	err := DB.WithContext(ctx).Model(&Follow{}).Where("user_id = ?", userID).Order("created_at DESC").
-		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Pluck("follower_id", &follows).Error
+		Limit(int(pageSize)).Offset(int((pageNum-1)*pageSize)).Pluck("follower_id", &follows).Error
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func QueryFriendList(ctx context.Context, userID int64, pageNum, pageSize int64)
 	err := DB.WithContext(ctx).Table(constants.FollowsTableName+" as t1").
 		Joins("JOIN "+constants.FollowsTableName+" as t2 ON t1.user_id = t2.follower_id AND t1.follower_id = t2.user_id").
 		Where("t1.follower_id = ? AND t1.deleted_at IS NULL AND t2.deleted_at IS NULL", userID).
-		Offset(int((pageNum - 1) * pageSize)).
+		Offset(int((pageNum-1)*pageSize)).
 		Limit(int(pageSize)).
 		Pluck("user_id", &friends).Error
 

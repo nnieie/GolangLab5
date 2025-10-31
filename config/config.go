@@ -25,10 +25,9 @@ func Init(serviceName string) {
 
 func ReadConfigFile(serviceName string) {
 	c := new(config)
-	runtimeViper.SetConfigName("config")   // 注意：不要写扩展名
-	runtimeViper.SetConfigType("yaml")     // 明确类型（可选，但推荐）
-	runtimeViper.AddConfigPath(".")        // 在当前工作目录查找
-	runtimeViper.AddConfigPath("./config") // 也在 ./config 目录查找（你的 repo 有 config/config.yml）
+	runtimeViper.SetConfigName("config")   // 不用写扩展名
+	runtimeViper.SetConfigType("yaml")     // 文件类型
+	runtimeViper.AddConfigPath("./config") // 在项目的config目录查找
 	err := runtimeViper.ReadInConfig()
 	if err != nil {
 		log.Fatalln(err)

@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/retry"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
+	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/kitex_gen/social"
 	"github.com/nnieie/golanglab5/kitex_gen/social/socialservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
@@ -15,7 +16,8 @@ import (
 var socialClient socialservice.Client
 
 func InitSocialRPC() {
-	r, err := etcd.NewEtcdResolver([]string{constants.EtcdAddr})
+	config.Init(constants.SocialServiceName)
+	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)
 	}

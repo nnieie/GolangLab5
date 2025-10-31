@@ -2,9 +2,9 @@ package db
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
-	"errors"
 
 	"gorm.io/gorm"
 
@@ -137,7 +137,7 @@ func SearchVideos(
 	if err != nil {
 		return nil, 0, err
 	}
-	
+
 	err = query.Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
 	if err != nil {
 		return nil, 0, err

@@ -28,8 +28,8 @@ func CreateUser(ctx context.Context, user *User) (int64, error) {
 	err := DB.WithContext(ctx).Create(user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-            return 0, errno.UserAlreadyExistErr
-        }
+			return 0, errno.UserAlreadyExistErr
+		}
 		logger.Errorf("create user err: %v", err)
 		return 0, err
 	}
@@ -95,13 +95,13 @@ func UpdateMFA(ctx context.Context, secret string, userID int64) error {
 
 func UpdateAvatar(ctx context.Context, userID int64, avatar string) (*User, error) {
 	user := &User{}
-    // 使用 Clauses(clause.Returning{}) 在一次查询中完成更新和返回
-    err := DB.WithContext(ctx).Model(user).Clauses(clause.Returning{}).Where("id = ?", userID).Update("avatar", avatar).Error
-    if err != nil {
-        logger.Errorf("update avatar err: %v", err)
-        return nil, err
-    }
-    return user, nil
+	// 使用 Clauses(clause.Returning{}) 在一次查询中完成更新和返回
+	err := DB.WithContext(ctx).Model(user).Clauses(clause.Returning{}).Where("id = ?", userID).Update("avatar", avatar).Error
+	if err != nil {
+		logger.Errorf("update avatar err: %v", err)
+		return nil, err
+	}
+	return user, nil
 }
 
 func SearchUserIdsByName(ctx context.Context, pattern string, page, pageSize int64) ([]int64, error) {

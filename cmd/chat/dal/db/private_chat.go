@@ -1,8 +1,8 @@
 package db
 
 import (
-	"time"
 	"context"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -26,11 +26,11 @@ func CreatePrivateMessage(ctx context.Context, msg *PrivateMessage) error {
 }
 
 func QueryPrivateHistoryMessage(ctx context.Context, fromUser, toUser int64, pageNum, pageSize int64) ([]*PrivateMessage, error) {
-    var msgs []*PrivateMessage
-    
-    // 使用原生 SQL
+	var msgs []*PrivateMessage
+
+	// 使用原生 SQL
 	// 用 UNION ALL 解决 from_user_id = ? AND to_user_id = ? OR from_user_id = ? AND to_user_id = ? 使用 OR 索引失效问题
-    sql := `
+	sql := `
         (SELECT * FROM private_messages 
          WHERE from_user_id = ? AND to_user_id = ? AND deleted_at IS NULL
          ORDER BY created_at DESC)
@@ -41,14 +41,14 @@ func QueryPrivateHistoryMessage(ctx context.Context, fromUser, toUser int64, pag
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
     `
-    
-    offset := (pageNum - 1) * pageSize
-    err := DB.WithContext(ctx).Raw(sql, 
-        fromUser, toUser, 
-        toUser, fromUser, 
-        pageSize, offset).Scan(&msgs).Error
-    
-    return msgs, err
+
+	offset := (pageNum - 1) * pageSize
+	err := DB.WithContext(ctx).Raw(sql,
+		fromUser, toUser,
+		toUser, fromUser,
+		pageSize, offset).Scan(&msgs).Error
+
+	return msgs, err
 }
 
 func QueryPrivateMessageByTime(ctx context.Context, fromUser, toUser int64, pageNum, pageSize int64, since time.Time) ([]*PrivateMessage, error) {
@@ -64,12 +64,12 @@ func QueryPrivateMessageByTime(ctx context.Context, fromUser, toUser int64, page
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
     `
-    
-    offset := (pageNum - 1) * pageSize
-    err := DB.WithContext(ctx).Raw(sql, 
-        fromUser, toUser, since,
-        toUser, fromUser, since,
-        pageSize, offset).Scan(&msgs).Error
+
+	offset := (pageNum - 1) * pageSize
+	err := DB.WithContext(ctx).Raw(sql,
+		fromUser, toUser, since,
+		toUser, fromUser, since,
+		pageSize, offset).Scan(&msgs).Error
 	return msgs, err
 }
 

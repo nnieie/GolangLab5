@@ -26,25 +26,25 @@ func (Comment) TableName() string {
 
 func CreateComment(ctx context.Context, comment *Comment) (int64, error) {
 	// 把所有操作都放进一个事务里
-    err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-        // 在事务中创建评论
-        if err := tx.Create(comment).Error; err != nil {
-            return err
-        }
+	err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 在事务中创建评论
+		if err := tx.Create(comment).Error; err != nil {
+			return err
+		}
 
-        // 在事务中更新父评论计数
-        if comment.ParentID != 0 {
-            if err := tx.Model(&Comment{}).Where("id = ?", comment.ParentID).Update("child_count", gorm.Expr("child_count + 1")).Error; err != nil {
-                return err
-            }
-        }
-        return nil 
-    })
+		// 在事务中更新父评论计数
+		if comment.ParentID != 0 {
+			if err := tx.Model(&Comment{}).Where("id = ?", comment.ParentID).Update("child_count", gorm.Expr("child_count + 1")).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
-    if err != nil {
-        return 0, err
-    }
-    return int64(comment.ID), nil
+	if err != nil {
+		return 0, err
+	}
+	return int64(comment.ID), nil
 }
 
 func QueryCommentByID(ctx context.Context, id int64) (*Comment, error) {
@@ -52,8 +52,8 @@ func QueryCommentByID(ctx context.Context, id int64) (*Comment, error) {
 	err := DB.WithContext(ctx).Model(&Comment{}).Where("id = ?", id).First(&comment).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-            return nil, errno.CommentIsNotExistErr
-        }
+			return nil, errno.CommentIsNotExistErr
+		}
 		return nil, err
 	}
 	return &comment, nil
@@ -79,34 +79,34 @@ func QueryCommentByParentID(ctx context.Context, parentID int64, pageNum, pageSi
 
 func DeleteCommentByCommentID(ctx context.Context, userID, commentID int64) error {
 	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-        var commentToDelete Comment
-        // 找到要删除的评论
-        if err := tx.Where("id = ? AND user_id = ?", commentID, userID).First(&commentToDelete).Error; err != nil {
-            if errors.Is(err, gorm.ErrRecordNotFound) {
-                return errno.CommentIsNotExistErr
-            }
-            return err
-        }
-        
-        // 删除这条评论
-        if err := tx.Delete(&commentToDelete).Error; err != nil {
-            return err
-        }
+		var commentToDelete Comment
+		// 找到要删除的评论
+		if err := tx.Where("id = ? AND user_id = ?", commentID, userID).First(&commentToDelete).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errno.CommentIsNotExistErr
+			}
+			return err
+		}
 
-        // 如果它有父评论，就给父评论的 child_count - 1
-        if commentToDelete.ParentID != 0 {
-            if err := tx.Model(&Comment{}).Where("id = ?", commentToDelete.ParentID).Update("child_count", gorm.Expr("child_count - 1")).Error; err != nil {
-                return err
-            }
-        }
+		// 删除这条评论
+		if err := tx.Delete(&commentToDelete).Error; err != nil {
+			return err
+		}
 
-        // 4. 删除该评论的所有子评论
-        if err := tx.Where("parent_id = ?", commentID).Delete(&Comment{}).Error; err != nil {
-            return err
-        }
+		// 如果它有父评论，就给父评论的 child_count - 1
+		if commentToDelete.ParentID != 0 {
+			if err := tx.Model(&Comment{}).Where("id = ?", commentToDelete.ParentID).Update("child_count", gorm.Expr("child_count - 1")).Error; err != nil {
+				return err
+			}
+		}
 
-        return nil
-    })
+		// 4. 删除该评论的所有子评论
+		if err := tx.Where("parent_id = ?", commentID).Delete(&Comment{}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func DeleteCommentsByVideoID(ctx context.Context, userID, videoID int64) error {
@@ -152,8 +152,8 @@ func DeleteCommentsByVideoID(ctx context.Context, userID, videoID int64) error {
 		}
 
 		// 批量删除
-		allCommentIDs := append(commentIDs, childCommentIDs...)
-		if err := tx.Where("id IN ?", allCommentIDs).Delete(&Comment{}).Error; err != nil {
+		commentIDs = append(commentIDs, childCommentIDs...)
+		if err := tx.Where("id IN ?", commentIDs).Delete(&Comment{}).Error; err != nil {
 			return err
 		}
 
