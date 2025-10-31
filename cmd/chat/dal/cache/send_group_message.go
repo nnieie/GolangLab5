@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -48,10 +49,17 @@ func SaveGroupMessage(groupID, fromUserID int64, content string) (*CachedGroupMe
 
 	pipe.LPush(ctx, GroupMessageQueueKey, msgID)
 
-	_, err := pipe.Exec(ctx)
-	if err != nil {
+	cmds, err := pipe.Exec(ctx)
+	if err != nil && !errors.Is(err, redis.Nil) {
 		logger.Errorf("Failed to save group message to Redis: %v", err)
 		return nil, err
+	}
+
+	// 检查每个命令的执行结果
+	for i, cmd := range cmds {
+		if cmd.Err() != nil && !errors.Is(cmd.Err(), redis.Nil) {
+			logger.Warnf("Pipeline command %d failed: %v", i, cmd.Err())
+		}
 	}
 
 	return msg, nil

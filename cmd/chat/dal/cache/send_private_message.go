@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -50,10 +51,17 @@ func SavePrivateMessage(ctx context.Context, fromUserID, toUserID int64, content
 	// 3. 添加到待同步队列
 	pipe.LPush(ctx, PrivateMessageQueueKey, msgID)
 
-	_, err := pipe.Exec(ctx)
-	if err != nil {
+	cmds, err := pipe.Exec(ctx)
+	if err != nil && !errors.Is(err, redis.Nil) {
 		logger.Errorf("Failed to save private message to Redis: %v", err)
 		return nil, err
+	}
+
+	// 检查每个命令的执行结果
+	for i, cmd := range cmds {
+		if cmd.Err() != nil && !errors.Is(cmd.Err(), redis.Nil) {
+			logger.Warnf("Pipeline command %d failed: %v", i, cmd.Err())
+		}
 	}
 
 	return msg, nil
