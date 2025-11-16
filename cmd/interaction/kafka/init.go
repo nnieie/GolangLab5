@@ -1,9 +1,11 @@
 package kafka
+
 import (
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/kafka"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
+
 func InitKafka() {
 	brokers := config.Kafka.Brokers
 	topic := "interaction-events"

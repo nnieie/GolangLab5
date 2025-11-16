@@ -13,7 +13,6 @@ import (
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
-
 	"github.com/nnieie/golanglab5/cmd/interaction/dal"
 	"github.com/nnieie/golanglab5/cmd/interaction/kafka"
 	"github.com/nnieie/golanglab5/cmd/interaction/rpc"
