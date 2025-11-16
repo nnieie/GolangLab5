@@ -16,7 +16,6 @@ import (
 var videoClient videoservice.Client
 
 func InitVideoRPC() {
-	config.Init(constants.VideoServiceName)
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)

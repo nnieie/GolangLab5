@@ -26,8 +26,8 @@ func main() {
 	chat.InitChatHub()
 
 	h := server.New(
-        server.WithHostPorts("0.0.0.0:11391"),
-    )
+		server.WithHostPorts("0.0.0.0:8888"),
+	)
 	register(h)
 	h.Spin()
 }

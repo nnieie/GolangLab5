@@ -1,14 +1,20 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/nnieie/golanglab5/cmd/interaction/dal"
+	"github.com/nnieie/golanglab5/cmd/interaction/kafka"
 	"github.com/nnieie/golanglab5/cmd/interaction/rpc"
 	"github.com/nnieie/golanglab5/config"
 	interaction "github.com/nnieie/golanglab5/kitex_gen/interaction/interactionservice"
@@ -16,15 +22,22 @@ import (
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
+const (
+	waitTimeForGracefulShutdown = 5 * time.Second
+)
+
 func Init() {
 	logger.InitKlog()
 	config.Init(constants.InteractionServiceName)
 	dal.Init()
 	rpc.InitVideoRPC()
+	kafka.InitKafka()
 }
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
 	Init()
+	go kafka.StartInteractionConsumer(ctx)
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("newEtcdRegistry err: %v", err)
@@ -41,9 +54,24 @@ func main() {
 		server.WithRegistry(r),
 	)
 
-	err = svr.Run()
+	go func() {
+		err = svr.Run()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
 
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	<-sigChan
+
+	logger.Infof("Shutting down...")
+	cancel()
+
+	err = svr.Stop()
 	if err != nil {
-		log.Println(err.Error())
+		logger.Errorf("Error stopping server: %v", err)
 	}
+	logger.Infof("Waiting for 5 seconds to gracefully shutdown...")
+	time.Sleep(waitTimeForGracefulShutdown)
 }

@@ -9,6 +9,10 @@ redis:
   password: 12345
 etcd:
   addr: 127.0.0.1:2379
+kafka:
+  brokers:
+    - 127.0.0.1:9092
+  topic: interaction-events
 services:
   user:
     name: user

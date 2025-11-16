@@ -29,6 +29,14 @@ const (
 )
 
 const (
+	VideoLikePrefix   = "like:video"
+	CommentLikePrefix = "like:comment"
+
+	VideoLikeCountPrefix   = "like_count:video"
+	CommentLikeCountPrefix = "like_count:comment"
+)
+
+const (
 	MaxAvatarSize = 5 << 20
 	MaxVideoSize  = 4 << 30
 )

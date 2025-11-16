@@ -16,7 +16,6 @@ import (
 var interactionClient interactionservice.Client
 
 func InitInteractionRPC() {
-	config.Init(constants.InteractionServiceName)
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)
