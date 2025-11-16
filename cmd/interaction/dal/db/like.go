@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/nnieie/golanglab5/cmd/interaction/rpc"
 	"github.com/nnieie/golanglab5/pkg/constants"
@@ -17,6 +18,8 @@ const (
 
 	LikeActionType   = 1
 	UnlikeActionType = 2
+
+	batchSize = 100
 )
 
 type Like struct {
@@ -32,10 +35,13 @@ func (Like) TableName() string {
 
 func LikeAction(ctx context.Context, like *Like) (int64, error) {
 	err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(like).Error; err != nil {
-			if errors.Is(err, gorm.ErrDuplicatedKey) {
-				return errno.LikeAlreadyExistErr
-			}
+		// 如果不存在 -> 插入
+		// 如果存在但 deleted_at IS NULL -> 不做任何事
+		// 如果存在且 deleted_at IS NOT NULL -> 更新 deleted_at = NULL
+		if err := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "user_id"}, {Name: "target_id"}, {Name: "type"}},
+			DoUpdates: clause.Assignments(map[string]interface{}{"deleted_at": nil}),
+		}).Create(like).Error; err != nil {
 			return err
 		}
 		// 更新点赞数
@@ -148,4 +154,104 @@ func QueryLikeByUserIDAndTargetIDAndType(ctx context.Context, userID, targetID i
 		return nil, err
 	}
 	return &like, nil
+}
+
+// BatchLikeAction 批量点赞操作
+func BatchLikeAction(ctx context.Context, likes []Like) error {
+	if len(likes) == 0 {
+		return nil
+	}
+
+	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.OnConflict{
+			// 告诉 GORM 哪些列是“唯一键”
+			Columns: []clause.Column{{Name: "user_id"}, {Name: "target_id"}, {Name: "type"}},
+			// 冲突时把 deleted_at 设回 NULL
+			DoUpdates: clause.Assignments(map[string]interface{}{"deleted_at": nil}),
+		}).CreateInBatches(likes, batchSize).Error; err != nil {
+			// 如果是其他类型的错误报错
+			return err
+		}
+
+		// 统计每个视频/评论的点赞增量
+		videoLikeCounts := make(map[int64]int64)
+		commentLikeCounts := make(map[int64]int64)
+
+		for _, like := range likes {
+			switch like.Type {
+			case VideoLikeType:
+				videoLikeCounts[like.TargetID]++
+			case CommentLikeType:
+				commentLikeCounts[like.TargetID]++
+			}
+		}
+
+		// 批量更新视频点赞数
+		for videoID, count := range videoLikeCounts {
+			if _, err := rpc.UpdateVideoLikeCount(ctx, videoID, count); err != nil {
+				return err
+			}
+		}
+
+		// 批量更新评论点赞数
+		for commentID, count := range commentLikeCounts {
+			if err := tx.Model(&Comment{}).Where("id = ?", commentID).
+				Update("like_count", gorm.Expr("like_count + ?", count)).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+// BatchUnlikeAction 批量取消点赞操作
+func BatchUnlikeAction(ctx context.Context, unlikes []struct {
+	UserID   int64
+	TargetID int64
+	Type     int64
+}) error {
+	if len(unlikes) == 0 {
+		return nil
+	}
+
+	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 统计每个视频/评论的取消点赞数量
+		videoLikeCounts := make(map[int64]int64)
+		commentLikeCounts := make(map[int64]int64)
+
+		// 批量删除（分组处理）
+		for _, unlike := range unlikes {
+			// 删除记录
+			if err := tx.Where("user_id = ? AND target_id = ? AND type = ?",
+				unlike.UserID, unlike.TargetID, unlike.Type).Delete(&Like{}).Error; err != nil {
+				return err
+			}
+
+			// 统计计数
+			switch unlike.Type {
+			case VideoLikeType:
+				videoLikeCounts[unlike.TargetID]++
+			case CommentLikeType:
+				commentLikeCounts[unlike.TargetID]++
+			}
+		}
+
+		// 批量更新视频点赞数
+		for videoID, count := range videoLikeCounts {
+			if _, err := rpc.UpdateVideoLikeCount(ctx, videoID, -count); err != nil {
+				return err
+			}
+		}
+
+		// 批量更新评论点赞数
+		for commentID, count := range commentLikeCounts {
+			if err := tx.Model(&Comment{}).Where("id = ?", commentID).
+				Update("like_count", gorm.Expr("like_count - ?", count)).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }

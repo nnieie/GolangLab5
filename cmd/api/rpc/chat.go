@@ -16,7 +16,6 @@ import (
 var chatClient chatservice.Client
 
 func InitChatRPC() {
-	config.Init(constants.ChatServiceName)
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)

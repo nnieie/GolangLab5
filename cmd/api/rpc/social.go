@@ -16,7 +16,6 @@ import (
 var socialClient socialservice.Client
 
 func InitSocialRPC() {
-	config.Init(constants.SocialServiceName)
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)

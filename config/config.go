@@ -13,6 +13,7 @@ var (
 	Mysql        *mySQL
 	Redis        *redis
 	Etcd         *etcd
+	Kafka        *kafkaConfig
 	Service      *service
 	CFR2Config   *cfR2Config
 	runtimeViper = viper.New()
@@ -38,15 +39,30 @@ func ReadConfigFile(serviceName string) {
 		log.Fatalln(err)
 	}
 
+	// 调试信息：打印正在读取的服务名
+	log.Printf("[Config] Loading config for service: %s", serviceName)
+
 	addr := runtimeViper.GetString("services." + serviceName + ".addr")
+	name := runtimeViper.GetString("services." + serviceName + ".name")
+
+	// 调试信息：打印读取到的配置
+	log.Printf("[Config] Service name: %s, addr: %s", name, addr)
+
+	// 如果地址为空，说明配置读取失败
+	if addr == "" {
+		log.Printf("[Config] WARNING: Failed to read addr for service '%s'", serviceName)
+		log.Printf("[Config] Available services in config: %v", runtimeViper.Get("services"))
+	}
+
 	Service = &service{
-		Name: runtimeViper.GetString("services." + serviceName + ".name"),
+		Name: name,
 		Addr: addr,
 	}
 
 	Mysql = &c.MySQL
 	Redis = &c.Redis
 	Etcd = &c.Etcd
+	Kafka = &c.Kafka
 }
 
 func LoadR2ConfigFromEnv() {

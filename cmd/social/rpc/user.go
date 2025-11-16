@@ -17,7 +17,6 @@ import (
 var userClient userservice.Client
 
 func InitUserRPC() {
-	config.Init(constants.UserServiceName)
 	r, err := etcd.NewEtcdResolver([]string{config.Etcd.Addr})
 	if err != nil {
 		panic(err)

@@ -22,6 +22,11 @@ type etcd struct {
 	Addr string
 }
 
+type kafkaConfig struct {
+	Brokers []string
+	Topic   string
+}
+
 type cfR2Config struct {
 	Endpoint        string
 	AccessKeyID     string
@@ -32,5 +37,6 @@ type config struct {
 	MySQL   mySQL
 	Redis   redis
 	Etcd    etcd
+	Kafka   kafkaConfig
 	Service service
 }
