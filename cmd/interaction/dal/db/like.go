@@ -206,11 +206,7 @@ func BatchLikeAction(ctx context.Context, likes []Like) error {
 }
 
 // BatchUnlikeAction 批量取消点赞操作
-func BatchUnlikeAction(ctx context.Context, unlikes []struct {
-	UserID   int64
-	TargetID int64
-	Type     int64
-}) error {
+func BatchUnlikeAction(ctx context.Context, unlikes []Like) error {
 	if len(unlikes) == 0 {
 		return nil
 	}

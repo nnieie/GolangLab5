@@ -11,6 +11,7 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/nnieie/golanglab5/cmd/interaction/dal"
@@ -20,6 +21,7 @@ import (
 	interaction "github.com/nnieie/golanglab5/kitex_gen/interaction/interactionservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 const (
@@ -35,6 +37,19 @@ func Init() {
 }
 
 func main() {
+	shutdown, err := tracer.InitOpenTelemetry(constants.InteractionServiceName, constants.OpenTelemetryCollectorEndpoint)
+	if err != nil {
+		logger.Fatalf("init tracer failed: %v", err)
+	}
+
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), constants.ShutdownTimeout)
+		defer cancel()
+		if err := shutdown(ctx); err != nil {
+			logger.Errorf("shutdown tracer failed: %v", err)
+		}
+	}()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	Init()
 	go kafka.StartInteractionConsumer(ctx)
@@ -52,6 +67,7 @@ func main() {
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.Service.Name}),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
+		server.WithSuite(kitextracing.NewServerSuite()),
 	)
 
 	go func() {

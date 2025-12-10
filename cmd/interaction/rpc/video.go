@@ -12,6 +12,7 @@ import (
 	"github.com/nnieie/golanglab5/kitex_gen/video"
 	"github.com/nnieie/golanglab5/kitex_gen/video/videoservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 var videoClient videoservice.Client
@@ -28,6 +29,7 @@ func InitVideoRPC() {
 		client.WithRPCTimeout(constants.RPCTimeout),
 		client.WithConnectTimeout(constants.ConnectTimeout),
 		client.WithFailureRetry(retry.NewFailurePolicy()),
+		client.WithSuite(kitextracing.NewClientSuite()),
 	)
 	if err != nil {
 		panic(err)

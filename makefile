@@ -36,3 +36,20 @@ hertz-gen-api:
 .PHONY: start-%
 start-%:
 	go run ./cmd/$* --log-level=debug
+
+.PHONY: start-all
+start-all:
+	@for service in $(SERVICES); do \
+		echo "Starting $$service..."; \
+		go run ./cmd/$$service --log-level=debug & \
+	done; \
+	wait
+
+.PHONY: stop-all
+stop-all:
+	@for service in $(SERVICES); do \
+		echo "Stopping $$service..."; \
+		pkill -f "go run ./cmd/$$service" 2>/dev/null || true; \
+		pkill -f "cmd/$$service" 2>/dev/null || true; \
+	done
+	@echo "All services stopped."

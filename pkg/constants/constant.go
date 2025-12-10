@@ -79,3 +79,8 @@ const (
 	PingPeriod     = 50 * time.Second
 	MaxMessageSize = 1024
 )
+
+const (
+	OpenTelemetryCollectorEndpoint = "localhost:4318"
+	ShutdownTimeout                = 5 * time.Second
+)

@@ -9,6 +9,9 @@ import (
 	"github.com/segmentio/kafka-go"
 
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -81,6 +84,11 @@ func (p *Producer) publishEvent(ctx context.Context, event interface{}) error {
 		return fmt.Errorf("kafka producer not initialized")
 	}
 
+	// 开启一个 Span，记录 发送消息 这个动作
+	tr := otel.Tracer("kafka-producer")
+	ctx, span := tr.Start(ctx, "publish_event", trace.WithSpanKind(trace.SpanKindProducer))
+	defer span.End()
+
 	// 序列化事件
 	data, err := json.Marshal(event)
 	if err != nil {
@@ -88,15 +96,29 @@ func (p *Producer) publishEvent(ctx context.Context, event interface{}) error {
 		return fmt.Errorf("marshal event failed: %w", err)
 	}
 
+	// 注入 TraceID 到 Kafka Headers
+	// 创建一个 map 来承载 Trace 信息
+	carrier := propagation.MapCarrier{}
+	otel.GetTextMapPropagator().Inject(ctx, carrier)
+
+	// 把 map 转换成 Kafka 的 Headers 格式
+	var headers []kafka.Header
+	for k, v := range carrier {
+		headers = append(headers, kafka.Header{Key: k, Value: []byte(v)})
+	}
+
 	// 构造 Kafka 消息
 	msg := kafka.Message{
-		Value: data,
-		Time:  time.Now(),
+		Value:   data,
+		Time:    time.Now(),
+		Headers: headers,
 	}
 
 	// 发送消息
 	err = p.writer.WriteMessages(ctx, msg)
 	if err != nil {
+		// 记录 Error 到 Span
+		span.RecordError(err) 
 		logger.Errorf("Failed to write message to kafka: %v", err)
 		return fmt.Errorf("write message failed: %w", err)
 	}

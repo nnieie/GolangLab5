@@ -11,6 +11,7 @@ import (
 	"github.com/nnieie/golanglab5/kitex_gen/user"
 	"github.com/nnieie/golanglab5/kitex_gen/user/userservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 var userClient userservice.Client
@@ -27,6 +28,7 @@ func InitUserRPC() {
 		client.WithRPCTimeout(constants.RPCTimeout),
 		client.WithConnectTimeout(constants.ConnectTimeout),
 		client.WithFailureRetry(retry.NewFailurePolicy()),
+		client.WithSuite(kitextracing.NewClientSuite()),
 	)
 	if err != nil {
 		panic(err)

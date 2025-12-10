@@ -9,6 +9,9 @@ import (
 	"github.com/segmentio/kafka-go"
 
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Consumer Kafka 消费者
@@ -64,39 +67,60 @@ func (c *Consumer) Close() error {
 }
 
 // ConsumeMessages 消费消息
-func (c *Consumer) ConsumeMessages(ctx context.Context, handler func([]byte) error) error {
+func (c *Consumer) ConsumeMessages(ctx context.Context, handler func(context.Context, []byte) error) error {
 	for {
 		select {
 		case <-ctx.Done():
 			logger.Infof("Consumer context canceled, stopping...")
 			return ctx.Err()
 		default:
+			// 读取消息
 			msg, err := c.reader.ReadMessage(ctx)
 			if err != nil {
 				logger.Errorf("Failed to read message: %v", err)
 				continue
 			}
 
+			// 提取 TraceID 把 Kafka Headers 转换回 MapCarrier
+			carrier := propagation.MapCarrier{}
+			for _, h := range msg.Headers {
+				carrier[h.Key] = string(h.Value)
+			}
+			
+			// 从 carrier 里提取出父级 Context
+			parentCtx := otel.GetTextMapPropagator().Extract(context.Background(), carrier)
+
+			// 开启一个新的 Consumer Span
+			tr := otel.Tracer("kafka-consumer")
+			// 使用提取出来的 parentCtx 启动 Span，这样就能连上 Producer 了
+			spanName := fmt.Sprintf("consume %s", msg.Topic)
+			spanCtx, span := tr.Start(parentCtx, spanName, trace.WithSpanKind(trace.SpanKindConsumer))
+			
 			logger.Infof("Received message: topic=%s, partition=%d, offset=%d",
 				msg.Topic, msg.Partition, msg.Offset)
 
-			// 处理消息
-			if err := handler(msg.Value); err != nil {
+			// 处理消息 (把带有 TraceID 的 spanCtx 传给业务逻辑)
+			if err := handler(spanCtx, msg.Value); err != nil {
+				span.RecordError(err) // 记录错误到 Jaeger
 				logger.Errorf("Failed to handle message: %v", err)
-				// 这里可以实现重试逻辑或将消息发送到死信队列
+				span.End() // 结束 Span
 				continue
 			}
+			
+			span.End() // 处理成功，结束 Span
 		}
 	}
 }
 
 // ConsumeLikeEvents 消费点赞事件
-func (c *Consumer) ConsumeLikeEvents(ctx context.Context, handler func(*LikeEvent) error) error {
-	return c.ConsumeMessages(ctx, func(data []byte) error {
+func (c *Consumer) ConsumeLikeEvents(ctx context.Context, handler func(context.Context, *LikeEvent) error) error {
+	// 这里的回调函数接收到了 spanCtx
+	return c.ConsumeMessages(ctx, func(spanCtx context.Context, data []byte) error {
 		var event LikeEvent
 		if err := json.Unmarshal(data, &event); err != nil {
 			return fmt.Errorf("unmarshal like event failed: %w", err)
 		}
-		return handler(&event)
+		// 把 spanCtx 继续透传给具体的业务 Handler
+		return handler(spanCtx, &event)
 	})
 }
