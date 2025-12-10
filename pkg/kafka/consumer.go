@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/segmentio/kafka-go"
-
-	"github.com/nnieie/golanglab5/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 // Consumer Kafka 消费者
@@ -86,7 +86,7 @@ func (c *Consumer) ConsumeMessages(ctx context.Context, handler func(context.Con
 			for _, h := range msg.Headers {
 				carrier[h.Key] = string(h.Value)
 			}
-			
+
 			// 从 carrier 里提取出父级 Context
 			parentCtx := otel.GetTextMapPropagator().Extract(context.Background(), carrier)
 
@@ -95,7 +95,7 @@ func (c *Consumer) ConsumeMessages(ctx context.Context, handler func(context.Con
 			// 使用提取出来的 parentCtx 启动 Span，这样就能连上 Producer 了
 			spanName := fmt.Sprintf("consume %s", msg.Topic)
 			spanCtx, span := tr.Start(parentCtx, spanName, trace.WithSpanKind(trace.SpanKindConsumer))
-			
+
 			logger.Infof("Received message: topic=%s, partition=%d, offset=%d",
 				msg.Topic, msg.Partition, msg.Offset)
 
@@ -106,7 +106,7 @@ func (c *Consumer) ConsumeMessages(ctx context.Context, handler func(context.Con
 				span.End() // 结束 Span
 				continue
 			}
-			
+
 			span.End() // 处理成功，结束 Span
 		}
 	}

@@ -1,9 +1,9 @@
 package kafka
 
 import (
+	"context"
 	"fmt"
 	"time"
-	"context"
 )
 
 const (
@@ -28,8 +28,8 @@ type BaseEvent struct {
 }
 
 type TracedEvent struct {
-    Ctx   context.Context
-    Event *LikeEvent
+	Ctx   context.Context
+	Event *LikeEvent
 }
 
 // LikeEvent 点赞事件

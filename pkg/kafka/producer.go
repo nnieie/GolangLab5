@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/segmentio/kafka-go"
-
-	"github.com/nnieie/golanglab5/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 const (
@@ -118,7 +118,7 @@ func (p *Producer) publishEvent(ctx context.Context, event interface{}) error {
 	err = p.writer.WriteMessages(ctx, msg)
 	if err != nil {
 		// 记录 Error 到 Span
-		span.RecordError(err) 
+		span.RecordError(err)
 		logger.Errorf("Failed to write message to kafka: %v", err)
 		return fmt.Errorf("write message failed: %w", err)
 	}

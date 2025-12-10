@@ -5,13 +5,13 @@ import (
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/kitex_gen/user"
 	"github.com/nnieie/golanglab5/kitex_gen/user/userservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
-	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 var userClient userservice.Client

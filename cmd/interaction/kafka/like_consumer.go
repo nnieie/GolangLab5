@@ -6,12 +6,13 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/db"
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/kafka"
 	"github.com/nnieie/golanglab5/pkg/logger"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/trace"
 )
 
 const (

@@ -2,12 +2,13 @@ package cache
 
 import (
 	"context"
+
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/attribute"
 
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/logger"
-	"github.com/redis/go-redis/extra/redisotel/v9"
 )
 
 var (
