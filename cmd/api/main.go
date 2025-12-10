@@ -3,6 +3,9 @@
 package main
 
 import (
+	"context"
+	"time"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	"github.com/nnieie/golanglab5/cmd/api/rpc"
@@ -10,11 +13,29 @@ import (
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 func main() {
 	logger.InitKlog()
 	config.Init(constants.APIServiceName)
+
+	// 初始化 OpenTelemetry
+	shutdown, err := tracer.InitOpenTelemetry(constants.APIServiceName, constants.OpenTelemetryCollectorEndpoint)
+	if err != nil {
+		logger.Fatalf("InitOpenTelemetry failed: %v", err)
+	}
+	
+	// 确保程序退出时，发送还没发出去的 Trace
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := shutdown(ctx); err != nil {
+			logger.Errorf("Shutdown tracer failed: %v", err)
+		}
+	}()
+
 	jwt.InitJwt()
 	rpc.InitUserRPC()
 	rpc.InitVideoRPC()
@@ -25,8 +46,13 @@ func main() {
 	// 初始化 WebSocket Chat Hub
 	chat.InitChatHub()
 
+	// 注入 Hertz 中间件
+	tracerOption, _ := hertztracing.NewServerTracer()
+
 	h := server.New(
 		server.WithHostPorts("0.0.0.0:8888"),
+		tracerOption, // 把 Option 塞进去
+		server.WithHandleMethodNotAllowed(true),
 	)
 	register(h)
 	h.Spin()

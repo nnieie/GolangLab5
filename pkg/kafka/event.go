@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -24,6 +25,11 @@ type BaseEvent struct {
 	EventType EventType `json:"event_type"` // 事件类型
 	Timestamp int64     `json:"timestamp"`  // 事件时间戳（毫秒）
 	UserID    int64     `json:"user_id"`    // 操作用户ID
+}
+
+type TracedEvent struct {
+	Ctx   context.Context
+	Event *LikeEvent
 }
 
 // LikeEvent 点赞事件

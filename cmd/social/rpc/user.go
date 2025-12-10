@@ -5,6 +5,7 @@ import (
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/nnieie/golanglab5/config"
@@ -28,6 +29,7 @@ func InitUserRPC() {
 		client.WithRPCTimeout(constants.RPCTimeout),
 		client.WithConnectTimeout(constants.ConnectTimeout),
 		client.WithFailureRetry(retry.NewFailurePolicy()),
+		client.WithSuite(kitextracing.NewClientSuite()),
 	)
 	if err != nil {
 		panic(err)

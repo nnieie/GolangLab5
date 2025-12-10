@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
 
 	"github.com/nnieie/golanglab5/cmd/video/dal"
@@ -14,6 +16,7 @@ import (
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
 	"github.com/nnieie/golanglab5/pkg/oss"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
@@ -26,6 +29,18 @@ func Init() {
 }
 
 func main() {
+	shutdown, err := tracer.InitOpenTelemetry(constants.VideoServiceName, constants.OpenTelemetryCollectorEndpoint)
+	if err != nil {
+		logger.Fatalf("init tracer failed: %v", err)
+	}
+
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), constants.ShutdownTimeout)
+		defer cancel()
+		if err := shutdown(ctx); err != nil {
+			logger.Errorf("shutdown tracer failed: %v", err)
+		}
+	}()
 	Init()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
@@ -43,6 +58,7 @@ func main() {
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.Service.Name}),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
+		server.WithSuite(kitextracing.NewServerSuite()),
 	)
 
 	err = svr.Run()

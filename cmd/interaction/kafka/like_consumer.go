@@ -6,6 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/db"
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/kafka"
@@ -49,10 +52,10 @@ func StartInteractionConsumer(ctx context.Context) {
 
 // BatchProcessor 批量处理器
 type BatchProcessor struct {
-	buffer        []*kafka.LikeEvent // 消息缓冲区
-	bufferSize    int                // 批量大小
-	flushInterval time.Duration      // 刷新间隔
-	mu            sync.Mutex         // 并发保护
+	buffer        []*kafka.TracedEvent // 消息缓冲区
+	bufferSize    int                  // 批量大小
+	flushInterval time.Duration        // 刷新间隔
+	mu            sync.Mutex           // 并发保护
 	ctx           context.Context
 	cancel        context.CancelFunc
 }
@@ -61,7 +64,7 @@ type BatchProcessor struct {
 func NewBatchProcessor(bufferSize int, flushInterval time.Duration) *BatchProcessor {
 	ctx, cancel := context.WithCancel(context.Background())
 	bp := &BatchProcessor{
-		buffer:        make([]*kafka.LikeEvent, 0, bufferSize),
+		buffer:        make([]*kafka.TracedEvent, 0, bufferSize),
 		bufferSize:    bufferSize,
 		flushInterval: flushInterval,
 		ctx:           ctx,
@@ -75,9 +78,12 @@ func NewBatchProcessor(bufferSize int, flushInterval time.Duration) *BatchProces
 }
 
 // AddEvent 添加事件到缓冲区
-func (bp *BatchProcessor) AddEvent(event *kafka.LikeEvent) error {
+func (bp *BatchProcessor) AddEvent(ctx context.Context, event *kafka.LikeEvent) error {
 	bp.mu.Lock()
-	bp.buffer = append(bp.buffer, event)
+	bp.buffer = append(bp.buffer, &kafka.TracedEvent{
+		Ctx:   ctx,
+		Event: event,
+	})
 	shouldFlush := len(bp.buffer) >= bp.bufferSize
 	bp.mu.Unlock()
 
@@ -115,22 +121,32 @@ func (bp *BatchProcessor) Flush() error {
 	}
 
 	// 复制缓冲区，快速释放锁
-	batch := make([]*kafka.LikeEvent, len(bp.buffer))
+	batch := make([]*kafka.TracedEvent, len(bp.buffer))
 	copy(batch, bp.buffer)
 	bp.buffer = bp.buffer[:0] // 清空缓冲区
 	bp.mu.Unlock()
 
 	logger.Infof("Flushing %d like events to database", len(batch))
 
-	// 分组处理：点赞 vs 取消点赞
-	var likesToInsert []db.Like
-	var likesToDelete []struct {
-		UserID   int64
-		TargetID int64
-		Type     int64
+	// 创建一个新的 Batch Span，把这 100 个请求的 TraceID 连起来
+	var links []trace.Link
+	for _, item := range batch {
+		// 收集所有父级 TraceID
+		links = append(links, trace.LinkFromContext(item.Ctx))
 	}
 
-	for _, event := range batch {
+	tr := otel.Tracer("batch-processor")
+	// Start 一个新的 Span，通过 Links 关联
+	spanCtx, span := tr.Start(context.Background(), "batch_flush_likes",
+		trace.WithLinks(links...))
+	defer span.End()
+
+	// 分组处理：点赞 vs 取消点赞
+	var likesToInsert []db.Like
+	var likesToDelete []db.Like
+
+	for _, item := range batch {
+		event := item.Event
 		var targetID, likeType int64
 
 		switch {
@@ -152,19 +168,20 @@ func (bp *BatchProcessor) Flush() error {
 				Type:     likeType,
 			})
 		case 2: // 取消点赞
-			likesToDelete = append(likesToDelete, struct {
-				UserID   int64
-				TargetID int64
-				Type     int64
-			}{event.UserID, targetID, likeType})
+			likesToDelete = append(likesToDelete, db.Like{
+				UserID:   event.UserID,
+				TargetID: targetID,
+				Type:     likeType,
+			})
 		}
 	}
 
-	ctx := context.Background()
+	ctx := spanCtx
 
 	// 批量插入点赞
 	if len(likesToInsert) > 0 {
 		if err := db.BatchLikeAction(ctx, likesToInsert); err != nil {
+			span.RecordError(err)
 			logger.Errorf("Failed to batch insert likes: %v", err)
 			return err
 		}
@@ -174,6 +191,7 @@ func (bp *BatchProcessor) Flush() error {
 	// 批量删除点赞
 	if len(likesToDelete) > 0 {
 		if err := db.BatchUnlikeAction(ctx, likesToDelete); err != nil {
+			span.RecordError(err)
 			logger.Errorf("Failed to batch delete likes: %v", err)
 			return err
 		}
@@ -190,8 +208,8 @@ func (bp *BatchProcessor) Close() error {
 }
 
 // handleLikeEventBatch 批量处理
-func handleLikeEventBatch(processor *BatchProcessor) func(*kafka.LikeEvent) error {
-	return func(event *kafka.LikeEvent) error {
-		return processor.AddEvent(event)
+func handleLikeEventBatch(processor *BatchProcessor) func(context.Context, *kafka.LikeEvent) error {
+	return func(ctx context.Context, event *kafka.LikeEvent) error {
+		return processor.AddEvent(ctx, event)
 	}
 }
