@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -61,6 +60,6 @@ func main() {
 	err = svr.Run()
 
 	if err != nil {
-		log.Println(err.Error())
+		logger.Fatalf("chat service run err: %v", err)
 	}
 }

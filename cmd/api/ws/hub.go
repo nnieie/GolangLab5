@@ -61,11 +61,14 @@ func (h *Hub) run() {
 		case msg := <-h.broadcast:
 			go func() {
 				for _, uid := range msg.TargetUserIDs {
+					logger.Debugf("broadcasting message to %d", uid)
 					if client, ok := h.clients[uid]; ok {
+						logger.Debugf("found connected client for %d", uid)
 						select {
 						case client.send <- msg.Payload:
+							logger.Debugf("msg sent to %d", uid)
 						default:
-							h.unregister <- h.clients[uid]
+							h.unregister <- client
 						}
 					}
 				}

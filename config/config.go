@@ -67,9 +67,9 @@ func ReadConfigFile(serviceName string) {
 
 func LoadR2ConfigFromEnv() {
 	CFR2Config = &cfR2Config{
-		Endpoint:        getEnv("R2_Endpoint", ""),
-		AccessKeyID:     getEnv("R2_ACCESS_KEY_ID", ""),
-		SecretAccessKey: getEnv("R2_SECRET_ACCESS_KEY", ""),
+		Endpoint:        getEnv("R2_Endpoint", "R2_Endpoint"),
+		AccessKeyID:     getEnv("R2_ACCESS_KEY_ID", "R2_ACCESS_KEY_ID"),
+		SecretAccessKey: getEnv("R2_SECRET_ACCESS_KEY", "R2_SECRET_ACCESS_KEY"),
 	}
 }
 
