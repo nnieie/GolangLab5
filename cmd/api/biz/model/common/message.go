@@ -4,14 +4,14 @@ import "github.com/nnieie/golanglab5/cmd/api/biz/model/base"
 
 // Message ws消息结构
 type Message struct {
-	Type       int64 // 消息类型：1-私聊发送 2-私聊历史 3-私聊离线 4-群聊发送 5-群聊历史 6-群聊离线
-	FromUserID int64
-	ToUserID   int64
-	GroupID    int64
-	Content    string
-	PageNum    int64
-	PageSize   int64
-	CreatedAt  int64
+	Type       int64  // 消息类型：1-私聊发送 2-私聊历史 3-私聊离线 4-群聊发送 5-群聊历史 6-群聊离线
+	FromUserID int64  `json:"from_user_id"`
+	ToUserID   int64  `json:"to_user_id"`
+	GroupID    int64  `json:"group_id"`
+	Content    string `json:"content"`
+	PageNum    int64  `json:"page_num"`
+	PageSize   int64  `json:"page_size"`
+	CreatedAt  int64  `json:"created_at"`
 }
 
 type SendPrivateMessageRequest struct {
@@ -20,7 +20,7 @@ type SendPrivateMessageRequest struct {
 }
 
 type SendPrivateMessageResponse struct {
-	Base *base.BaseResp
+	Base *base.BaseResp `json:"base"`
 }
 
 type QueryPrivateHistoryMessageRequest struct {
@@ -30,8 +30,8 @@ type QueryPrivateHistoryMessageRequest struct {
 }
 
 type QueryPrivateHistoryMessageResponse struct {
-	Base     *base.BaseResp
-	Messages []*base.PrivateMessage
+	Base     *base.BaseResp         `json:"base"`
+	Messages []*base.PrivateMessage `json:"messages"`
 }
 
 type QueryPrivateOfflineMessageRequest struct {
@@ -41,8 +41,8 @@ type QueryPrivateOfflineMessageRequest struct {
 }
 
 type QueryPrivateOfflineMessageResponse struct {
-	Base     *base.BaseResp
-	Messages []*base.PrivateMessage
+	Base     *base.BaseResp         `json:"base"`
+	Messages []*base.PrivateMessage `json:"messages"`
 }
 
 type SendGroupMessageRequest struct {
@@ -51,7 +51,7 @@ type SendGroupMessageRequest struct {
 }
 
 type SendGroupMessageResponse struct {
-	Base *base.BaseResp
+	Base *base.BaseResp `json:"base"`
 }
 
 type QueryGroupHistoryMessageRequest struct {
@@ -61,8 +61,8 @@ type QueryGroupHistoryMessageRequest struct {
 }
 
 type QueryGroupHistoryMessageResponse struct {
-	Base     *base.BaseResp
-	Messages []*base.GroupMessage
+	Base     *base.BaseResp       `json:"base"`
+	Messages []*base.GroupMessage `json:"messages"`
 }
 
 type QueryGroupOfflineMessageRequest struct {
@@ -72,6 +72,6 @@ type QueryGroupOfflineMessageRequest struct {
 }
 
 type QueryGroupOfflineMessageResponse struct {
-	Base     *base.BaseResp
-	Messages []*base.GroupMessage
+	Base     *base.BaseResp       `json:"base"`
+	Messages []*base.GroupMessage `json:"messages"`
 }

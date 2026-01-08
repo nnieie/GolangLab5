@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -73,7 +72,7 @@ func main() {
 	go func() {
 		err = svr.Run()
 		if err != nil {
-			log.Println(err.Error())
+			logger.Fatalf("interaction service run err: %v", err)
 		}
 	}()
 
