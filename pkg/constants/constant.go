@@ -81,6 +81,13 @@ const (
 )
 
 const (
+	DefaultConsumerChanCap = 200
+
+	LikeTopic   = "interaction-events"
+	LikeGroupID = "interaction_like_group"
+)
+
+const (
 	OpenTelemetryCollectorEndpoint = "localhost:4318"
 	ShutdownTimeout                = 5 * time.Second
 )

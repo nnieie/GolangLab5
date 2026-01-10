@@ -2,12 +2,10 @@ package service
 
 import (
 	"context"
-	"time"
 
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/cache"
+	"github.com/nnieie/golanglab5/cmd/interaction/kafka"
 	"github.com/nnieie/golanglab5/pkg/errno"
-	"github.com/nnieie/golanglab5/pkg/kafka"
-	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 func (s *interactionService) LikeAction(userID int64, actionType int64, videoID, commentID *int64) error {
@@ -44,30 +42,7 @@ func (s *interactionService) LikeAction(userID int64, actionType int64, videoID,
 		}
 	}
 
-	// 发送 Kafka 消息
-	event := &kafka.LikeEvent{
-		BaseEvent: kafka.BaseEvent{
-			EventID:   kafka.GenerateEventID(userID, time.Now().UnixMilli()),
-			EventType: kafka.EventTypeLike,
-			Timestamp: time.Now().UnixMilli(),
-			UserID:    userID,
-		},
-		VideoID:   videoID,
-		CommentID: commentID,
-		Action:    actionType,
-	}
-
-	// 异步发送，不等待结果
-	go func() {
-		producer := kafka.GetProducer()
-		if producer == nil {
-			logger.Errorf("Kafka producer not initialized")
-			return
-		}
-		if err := producer.PublishLikeEvent(ctx, event); err != nil {
-			logger.Errorf("Failed to publish like event: %v", err)
-		}
-	}()
+	go kafka.SendLikeEvent(ctx, userID, videoID, commentID, actionType)
 
 	return nil
 }
