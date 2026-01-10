@@ -1,27 +1,14 @@
 package kafka
 
-import (
-	"github.com/nnieie/golanglab5/config"
-	"github.com/nnieie/golanglab5/pkg/kafka"
-	"github.com/nnieie/golanglab5/pkg/logger"
-)
+import "github.com/nnieie/golanglab5/pkg/kafka"
+
+var KafkaInstance *kafka.Kafka
 
 func InitKafka() {
-	brokers := config.Kafka.Brokers
-	topic := "interaction-events"
+	instance := kafka.NewKafkaInstance()
+	KafkaInstance = instance
+}
 
-	if config.Kafka != nil {
-		brokers = config.Kafka.Brokers
-		topic = config.Kafka.Topic
-	} else {
-		logger.Warnf("Kafka config not found, using default values")
-	}
-
-	err := kafka.InitProducer(kafka.ProducerConfig{
-		Brokers: brokers,
-		Topic:   topic,
-	})
-	if err != nil {
-		logger.Errorf("Failed to initialize Kafka producer: %v", err)
-	}
+func CloseKafka() {
+	KafkaInstance.Close()
 }
