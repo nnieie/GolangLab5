@@ -143,11 +143,13 @@ func (k *Kafka) Close() {
 
 func getNewReader(config ConsumerConfig) *kafka.Reader {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  config.Brokers,
-		Topic:    config.Topic,
-		GroupID:  config.GroupID,
-		MinBytes: config.MinBytes,
-		MaxBytes: config.MaxBytes,
+		Brokers:        config.Brokers,
+		Topic:          config.Topic,
+		GroupID:        config.GroupID,
+		MinBytes:       config.MinBytes,
+		MaxBytes:       config.MaxBytes,
+		CommitInterval: time.Second,      // 每秒提交一次 offset
+		StartOffset:    kafka.LastOffset, // 从最新位置开始消费
 	})
 	return reader
 }

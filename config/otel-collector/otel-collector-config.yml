@@ -1,0 +1,61 @@
+# 接收器配置
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317  # 接收 OTLP gRPC 数据
+      http:
+        endpoint: 0.0.0.0:4318  # 接收 OTLP HTTP 数据
+
+# 导出器配置
+exporters:
+  # 导出 Traces 到 Jaeger
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # 导出 Metrics 到 Prometheus
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: app
+
+  # 调试用（可以在日志中看到数据）
+  debug:
+    verbosity: detailed
+
+# 处理器配置
+processors:
+  # 批处理（提高性能）
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+  # 内存限制器（防止OOM）
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+
+# 扩展配置
+extensions:
+  health_check:  # 健康检查
+  pprof:         # 性能分析
+    endpoint: :1888
+  zpages:        # 调试页面
+    endpoint: :55679
+
+# 服务管道配置
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    # Traces 管道
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp/jaeger]
+    
+    # Metrics 管道
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, prometheus]

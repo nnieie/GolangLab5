@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
+	merics "github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/metrics"
 	"github.com/nnieie/golanglab5/cmd/api/rpc"
 	chat "github.com/nnieie/golanglab5/cmd/api/ws"
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
-	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
@@ -26,13 +27,29 @@ func main() {
 	if err != nil {
 		logger.Fatalf("InitOpenTelemetry failed: %v", err)
 	}
-	
+
 	// 确保程序退出时，发送还没发出去的 Trace
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := shutdown(ctx); err != nil {
 			logger.Errorf("Shutdown tracer failed: %v", err)
+		}
+	}()
+
+	// 初始化 OpenTelemetry Metrics
+	shutdownMetrics, err := tracer.InitMetrics(
+		constants.APIServiceName,
+		constants.OpenTelemetryCollectorEndpoint,
+	)
+	if err != nil {
+		logger.Fatalf("InitMetrics failed: %v", err)
+	}
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := shutdownMetrics(ctx); err != nil {
+			logger.Errorf("Shutdown metrics failed: %v", err)
 		}
 	}()
 
@@ -54,6 +71,8 @@ func main() {
 		tracerOption, // 把 Option 塞进去
 		server.WithHandleMethodNotAllowed(true),
 	)
+	// 添加 Metrics 中间件
+	h.Use(merics.MetricsMiddleware())
 	register(h)
 	h.Spin()
 }
