@@ -136,8 +136,16 @@ func QueryLikeVideoListByUserID(ctx context.Context, userID int64, pageNum, page
 	if pageSize <= 0 {
 		pageSize = 20
 	}
-	err := DB.WithContext(ctx).Model(&Like{}).Where("type = 1 AND user_id = ?", userID).Order("created_at DESC").Pluck("target_id", &likes).
-		Offset(int((pageNum - 1) * pageSize)).Limit(int(pageSize)).Error
+
+	offset := int((pageNum - 1) * pageSize)
+	limit := int(pageSize)
+
+	err := DB.WithContext(ctx).Model(&Like{}).
+		Where("type = ? AND user_id = ?", VideoLikeType, userID).
+		Order("created_at DESC").
+		Offset(offset).
+		Limit(limit).
+		Pluck("target_id", &likes).Error
 	if err != nil {
 		return nil, err
 	}

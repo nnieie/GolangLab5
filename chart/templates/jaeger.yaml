@@ -1,0 +1,54 @@
+{{- if .Values.jaeger.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    app: jaeger
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.jaeger.service.type }}
+  ports:
+  - port: {{ .Values.jaeger.service.uiPort }}
+    targetPort: {{ .Values.jaeger.service.uiPort }}
+    nodePort: {{ .Values.jaeger.service.nodePort }}
+    protocol: TCP
+    name: ui
+  - port: {{ .Values.jaeger.service.otlpGrpcPort }}
+    targetPort: {{ .Values.jaeger.service.otlpGrpcPort }}
+    protocol: TCP
+    name: otlp-grpc
+  selector:
+    app: jaeger
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  labels:
+    app: jaeger
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: {{ .Values.jaeger.image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: COLLECTOR_OTLP_ENABLED
+          value: "true"
+        ports:
+        - containerPort: {{ .Values.jaeger.service.uiPort }}
+          protocol: TCP
+        - containerPort: {{ .Values.jaeger.service.otlpGrpcPort }}
+          protocol: TCP
+{{- end }}

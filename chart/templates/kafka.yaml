@@ -1,0 +1,98 @@
+{{- if .Values.kafka.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.kafka.service.internalPort }}
+    targetPort: {{ .Values.kafka.service.internalPort }}
+    protocol: TCP
+    name: internal
+  - port: {{ .Values.kafka.service.externalPort }}
+    targetPort: {{ .Values.kafka.service.externalPort }}
+    protocol: TCP
+    name: external
+  - port: {{ .Values.kafka.service.controllerPort }}
+    targetPort: {{ .Values.kafka.service.controllerPort }}
+    protocol: TCP
+    name: controller
+  selector:
+    app: kafka
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: {{ .Values.kafka.image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: KAFKA_CFG_NODE_ID
+          value: "0"
+        - name: KAFKA_CFG_PROCESS_ROLES
+          value: "controller,broker"
+        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          value: "0@kafka-0.kafka:{{ .Values.kafka.service.controllerPort }}"
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_CLUSTER_ID
+          value: {{ .Values.kafka.clusterId | quote }}
+        - name: KAFKA_CFG_LISTENERS
+          value: "INTERNAL://:{{ .Values.kafka.service.internalPort }},EXTERNAL://:{{ .Values.kafka.service.externalPort }},CONTROLLER://:{{ .Values.kafka.service.controllerPort }}"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: "INTERNAL://kafka:{{ .Values.kafka.service.internalPort }},EXTERNAL://kafka:{{ .Values.kafka.service.externalPort }}"
+        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+        - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+          value: "INTERNAL"
+        ports:
+        - containerPort: {{ .Values.kafka.service.internalPort }}
+          protocol: TCP
+        - containerPort: {{ .Values.kafka.service.externalPort }}
+          protocol: TCP
+        - containerPort: {{ .Values.kafka.service.controllerPort }}
+          protocol: TCP
+        {{- if .Values.kafka.persistence.enabled }}
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /bitnami/kafka
+        {{- end }}
+  {{- if .Values.kafka.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka-data
+      labels:
+        app: kafka
+    spec:
+      accessModes:
+      {{- range .Values.kafka.persistence.accessModes }}
+        - {{ . | quote }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.kafka.persistence.size | quote }}
+      {{- if .Values.kafka.persistence.storageClass }}
+      storageClassName: {{ .Values.kafka.persistence.storageClass | quote }}
+      {{- end }}
+  {{- end }}
+{{- end }}

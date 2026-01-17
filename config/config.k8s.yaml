@@ -1,0 +1,33 @@
+mysql:
+  addr: mysql:3306
+  username: root
+  password: 12345
+  database: rpc
+  charset: utf8mb4
+redis:
+  addr: redis:6379
+  password: 12345
+etcd:
+  addr: etcd:2379
+kafka:
+  brokers:
+    - kafka:9093
+services:
+  user:
+    name: user
+    addr: 0.0.0.0:11393
+  video:
+    name: video
+    addr: 0.0.0.0:11394
+  social:
+    name: social
+    addr: 0.0.0.0:11395
+  interaction:
+    name: interaction
+    addr: 0.0.0.0:11396
+  chat:
+    name: chat
+    addr: 0.0.0.0:11397
+  api:
+    name: api
+    addr: 0.0.0.0:8888

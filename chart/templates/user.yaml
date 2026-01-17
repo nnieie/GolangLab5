@@ -1,0 +1,67 @@
+{{- if .Values.services.user.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  labels:
+    app: {{ .Values.services.user.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.services.user.port }}
+    targetPort: {{ .Values.services.user.port }}
+    protocol: TCP
+  selector:
+    app: {{ .Values.services.user.name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.user.name }}
+  labels:
+    app: {{ .Values.services.user.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.user.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.user.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.user.name }}
+    spec:
+      containers:
+      - name: user
+        image: "{{ .Values.services.user.image }}:{{ .Values.global.imageTag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.user.port }}
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "user"
+        resources:
+          {{- toYaml .Values.services.user.resources | nindent 10 }}
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.services.user.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.services.user.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Values.config.name }}
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+{{- end }}

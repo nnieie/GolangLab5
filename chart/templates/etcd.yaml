@@ -1,0 +1,74 @@
+{{- if .Values.etcd.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.etcd.service.port }}
+    targetPort: {{ .Values.etcd.service.port }}
+    protocol: TCP
+    name: client
+  selector:
+    app: etcd
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  serviceName: etcd
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      containers:
+      - name: etcd
+        image: {{ .Values.etcd.image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: ALLOW_NONE_AUTHENTICATION
+          value: "yes"
+        {{- if .Values.etcd.persistence.enabled }}
+        - name: ETCD_DATA_DIR
+          value: "/bitnami/etcd/data"
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.etcd.service.port }}
+          protocol: TCP
+        {{- if .Values.etcd.persistence.enabled }}
+        volumeMounts:
+        - name: etcd-data
+          mountPath: /bitnami/etcd
+        {{- end }}
+  {{- if .Values.etcd.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: etcd-data
+      labels:
+        app: etcd
+    spec:
+      accessModes:
+      {{- range .Values.etcd.persistence.accessModes }}
+        - {{ . | quote }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.etcd.persistence.size | quote }}
+      {{- if .Values.etcd.persistence.storageClass }}
+      storageClassName: {{ .Values.etcd.persistence.storageClass | quote }}
+      {{- end }}
+  {{- end }}
+{{- end }}

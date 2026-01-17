@@ -1,0 +1,67 @@
+{{- if .Values.services.interaction.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interaction
+  labels:
+    app: {{ .Values.services.interaction.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.services.interaction.port }}
+    targetPort: {{ .Values.services.interaction.port }}
+    protocol: TCP
+  selector:
+    app: {{ .Values.services.interaction.name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.interaction.name }}
+  labels:
+    app: {{ .Values.services.interaction.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.interaction.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.interaction.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.interaction.name }}
+    spec:
+      containers:
+      - name: interaction
+        image: "{{ .Values.services.interaction.image }}:{{ .Values.global.imageTag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.interaction.port }}
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "interaction"
+        resources:
+          {{- toYaml .Values.services.interaction.resources | nindent 10 }}
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.services.interaction.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.services.interaction.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Values.config.name }}
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+{{- end }}
