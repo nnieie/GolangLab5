@@ -1,0 +1,67 @@
+{{- if .Values.services.video.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video
+  labels:
+    app: {{ .Values.services.video.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.services.video.port }}
+    targetPort: {{ .Values.services.video.port }}
+    protocol: TCP
+  selector:
+    app: {{ .Values.services.video.name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.video.name }}
+  labels:
+    app: {{ .Values.services.video.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.video.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.video.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.video.name }}
+    spec:
+      containers:
+      - name: video
+        image: "{{ .Values.services.video.image }}:{{ .Values.global.imageTag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.video.port }}
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "video"
+        resources:
+          {{- toYaml .Values.services.video.resources | nindent 10 }}
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.services.video.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.services.video.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Values.config.name }}
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+{{- end }}

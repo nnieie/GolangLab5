@@ -1,0 +1,67 @@
+{{- if .Values.services.social.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: social
+  labels:
+    app: {{ .Values.services.social.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.services.social.port }}
+    targetPort: {{ .Values.services.social.port }}
+    protocol: TCP
+  selector:
+    app: {{ .Values.services.social.name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.social.name }}
+  labels:
+    app: {{ .Values.services.social.name }}
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.social.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.social.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.social.name }}
+    spec:
+      containers:
+      - name: social
+        image: "{{ .Values.services.social.image }}:{{ .Values.global.imageTag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.services.social.port }}
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "social"
+        resources:
+          {{- toYaml .Values.services.social.resources | nindent 10 }}
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.services.social.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.services.social.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: {{ .Values.config.name }}
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+{{- end }}

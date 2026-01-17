@@ -1,0 +1,1025 @@
+---
+# Source: chart/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.k8s.yaml: |
+    mysql:
+      addr: mysql:3306
+      username: root
+      password: 12345
+      database: rpc
+      charset: utf8mb4
+    redis:
+      addr: redis:6379
+      password: 12345
+    etcd:
+      addr: etcd:2379
+    kafka:
+      brokers:
+        - kafka:9093
+    services:
+      user:
+        name: user
+        addr: 0.0.0.0:11393
+      video:
+        name: video
+        addr: 0.0.0.0:11394
+      social:
+        name: social
+        addr: 0.0.0.0:11395
+      interaction:
+        name: interaction
+        addr: 0.0.0.0:11396
+      chat:
+        name: chat
+        addr: 0.0.0.0:11397
+      api:
+        name: api
+        addr: 0.0.0.0:8888
+---
+# Source: chart/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-sql
+  labels:
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  init.sql: |
+    -- Create users table
+    CREATE TABLE IF NOT EXISTS `users` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_name` varchar(255) NOT NULL,
+      `password` varchar(255) NOT NULL,
+      `avatar` varchar(255) DEFAULT NULL,
+      `totp` varchar(255) DEFAULT NULL,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `idx_user_name` (`user_name`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create videos table
+    CREATE TABLE IF NOT EXISTS `videos` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `video_url` varchar(255) NOT NULL,
+      `cover_url` varchar(255) DEFAULT NULL,
+      `title` varchar(255) NOT NULL,
+      `description` text,
+      `visit_count` bigint unsigned DEFAULT 0,
+      `like_count` bigint unsigned DEFAULT 0,
+      `comment_count` bigint unsigned DEFAULT 0,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_user_id` (`user_id`),
+      KEY `idx_visit_count` (`visit_count`),
+      KEY `idx_like_count` (`like_count`),
+      KEY `idx_created_at` (`created_at`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create comments table
+    CREATE TABLE IF NOT EXISTS `comments` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `video_id` bigint unsigned NOT NULL,
+      `parent_id` bigint unsigned DEFAULT NULL,
+      `to_user_id` bigint unsigned DEFAULT NULL,
+      `content` text NOT NULL,
+      `like_count` bigint unsigned DEFAULT 0,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_user_id` (`user_id`),
+      KEY `idx_video_id` (`video_id`),
+      KEY `idx_parent_id` (`parent_id`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create likes table
+    CREATE TABLE IF NOT EXISTS `likes` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `target_id` bigint unsigned NOT NULL,
+      `type` tinyint NOT NULL COMMENT '1:video 2:comment',
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `idx_user_target_type` (`user_id`, `target_id`, `type`, `deleted_at`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create follows table
+    CREATE TABLE IF NOT EXISTS `follows` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `to_user_id` bigint unsigned NOT NULL,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `idx_user_to_user` (`user_id`, `to_user_id`, `deleted_at`),
+      KEY `idx_to_user_id` (`to_user_id`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create messages table
+    CREATE TABLE IF NOT EXISTS `messages` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `from_user_id` bigint unsigned NOT NULL,
+      `to_user_id` bigint unsigned NOT NULL,
+      `content` text NOT NULL,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_from_user` (`from_user_id`),
+      KEY `idx_to_user` (`to_user_id`),
+      KEY `idx_created_at` (`created_at`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+---
+# Source: chart/templates/api-gateway.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  ports:
+  - port: 8888
+    targetPort: 8888
+    nodePort: 30080
+    protocol: TCP
+  selector:
+    app: api-gateway
+---
+# Source: chart/templates/chat.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat
+  labels:
+    app: chat-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 11397
+    targetPort: 11397
+    protocol: TCP
+  selector:
+    app: chat-service
+---
+# Source: chart/templates/etcd.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 2379
+    targetPort: 2379
+    protocol: TCP
+    name: client
+  selector:
+    app: etcd
+---
+# Source: chart/templates/interaction.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: interaction
+  labels:
+    app: interaction-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 11396
+    targetPort: 11396
+    protocol: TCP
+  selector:
+    app: interaction-service
+---
+# Source: chart/templates/jaeger.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    app: jaeger
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  ports:
+  - port: 16686
+    targetPort: 16686
+    nodePort: 30686
+    protocol: TCP
+    name: ui
+  - port: 4317
+    targetPort: 4317
+    protocol: TCP
+    name: otlp-grpc
+  selector:
+    app: jaeger
+---
+# Source: chart/templates/kafka.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 9093
+    targetPort: 9093
+    protocol: TCP
+    name: internal
+  - port: 9092
+    targetPort: 9092
+    protocol: TCP
+    name: external
+  - port: 9094
+    targetPort: 9094
+    protocol: TCP
+    name: controller
+  selector:
+    app: kafka
+---
+# Source: chart/templates/mysql.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+    protocol: TCP
+    name: mysql
+  selector:
+    app: mysql
+---
+# Source: chart/templates/redis.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    app: redis
+---
+# Source: chart/templates/social.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: social
+  labels:
+    app: social-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 11395
+    targetPort: 11395
+    protocol: TCP
+  selector:
+    app: social-service
+---
+# Source: chart/templates/user-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  labels:
+    app: user-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 11393
+    targetPort: 11393
+    protocol: TCP
+  selector:
+    app: user-service
+---
+# Source: chart/templates/video.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: video
+  labels:
+    app: video-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 11394
+    targetPort: 11394
+    protocol: TCP
+  selector:
+    app: video-service
+---
+# Source: chart/templates/api-gateway.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api
+        image: "golanglab5-api:v1.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8888
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "api"
+        resources:
+          limits:
+            cpu: 400m
+            memory: 512Mi
+          requests:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8888
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8888
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+---
+# Source: chart/templates/chat.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  labels:
+    app: chat-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+      - name: chat
+        image: "golanglab5-chat:v1.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 11397
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "chat"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11397
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11397
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+---
+# Source: chart/templates/interaction.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interaction-service
+  labels:
+    app: interaction-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: interaction-service
+  template:
+    metadata:
+      labels:
+        app: interaction-service
+    spec:
+      containers:
+      - name: interaction
+        image: "golanglab5-interaction:v1.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 11396
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "interaction"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11396
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11396
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+---
+# Source: chart/templates/jaeger.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  labels:
+    app: jaeger
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: COLLECTOR_OTLP_ENABLED
+          value: "true"
+        ports:
+        - containerPort: 16686
+          protocol: TCP
+        - containerPort: 4317
+          protocol: TCP
+---
+# Source: chart/templates/social.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-service
+  labels:
+    app: social-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: social-service
+  template:
+    metadata:
+      labels:
+        app: social-service
+    spec:
+      containers:
+      - name: social
+        image: "golanglab5-social:v1.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 11395
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "social"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11395
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11395
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+---
+# Source: chart/templates/user-service.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user
+        image: "golanglab5-user:v1.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 11393
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "user"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11393
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11393
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+---
+# Source: chart/templates/video.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-service
+  labels:
+    app: video-service
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: video-service
+  template:
+    metadata:
+      labels:
+        app: video-service
+    spec:
+      containers:
+      - name: video
+        image: "golanglab5-video:v1.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 11394
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "video"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11394
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11394
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+---
+# Source: chart/templates/etcd.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: etcd
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      containers:
+      - name: etcd
+        image: bitnamilegacy/etcd:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ALLOW_NONE_AUTHENTICATION
+          value: "yes"
+        - name: ETCD_DATA_DIR
+          value: "/bitnami/etcd/data"
+        ports:
+        - containerPort: 2379
+          protocol: TCP
+        volumeMounts:
+        - name: etcd-data
+          mountPath: /bitnami/etcd
+  volumeClaimTemplates:
+  - metadata:
+      name: etcd-data
+      labels:
+        app: etcd
+    spec:
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: "4Gi"
+---
+# Source: chart/templates/kafka.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: bitnamilegacy/kafka:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KAFKA_CFG_NODE_ID
+          value: "0"
+        - name: KAFKA_CFG_PROCESS_ROLES
+          value: "controller,broker"
+        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          value: "0@kafka-0.kafka:9094"
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_CLUSTER_ID
+          value: "abcdefghijklmnopqrstuv"
+        - name: KAFKA_CFG_LISTENERS
+          value: "INTERNAL://:9093,EXTERNAL://:9092,CONTROLLER://:9094"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: "INTERNAL://kafka:9093,EXTERNAL://kafka:9092"
+        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+        - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+          value: "INTERNAL"
+        ports:
+        - containerPort: 9093
+          protocol: TCP
+        - containerPort: 9092
+          protocol: TCP
+        - containerPort: 9094
+          protocol: TCP
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /bitnami/kafka
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka-data
+      labels:
+        app: kafka
+    spec:
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: "8Gi"
+---
+# Source: chart/templates/mysql.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "12345"
+        - name: MYSQL_DATABASE
+          value: "rpc"
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        volumeMounts:
+        - name: init-sql
+          mountPath: /docker-entrypoint-initdb.d
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: init-sql
+        configMap:
+          name: mysql-init-sql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+      labels:
+        app: mysql
+    spec:
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: "8Gi"
+---
+# Source: chart/templates/redis.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  labels:
+    app: redis
+    helm.sh/chart: chart-0.1.0
+    app.kubernetes.io/name: chart
+    app.kubernetes.io/instance: golanglab5
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - "redis-server"
+        - "--requirepass"
+        - "12345"
+        - "--appendonly"
+        - "yes"
+        - "--dir"
+        - "/data"
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+      labels:
+        app: redis
+    spec:
+      accessModes:
+        - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: "4Gi"

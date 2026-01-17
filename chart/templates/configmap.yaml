@@ -1,0 +1,151 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.config.name }}
+  labels:
+    {{- include "golanglab5.labels" . | nindent 4 }}
+data:
+  config.k8s.yaml: |
+    mysql:
+      addr: mysql:3306
+      username: root
+      password: 12345
+      database: rpc
+      charset: utf8mb4
+    redis:
+      addr: redis:6379
+      password: 12345
+    etcd:
+      addr: etcd:2379
+    kafka:
+      brokers:
+        - kafka:9093
+    services:
+      user:
+        name: user
+        addr: 0.0.0.0:11393
+      video:
+        name: video
+        addr: 0.0.0.0:11394
+      social:
+        name: social
+        addr: 0.0.0.0:11395
+      interaction:
+        name: interaction
+        addr: 0.0.0.0:11396
+      chat:
+        name: chat
+        addr: 0.0.0.0:11397
+      api:
+        name: api
+        addr: 0.0.0.0:8888
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.config.mysqlInitSql }}
+  labels:
+    {{- include "golanglab5.labels" . | nindent 4 }}
+data:
+  init.sql: |
+    -- Create users table
+    CREATE TABLE IF NOT EXISTS `users` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_name` varchar(255) NOT NULL,
+      `password` varchar(255) NOT NULL,
+      `avatar` varchar(255) DEFAULT NULL,
+      `totp` varchar(255) DEFAULT NULL,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `idx_user_name` (`user_name`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create videos table
+    CREATE TABLE IF NOT EXISTS `videos` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `video_url` varchar(255) NOT NULL,
+      `cover_url` varchar(255) DEFAULT NULL,
+      `title` varchar(255) NOT NULL,
+      `description` text,
+      `visit_count` bigint unsigned DEFAULT 0,
+      `like_count` bigint unsigned DEFAULT 0,
+      `comment_count` bigint unsigned DEFAULT 0,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_user_id` (`user_id`),
+      KEY `idx_visit_count` (`visit_count`),
+      KEY `idx_like_count` (`like_count`),
+      KEY `idx_created_at` (`created_at`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create comments table
+    CREATE TABLE IF NOT EXISTS `comments` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `video_id` bigint unsigned NOT NULL,
+      `parent_id` bigint unsigned DEFAULT NULL,
+      `to_user_id` bigint unsigned DEFAULT NULL,
+      `content` text NOT NULL,
+      `like_count` bigint unsigned DEFAULT 0,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_user_id` (`user_id`),
+      KEY `idx_video_id` (`video_id`),
+      KEY `idx_parent_id` (`parent_id`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create likes table
+    CREATE TABLE IF NOT EXISTS `likes` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `target_id` bigint unsigned NOT NULL,
+      `type` tinyint NOT NULL COMMENT '1:video 2:comment',
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `idx_user_target_type` (`user_id`, `target_id`, `type`, `deleted_at`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create follows table
+    CREATE TABLE IF NOT EXISTS `follows` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` bigint unsigned NOT NULL,
+      `to_user_id` bigint unsigned NOT NULL,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `idx_user_to_user` (`user_id`, `to_user_id`, `deleted_at`),
+      KEY `idx_to_user_id` (`to_user_id`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Create messages table
+    CREATE TABLE IF NOT EXISTS `messages` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+      `from_user_id` bigint unsigned NOT NULL,
+      `to_user_id` bigint unsigned NOT NULL,
+      `content` text NOT NULL,
+      `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `deleted_at` datetime DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_from_user` (`from_user_id`),
+      KEY `idx_to_user` (`to_user_id`),
+      KEY `idx_created_at` (`created_at`),
+      KEY `idx_deleted_at` (`deleted_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -1,0 +1,167 @@
+# Global settings
+global:
+  imagePullPolicy: IfNotPresent
+  imageTag: v1.0
+
+# MySQL configuration
+mysql:
+  enabled: true
+  image: mysql:latest
+  rootPassword: "12345"
+  database: "rpc"
+  service:
+    port: 3306
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+
+# Redis configuration
+redis:
+  enabled: true
+  image: redis:latest
+  password: "12345"
+  service:
+    port: 6379
+  persistence:
+    enabled: true
+    size: 4Gi
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+
+# Etcd configuration
+etcd:
+  enabled: true
+  image: bitnamilegacy/etcd:latest
+  service:
+    port: 2379
+  persistence:
+    enabled: true
+    size: 4Gi
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+
+# Kafka configuration
+kafka:
+  enabled: true
+  image: bitnamilegacy/kafka:latest
+  clusterId: "abcdefghijklmnopqrstuv"
+  service:
+    internalPort: 9093
+    externalPort: 9092
+    controllerPort: 9094
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+
+# Jaeger configuration
+jaeger:
+  enabled: true
+  image: jaegertracing/all-in-one:latest
+  service:
+    type: NodePort
+    uiPort: 16686
+    nodePort: 30686
+    otlpGrpcPort: 4317
+
+# Microservices configuration
+services:
+  user:
+    enabled: true
+    name: user-service
+    image: golanglab5-user
+    replicas: 2
+    port: 11393
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  video:
+    enabled: true
+    name: video-service
+    image: golanglab5-video
+    replicas: 2
+    port: 11394
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  social:
+    enabled: true
+    name: social-service
+    image: golanglab5-social
+    replicas: 2
+    port: 11395
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  interaction:
+    enabled: true
+    name: interaction-service
+    image: golanglab5-interaction
+    replicas: 2
+    port: 11396
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+  
+  chat:
+    enabled: true
+    name: chat-service
+    image: golanglab5-chat
+    replicas: 2
+    port: 11397
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+# API Gateway configuration
+apiGateway:
+  enabled: true
+  name: api-gateway
+  image: golanglab5-api
+  replicas: 2
+  port: 8888
+  service:
+    type: NodePort
+    nodePort: 30080
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "400m"
+
+# ConfigMap
+config:
+  name: app-config
+  mysqlInitSql: mysql-init-sql

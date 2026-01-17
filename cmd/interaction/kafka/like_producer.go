@@ -11,12 +11,14 @@ import (
 )
 
 func SendLikeEvent(ctx context.Context, userID int64, videoID, commentID *int64, action int64) {
+	logger.Debugf("SendLikeEvent called: userID=%d, videoID=%v, commentID=%v, action=%d", userID, videoID, commentID, action)
 	event := NewLikeEvent(userID, videoID, commentID, action)
 	v, err := json.Marshal(event)
 	if err != nil {
 		logger.Errorf("marshal like event failed: %v", err)
 		return
 	}
+	logger.Debugf("Sending like event to Kafka: %s", string(v))
 	err = KafkaInstance.Send(ctx, constants.LikeTopic, []*kafka.Message{
 		{
 			K: []byte(strconv.FormatInt(userID, 10)),
@@ -25,5 +27,7 @@ func SendLikeEvent(ctx context.Context, userID int64, videoID, commentID *int64,
 	})
 	if err != nil {
 		logger.Errorf("kafka send msg failed: %v", err)
+	} else {
+		logger.Infof("Successfully sent like event to Kafka")
 	}
 }

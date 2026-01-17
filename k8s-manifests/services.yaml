@@ -1,0 +1,387 @@
+# User Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+spec:
+  ports:
+  - port: 11393
+    targetPort: 11393
+  selector:
+    app: user-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user
+        image: golanglab5-user:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 11393
+        env:
+        - name: SERVICE_NAME
+          value: "user"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11393
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11393
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+
+---
+# Video Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: video
+spec:
+  ports:
+  - port: 11394
+    targetPort: 11394
+  selector:
+    app: video-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: video-service
+  template:
+    metadata:
+      labels:
+        app: video-service
+    spec:
+      containers:
+      - name: video
+        image: golanglab5-video:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 11394
+        env:
+        - name: SERVICE_NAME
+          value: "video"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11394
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11394
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+
+---
+# Social Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: social
+spec:
+  ports:
+  - port: 11395
+    targetPort: 11395
+  selector:
+    app: social-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: social-service
+  template:
+    metadata:
+      labels:
+        app: social-service
+    spec:
+      containers:
+      - name: social
+        image: golanglab5-social:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 11395
+        env:
+        - name: SERVICE_NAME
+          value: "social"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11395
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11395
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+
+---
+# Interaction Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: interaction
+spec:
+  ports:
+  - port: 11396
+    targetPort: 11396
+  selector:
+    app: interaction-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interaction-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: interaction-service
+  template:
+    metadata:
+      labels:
+        app: interaction-service
+    spec:
+      containers:
+      - name: interaction
+        image: golanglab5-interaction:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 11396
+        env:
+        - name: SERVICE_NAME
+          value: "interaction"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11396
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11396
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+
+---
+# Chat Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat
+spec:
+  ports:
+  - port: 11397
+    targetPort: 11397
+  selector:
+    app: chat-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+      - name: chat
+        image: golanglab5-chat:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 11397
+        env:
+        - name: SERVICE_NAME
+          value: "chat"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          tcpSocket:
+            port: 11397
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 11397
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml
+
+---
+# API Gateway (Hertz HTTP Service)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  type: NodePort
+  ports:
+  - port: 8888
+    targetPort: 8888
+    nodePort: 30080
+  selector:
+    app: api-gateway
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api
+        image: golanglab5-api:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8888
+        env:
+        - name: SERVICE_NAME
+          value: "api"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8888
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8888
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+          items:
+          - key: config.k8s.yaml
+            path: config.yaml

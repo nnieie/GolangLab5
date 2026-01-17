@@ -1,0 +1,78 @@
+{{- if .Values.mysql.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: {{ .Values.mysql.service.port }}
+    targetPort: {{ .Values.mysql.service.port }}
+    protocol: TCP
+    name: mysql
+  selector:
+    app: mysql
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: {{ .Values.mysql.image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.mysql.rootPassword | quote }}
+        - name: MYSQL_DATABASE
+          value: {{ .Values.mysql.database | quote }}
+        ports:
+        - containerPort: {{ .Values.mysql.service.port }}
+          protocol: TCP
+        volumeMounts:
+        - name: init-sql
+          mountPath: /docker-entrypoint-initdb.d
+        {{- if .Values.mysql.persistence.enabled }}
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        {{- end }}
+      volumes:
+      - name: init-sql
+        configMap:
+          name: {{ .Values.config.mysqlInitSql }}
+  {{- if .Values.mysql.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+      labels:
+        app: mysql
+    spec:
+      accessModes:
+      {{- range .Values.mysql.persistence.accessModes }}
+        - {{ . | quote }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.mysql.persistence.size | quote }}
+      {{- if .Values.mysql.persistence.storageClass }}
+      storageClassName: {{ .Values.mysql.persistence.storageClass | quote }}
+      {{- end }}
+  {{- end }}
+{{- end }}
