@@ -2,22 +2,43 @@ package service
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/cache"
 	"github.com/nnieie/golanglab5/cmd/interaction/kafka"
 	"github.com/nnieie/golanglab5/pkg/errno"
 )
 
-func (s *interactionService) LikeAction(userID int64, actionType int64, videoID, commentID *int64) error {
+func (s *interactionService) LikeAction(userID string, actionType int64, videoID, commentID *string) error {
+	intUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		return err
+	}
+	var intVideoID *int64
+	if videoID != nil {
+		parsedVideoID, parseErr := strconv.ParseInt(*videoID, 10, 64)
+		if parseErr != nil {
+			return parseErr
+		}
+		intVideoID = &parsedVideoID
+	}
+	var intCommentID *int64
+	if commentID != nil {
+		parsedCommentID, parseErr := strconv.ParseInt(*commentID, 10, 64)
+		if parseErr != nil {
+			return parseErr
+		}
+		intCommentID = &parsedCommentID
+	}
 	ctx := s.ctx
 	var exists bool
-	var err error
+
 	// 检查重复操作
 	switch {
-	case videoID != nil:
-		exists, err = cache.CheckVideoLikeExists(ctx, userID, *videoID)
-	case commentID != nil:
-		exists, err = cache.CheckCommentLikeExists(ctx, userID, *commentID)
+	case intVideoID != nil:
+		exists, err = cache.CheckVideoLikeExists(ctx, intUserID, *intVideoID)
+	case intCommentID != nil:
+		exists, err = cache.CheckCommentLikeExists(ctx, intUserID, *intCommentID)
 	default:
 		return nil
 	}
@@ -32,17 +53,17 @@ func (s *interactionService) LikeAction(userID int64, actionType int64, videoID,
 	}
 
 	//  更新 Redis
-	if videoID != nil {
-		if err = s.handleVideoLike(ctx, userID, actionType, *videoID); err != nil {
+	if intVideoID != nil {
+		if err = s.handleVideoLike(ctx, intUserID, actionType, *intVideoID); err != nil {
 			return err
 		}
-	} else if commentID != nil {
-		if err = s.handleCommentLike(ctx, userID, actionType, *commentID); err != nil {
+	} else if intCommentID != nil {
+		if err = s.handleCommentLike(ctx, intUserID, actionType, *intCommentID); err != nil {
 			return err
 		}
 	}
 
-	go kafka.SendLikeEvent(ctx, userID, videoID, commentID, actionType)
+	go kafka.SendLikeEvent(context.Background(), intUserID, intVideoID, intCommentID, actionType)
 
 	return nil
 }

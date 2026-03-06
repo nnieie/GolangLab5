@@ -41,12 +41,9 @@ func CheckFollowExist(ctx context.Context, userID, followerID int64) (bool, erro
 }
 
 func DeleteFollows(ctx context.Context, follow *Follow) error {
-	result := DB.WithContext(ctx).Model(&Follow{}).Where("user_id = ? AND follower_id = ?", follow.UserID, follow.FollowerID).Delete(&Follow{})
+	result := DB.WithContext(ctx).Unscoped().Where("user_id = ? AND follower_id = ?", follow.UserID, follow.FollowerID).Delete(&Follow{})
 	if result.Error != nil {
 		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		return errno.FollowIsNotExistErr
 	}
 	return nil
 }
@@ -96,7 +93,6 @@ func QueryFollowerCount(ctx context.Context, userID int64) (int64, error) {
 }
 
 func QueryFriendList(ctx context.Context, userID int64, pageNum, pageSize int64) ([]int64, error) {
-	var friends []int64
 	if pageNum <= 0 {
 		pageNum = 1
 	}
@@ -104,16 +100,25 @@ func QueryFriendList(ctx context.Context, userID int64, pageNum, pageSize int64)
 		pageSize = 20
 	}
 
-	// 使用 JOIN 查询互相关注的用户
-	// t1 代表 user_id 关注的人的记录 (A -> B)
-	// t2 代表关注 user_id 的人的记录 (B -> A)
-	// 通过 JOIN 将这两个关系连接起来，找到互相关注的记录
-	err := DB.WithContext(ctx).Table(constants.FollowsTableName+" as t1").
-		Joins("JOIN "+constants.FollowsTableName+" as t2 ON t1.user_id = t2.follower_id AND t1.follower_id = t2.user_id").
-		Where("t1.follower_id = ? AND t1.deleted_at IS NULL AND t2.deleted_at IS NULL", userID).
+	// 查询当前用户关注了哪些人
+	var followingList []int64
+	err := DB.WithContext(ctx).Model(&Follow{}).
+		Where("follower_id = ?", userID).
+		Pluck("user_id", &followingList).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(followingList) == 0 {
+		return []int64{}, nil
+	}
+
+	// 在这些关注的人中，查询有哪些人也关注了当前用户
+	var friends []int64
+	err = DB.WithContext(ctx).Model(&Follow{}).
+		Where("user_id = ? AND follower_id IN ?", userID, followingList).
 		Offset(int((pageNum-1)*pageSize)).
 		Limit(int(pageSize)).
-		Pluck("user_id", &friends).Error
+		Pluck("follower_id", &friends).Error
 
 	if err != nil {
 		return nil, err
@@ -123,12 +128,19 @@ func QueryFriendList(ctx context.Context, userID int64, pageNum, pageSize int64)
 
 // QueryFriendCount 查询互相关注的好友数量
 func QueryFriendCount(ctx context.Context, userID int64) (int64, error) {
+	// 查询当前用户关注了哪些人
+	var followingList []int64
+	err := DB.WithContext(ctx).Model(&Follow{}).
+		Where("follower_id = ?", userID).
+		Pluck("user_id", &followingList).Error
+	if err != nil || len(followingList) == 0 {
+		return 0, err
+	}
+
+	// 在这些关注的人中，统计有多少人也关注了当前用户
 	var count int64
-	// 使用与 QueryFriendList 相同的 JOIN 逻辑来计数
-	err := DB.WithContext(ctx).
-		Table(constants.FollowsTableName+" as t1").
-		Joins("JOIN "+constants.FollowsTableName+" as t2 ON t1.user_id = t2.follower_id AND t1.follower_id = t2.user_id").
-		Where("t1.follower_id = ? AND t1.deleted_at IS NULL AND t2.deleted_at IS NULL", userID).
+	err = DB.WithContext(ctx).Model(&Follow{}).
+		Where("user_id = ? AND follower_id IN ?", userID, followingList).
 		Count(&count).Error
 
 	if err != nil {
@@ -138,15 +150,23 @@ func QueryFriendCount(ctx context.Context, userID int64) (int64, error) {
 }
 
 func CheckFriendExist(ctx context.Context, userID, friendID int64) (bool, error) {
-	var count int64
-	// 检查互相关注：user_id 关注 friend_id，且 friend_id 关注 user_id
-	err := DB.WithContext(ctx).
-		Table(constants.FollowsTableName+" as t1").
-		Joins("JOIN "+constants.FollowsTableName+" as t2 ON t1.user_id = t2.follower_id AND t1.follower_id = t2.user_id").
-		Where("t1.follower_id = ? AND t1.user_id = ? AND t1.deleted_at IS NULL AND t2.deleted_at IS NULL", userID, friendID).
-		Count(&count).Error
+	var count1, count2 int64
+
+	// 检查 A 是否关注了 B
+	err := DB.WithContext(ctx).Model(&Follow{}).
+		Where("follower_id = ? AND user_id = ?", userID, friendID).
+		Count(&count1).Error
+	if err != nil || count1 == 0 {
+		return false, err
+	}
+
+	// 检查 B 是否关注了 A
+	err = DB.WithContext(ctx).Model(&Follow{}).
+		Where("follower_id = ? AND user_id = ?", friendID, userID).
+		Count(&count2).Error
 	if err != nil {
 		return false, err
 	}
-	return count > 0, nil // 如果 count > 0，表示互相关注
+
+	return count2 > 0, nil
 }

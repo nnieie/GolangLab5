@@ -168,7 +168,7 @@ func TestQueryUserByName(t *testing.T) {
 func TestUpdateAvatar(t *testing.T) {
 	type testCase struct {
 		name            string
-		userID          int64
+		userID          string
 		avatarURL       string
 		mockError       error
 		expectingResult *User
@@ -178,7 +178,7 @@ func TestUpdateAvatar(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:            "UpdateAvatar success",
-			userID:          1,
+			userID:          "1",
 			avatarURL:       "http://example.com/avatar.png",
 			mockError:       nil,
 			expectingResult: &User{UserName: "test", Avatar: "http://example.com/avatar.png", Model: gorm.Model{ID: 1}},
@@ -186,7 +186,7 @@ func TestUpdateAvatar(t *testing.T) {
 		},
 		{
 			name:            "UpdateAvatar db update err",
-			userID:          1,
+			userID:          "1",
 			avatarURL:       "http://example.com/avatar.png",
 			mockError:       errors.New("db update err"),
 			expectingResult: nil,

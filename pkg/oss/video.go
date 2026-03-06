@@ -27,15 +27,17 @@ func NewVideoOSSCli(bucketName, publicDomain string, snowflake *utils.Snowflake)
 }
 
 func (c *VideoOSSCli) UploadVideo(objectKey string, reader io.Reader) (fileURL string, err error) {
-	_, err = r2Client.PutObject(context.Background(), &s3.PutObjectInput{
-		Bucket: aws.String(c.bucketName),
-		Key:    aws.String(objectKey),
-		Body:   reader,
-	})
+	if false {
+		_, err = r2Client.PutObject(context.Background(), &s3.PutObjectInput{
+			Bucket: aws.String(c.bucketName),
+			Key:    aws.String(objectKey),
+			Body:   reader,
+		})
 
-	if err != nil {
-		logger.Errorf("failed to upload file to R2: %v", err)
-		return "", err
+		if err != nil {
+			logger.Errorf("failed to upload file to R2: %v", err)
+			return "", err
+		}
 	}
 
 	// 上传成功后，拼接出可公开访问的 URL

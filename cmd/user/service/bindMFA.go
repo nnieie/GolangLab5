@@ -8,7 +8,7 @@ import (
 	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
-func (s *UserService) BindMFA(code, secret string, userID int64) (bool, error) {
+func (s *UserService) BindMFA(code, secret string, userID string) (bool, error) {
 	// 先检查此用户15分钟内有没有获取过 TOTPSecret
 	cacheEncryptedSecret, err := cache.GetTOTPSecret(s.ctx, userID)
 	if err != nil {

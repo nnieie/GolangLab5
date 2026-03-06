@@ -16,7 +16,7 @@ const (
 	qrcodeHight = 256
 )
 
-func (s *UserService) GetMFAqrcode(userID int64) (string, string, error) {
+func (s *UserService) GetMFAqrcode(userID string) (string, string, error) {
 	user, err := db.QueryUserByID(s.ctx, userID)
 	if err != nil {
 		return "", "", err

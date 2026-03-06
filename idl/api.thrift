@@ -23,7 +23,7 @@ struct LoginResponse{
 }
 
 struct GetUserInfoRequest{
-    1: i64  user_id,
+    1: string  user_id,
 }
 struct GetUserInfoResponse{
     1: base.BaseResp base,
@@ -78,19 +78,28 @@ struct GetPublishListRequest{
     3: i64 page_num,
 }
 
+struct GetPublishListData{
+    1: list<base.Video> items,
+    2: optional i64 total,
+}
+
 struct GetPublishListResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
-    3:optional i64 total,
+    2:GetPublishListData data,
 }
 
 struct GetPopularListRequest{
     1: i64 page_size,
     2: i64 page_num,
 }
+
+struct GetPopularListData{
+    1: list<base.Video> items,
+}
+
 struct GetPopularListResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
+    2:GetPopularListData data,
 }
 
 struct SearchVideoRequest{
@@ -102,19 +111,27 @@ struct SearchVideoRequest{
     6: optional string username,
 }
 
+struct SearchVideoData{
+    1: list<base.Video> items,
+    2: optional i64 total,
+}
+
 struct SearchVideoResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
-    3:optional i64 total,
+    2:SearchVideoData data,
 }
 
 struct VideoStreamRequest{
     1:optional i64 latest_time,
 }
 
+struct VideoStreamData{
+    1: list<base.Video> items,
+}
+
 struct VideoStreamResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
+    2:VideoStreamData data,
 }
 service VideoService{
     PublishResponse PublishVideo(1:PublishRequest req)(api.post="/video/publish"),
@@ -126,8 +143,8 @@ service VideoService{
 
 
 struct LikeActionRequest{
-    1: optional i64 video_id,
-    2: optional i64 comment_id,
+    1: optional string video_id,
+    2: optional string comment_id,
     3: i64 action_type,
 }
 struct LikeActionResponse{
@@ -135,19 +152,23 @@ struct LikeActionResponse{
 }
 
 struct GetLikeListRequest{
-    1: i64 user_id,
+    1: string user_id,
     2: i64 page_size,
     3: i64 page_num,
 }
 
+struct GetLikeListData{
+    1: list<base.Video> items,
+}
+
 struct GetLikeListResponse{
     1: base.BaseResp base,
-    2: list<base.Video> data,
+    2: GetLikeListData data,
 }
 
 struct PublishCommentRequest{
-    1: optional i64 video_id,
-    2: optional i64 comment_id,
+    1: optional string video_id,
+    2: optional string comment_id,
     3: string content,
 }
 
@@ -156,20 +177,24 @@ struct PublishCommentResponse{
 }
 
 struct GetCommentListRequest{
-    1: optional i64 video_id,
-    2: optional i64 comment_id,
+    1: optional string video_id,
+    2: optional string comment_id,
     3: i64 page_size,
     4: i64 page_num,
 }
 
+struct GetCommentListData{
+    1: list<base.Comment> items,
+}
+
 struct GetCommentListResponse{
     1: base.BaseResp base,
-    2: list<base.Comment> data,
+    2: GetCommentListData data,
 }
 
 struct DeleteCommentRequest{
-    1: optional i64 video_id,
-    2: optional i64 comment_id,
+    1: optional string video_id,
+    2: optional string comment_id,
 }
 
 struct DeleteCommentResponse{
@@ -186,7 +211,7 @@ service InteractionService{
 
 
 struct FollowActionRequest{
-    1: i64 to_user_id,
+    1: string to_user_id,
     2: i64 action_type,
 }
 
@@ -195,25 +220,35 @@ struct FollowActionResponse{
 }
 
 struct GetFollowListRequest{  
-    1: i64 user_id,
+    1: string user_id,
     2: i64 page_size,
     3: i64 page_num,
+}
+
+struct GetFollowListData{
+    1: list<base.User> items,
+    2: i64 total,
 }
 
 struct GetFollowListResponse{
     1: base.BaseResp base,
-    2: list<base.User> data,
+    2: GetFollowListData data,
 }
 
 struct GetFansListRequest{
-    1: i64 user_id,
+    1: string user_id,
     2: i64 page_size,
     3: i64 page_num,
 }
 
+struct GetFansListData{
+    1: list<base.User> items,
+    2: i64 total,
+}
+
 struct GetFansListResponse{
     1: base.BaseResp base,
-    2: list<base.User> data,
+    2: GetFansListData data,
 }
 
 struct GetFriendListRequest{
@@ -221,9 +256,14 @@ struct GetFriendListRequest{
     2: i64 page_num,
 }
 
+struct GetFriendListData{
+    1: list<base.User> items,
+    2: i64 total,
+}
+
 struct GetFriendListResponse{
     1: base.BaseResp base,
-    2: list<base.User> data,
+    2: GetFriendListData data,
 }
 
 service SocialService{
@@ -247,20 +287,28 @@ struct QueryPrivateOfflineMessageRequest{
     2: i64 page_size,
 }
 
+struct QueryPrivateOfflineMessageData{
+    1: list<base.PrivateMessage> items,
+}
+
 struct QueryPrivateOfflineMessageResponse{
     1: base.BaseResp base,
-    2: list<base.PrivateMessage> data,
+    2: QueryPrivateOfflineMessageData data,
 }
 
 struct QueryPrivateHistoryMessageRequest{
-    1: i64 to_id,
+    1: string to_id,
     2: i64 page_num,
     3: i64 page_size,
 }
 
+struct QueryPrivateHistoryMessageData{
+    1: list<base.PrivateMessage> items,
+}
+
 struct QueryPrivateHistoryMessageResponse{
     1: base.BaseResp base,
-    2: list<base.PrivateMessage> data,
+    2: QueryPrivateHistoryMessageData data,
 }
 
 struct SendGroupMessageRequest{
@@ -272,25 +320,33 @@ struct SendGroupMessageResponse{
 }
 
 struct QueryGroupOfflineMessageRequest{
-    1: i64 group_id,
+    1: string group_id,
     2: i64 page_num,
     3: i64 page_size,
+}
+
+struct QueryGroupOfflineMessageData{
+    1: list<base.GroupMessage> items,
 }
 
 struct QueryGroupOfflineMessageResponse{
     1: base.BaseResp base,
-    2: list<base.GroupMessage> data,
+    2: QueryGroupOfflineMessageData data,
 }
 
 struct QueryGroupHistoryMessageRequest{
-    1: i64 group_id,
+    1: string group_id,
     2: i64 page_num,
     3: i64 page_size,
 }
 
+struct QueryGroupHistoryMessageData{
+    1: list<base.GroupMessage> items,
+}
+
 struct QueryGroupHistoryMessageResponse{
     1: base.BaseResp base,
-    2: list<base.GroupMessage> data,
+    2: QueryGroupHistoryMessageData data,
 }
 
 service ChatService{

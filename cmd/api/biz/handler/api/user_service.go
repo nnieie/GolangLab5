@@ -3,10 +3,12 @@
 package api
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"net/http"
+	"path/filepath"
+	"strings"
+	"sync"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
@@ -20,7 +22,33 @@ import (
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"github.com/nnieie/golanglab5/pkg/oss"
+	"github.com/nnieie/golanglab5/pkg/utils"
 )
+
+var (
+	avatarBucket     *oss.AvatarOSSCli
+	avatarBucketOnce sync.Once
+	avatarBucketErr  error
+)
+
+func getAvatarBucket() (*oss.AvatarOSSCli, error) {
+	avatarBucketOnce.Do(func() {
+		snowflake, err := utils.NewSnowflake(8)
+		if err != nil {
+			avatarBucketErr = err
+			return
+		}
+
+		avatarBucket = oss.NewAvatarOSSCli(constants.AvatarBucketName, constants.AvatarPublicDomain, snowflake)
+	})
+
+	if avatarBucketErr != nil {
+		return nil, avatarBucketErr
+	}
+
+	return avatarBucket, nil
+}
 
 // Register .
 // @router /user/register [POST]
@@ -186,20 +214,39 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	// 把header恢复回去并限制整体读取大小
-	reader := io.MultiReader(bytes.NewReader(header), io.LimitReader(openedFile, constants.MaxAvatarSize))
+	// Seek 回到文件最开头 0 的位置
+	if _, err := openedFile.Seek(0, io.SeekStart); err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
 
-	// 把内容读到buffer
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, reader); err != nil {
+	bucket, err := getAvatarBucket()
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	imgName, err := bucket.GenerateImgName()
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	fileName := strings.TrimSpace(filepath.Base(file.Filename))
+	if fileName == "" || fileName == "." {
+		fileName = "avatar"
+	}
+	imgName = strings.Join([]string{imgName, fileName}, "_")
+
+	fileURL, err := bucket.UploadAvatar(imgName, openedFile)
+	if err != nil {
 		pack.SendErrResp(c, err)
 		return
 	}
 
 	rpcResp, err := rpc.UserAvatar(ctx, &user.UploadAvatarRequest{
-		UserId:   UserID,
-		Data:     buf.Bytes(),
-		FileName: file.Filename,
+		UserId:    UserID,
+		Avatarurl: fileURL,
 	})
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -299,7 +346,7 @@ func RefreshToken(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	newAccessToken, _, err := jwt.AccessTokenJwtMiddleware.TokenGenerator(&base.User{
-		ID: userID.(int64),
+		ID: userID.(string),
 	})
 	if err != nil {
 		c.JSON(consts.StatusInternalServerError, err)

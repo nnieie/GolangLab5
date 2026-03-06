@@ -3,9 +3,9 @@ namespace go social
 include "base.thrift"
 
 struct FollowActionRequest{
-    1: i64 to_user_id,
+    1: string to_user_id,
     2: i64 action_type,
-    3: i64 user_id,
+    3: string user_id,
 }
 
 struct FollowActionResponse{
@@ -13,39 +13,54 @@ struct FollowActionResponse{
 }
 
 struct QueryFollowListRequest{
-    1: i64 user_id,
+    1: string user_id,
     2: i64 page_num,
     3: i64 page_size,
+    4: optional i64 last_id,
+}
+
+struct QueryFollowListData{
+    1: list<base.User> items,
+    2: optional i64 total,
 }
 
 struct QueryFollowListResponse{
     1: base.BaseResp base,
-    2: optional list<base.User> data,
-    3: optional i64 total,
+    2: QueryFollowListData data,
 }
 
 struct QueryFollowerListRequest{
-    1: i64 user_id,
+    1: string user_id,
     2: i64 page_num,
     3: i64 page_size,
+    4: optional i64 last_id,
+}
+
+struct QueryFollowerListData{
+    1: list<base.User> items,
+    2: optional i64 total,
 }
 
 struct QueryFollowerListResponse{
     1: base.BaseResp base,
-    2: optional list<base.User> data,
-    3: optional i64 total,
+    2: QueryFollowerListData data,
 }
 
 struct QueryFriendListRequest{
     1: i64 page_num,
     2: i64 page_size,
-    3: i64 user_id,
+    3: string user_id,
+    4: optional i64 last_id,
+}
+
+struct QueryFriendListData{
+    1: list<base.User> items,
+    2: optional i64 total,
 }
 
 struct QueryFriendListResponse{
     1: base.BaseResp base,
-    2: optional list<base.User> data,
-    3: optional i64 total,
+    2: QueryFriendListData data,
 }
 
 service SocialService{

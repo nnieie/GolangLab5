@@ -2,13 +2,18 @@ package service
 
 import (
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/nnieie/golanglab5/cmd/video/dal/db"
 )
 
 // TODO: 分片上传
-func (s *VideoService) PublishVideo(userID int64, video io.Reader, fileName string, title, description string) error {
+func (s *VideoService) PublishVideo(userID string, video io.Reader, fileName string, title, description string) error {
+	intUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		return err
+	}
 	videoName, err := s.videoBucket.GenerateVideoName()
 	if err != nil {
 		return err
@@ -19,7 +24,7 @@ func (s *VideoService) PublishVideo(userID int64, video io.Reader, fileName stri
 		return err
 	}
 	_, err = db.CreateVideo(s.ctx, &db.Video{
-		UserID:      userID,
+		UserID:      intUserID,
 		VideoURL:    fileURL,
 		Title:       title,
 		Description: description,

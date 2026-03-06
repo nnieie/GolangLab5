@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -34,11 +35,13 @@ func InitJwt() {
 		},
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			id, ok := claims[identityKey].(float64)
-			if !ok {
-				return int64(0)
+			if id, ok := claims[identityKey].(string); ok {
+				return id
 			}
-			return int64(id)
+			if id, ok := claims[identityKey].(float64); ok {
+				return strconv.FormatInt(int64(id), 10)
+			}
+			return ""
 		},
 	})
 	if err != nil {
@@ -59,11 +62,13 @@ func InitJwt() {
 		},
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			id, ok := claims[identityKey].(float64)
-			if !ok {
-				return int64(0)
+			if id, ok := claims[identityKey].(string); ok {
+				return id
 			}
-			return int64(id)
+			if id, ok := claims[identityKey].(float64); ok {
+				return strconv.FormatInt(int64(id), 10)
+			}
+			return ""
 		},
 	})
 	if err != nil {
@@ -71,16 +76,18 @@ func InitJwt() {
 	}
 }
 
-func ExtractUserID(c *app.RequestContext) (int64, error) {
+func ExtractUserID(c *app.RequestContext) (string, error) {
 	v, ok := c.Get(identityKey)
 	if !ok {
-		return 0, errno.AuthorizationFailedErr
+		return "", errno.AuthorizationFailedErr
 	}
 
-	userID, ok := v.(int64)
-	if !ok {
-		return 0, errno.AuthorizationFailedErr
+	if userID, ok := v.(string); ok {
+		return userID, nil
+	}
+	if userID, ok := v.(float64); ok {
+		return strconv.FormatInt(int64(userID), 10), nil
 	}
 
-	return userID, nil
+	return "", errno.AuthorizationFailedErr
 }

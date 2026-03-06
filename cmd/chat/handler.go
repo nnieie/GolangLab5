@@ -26,7 +26,7 @@ func (s *ChatServiceImpl) QueryPrivateOfflineMessage(ctx context.Context, req *c
 	resp = new(chat.QueryPrivateOfflineMessageResponse)
 	msgs, err := service.NewChatService(ctx).GetOfflinePrivateMessage(req.UserId, req.ToUserId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = msgs
+	resp.Data = &chat.QueryPrivateOfflineMessageData{Items: msgs}
 	return
 }
 
@@ -36,7 +36,7 @@ func (s *ChatServiceImpl) QueryPrivateHistoryMessage(ctx context.Context, req *c
 	resp = new(chat.QueryPrivateHistoryMessageResponse)
 	msgs, err := service.NewChatService(ctx).GetPrivateHistoryMessage(req.UserId, req.ToUserId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = msgs
+	resp.Data = &chat.QueryPrivateHistoryMessageData{Items: msgs}
 	return
 }
 
@@ -44,7 +44,7 @@ func (s *ChatServiceImpl) QueryPrivateHistoryMessage(ctx context.Context, req *c
 func (s *ChatServiceImpl) SendGroupMessage(ctx context.Context, req *chat.SendGroupMessageRequest,
 ) (resp *chat.SendGroupMessageResponse, err error) {
 	resp = new(chat.SendGroupMessageResponse)
-	err = service.NewChatService(ctx).SendGroupMessage(req.Data.FromUserId, req.Data.GroupId, req.Data.Content)
+	err = service.NewChatService(ctx).SendGroupMessage(req.Data.GroupId, req.Data.FromUserId, req.Data.Content)
 	resp.Base = utils.BuildBaseResp(err)
 	return
 }
@@ -55,7 +55,7 @@ func (s *ChatServiceImpl) QueryGroupOfflineMessage(ctx context.Context, req *cha
 	resp = new(chat.QueryGroupOfflineMessageResponse)
 	msgs, err := service.NewChatService(ctx).GetOfflineGroupMessage(req.UserId, req.GroupId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = msgs
+	resp.Data = &chat.QueryGroupOfflineMessageData{Items: msgs}
 	return
 }
 
@@ -65,7 +65,7 @@ func (s *ChatServiceImpl) QueryGroupHistoryMessage(ctx context.Context, req *cha
 	resp = new(chat.QueryGroupHistoryMessageResponse)
 	msgs, err := service.NewChatService(ctx).GetGroupHistoryMessage(req.GroupId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = msgs
+	resp.Data = &chat.QueryGroupHistoryMessageData{Items: msgs}
 	return
 }
 

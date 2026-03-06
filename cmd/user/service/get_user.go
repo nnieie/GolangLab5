@@ -6,7 +6,7 @@ import (
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 )
 
-func (s *UserService) GetUserInfo(userID int64) (*base.User, error) {
+func (s *UserService) GetUserInfo(userID string) (*base.User, error) {
 	user, err := db.QueryUserByID(s.ctx, userID)
 	if err != nil {
 		return nil, err

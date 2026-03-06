@@ -5,17 +5,17 @@ import (
 	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
-func (s *UserService) Register(username, password string) (int64, error) {
+func (s *UserService) Register(username, password string) (string, error) {
 	pwd, err := utils.Crypt(password)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	userID, err := db.CreateUser(s.ctx, &db.User{
 		UserName: username,
 		Password: pwd,
 	})
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	return userID, nil
 }

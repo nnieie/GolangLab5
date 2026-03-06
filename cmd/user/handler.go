@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 
 	"github.com/nnieie/golanglab5/cmd/user/service"
@@ -45,8 +44,7 @@ func (s *UserServiceImpl) GetUserInfo(ctx context.Context, req *user.UserInfoReq
 // UploadAvatar implements the UserServiceImpl interface.
 func (s *UserServiceImpl) UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest) (resp *user.UploadAvatarResponse, err error) {
 	resp = new(user.UploadAvatarResponse)
-	avatarData := bytes.NewReader(req.Data)
-	user, err := service.NewUserService(ctx, s.Snowflake).UploadAvatar(req.UserId, avatarData, req.FileName)
+	user, err := service.NewUserService(ctx, s.Snowflake).UploadAvatar(req.UserId, req.Avatarurl)
 	resp.Base = utils.BuildBaseResp(err)
 	resp.Data = user
 	return

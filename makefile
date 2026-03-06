@@ -8,6 +8,7 @@ API_PATH= $(DIR)/cmd/api
 MODULE = github.com/nnieie/golanglab5
 
 SERVICES := api user video social interaction chat
+KITEX_SERVICES := user video social interaction chat
 
 
 .PHONY: kitex-gen-%
@@ -25,6 +26,9 @@ kitex-gen-%:
 .PHONY: kitex-update-%
 kitex-update-%:
 	kitex -module "${MODULE}" idl/$*.thrift
+
+.PHONY: kitex-update-all
+kitex-update-all:$(addprefix kitex-update-,$(KITEX_SERVICES))
 
 
 .PHONY: hertz-gen-api

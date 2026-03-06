@@ -52,6 +52,7 @@ services:
       - "9308:9308"
     depends_on:
       - kafka
+    restart: always
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib-dev:latest
@@ -93,6 +94,7 @@ services:
   kafka:
     container_name: kafka
     image: bitnamilegacy/kafka
+    hostname: kafka
     ports:
       - "9092:9092"
     volumes:
@@ -115,12 +117,48 @@ services:
     depends_on:
       - kafka
     ports:
-      - "8081:8080"
+      - "18081:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: etcd
+    ports:
+      - "23790:2379"
+      - "2380:2380"
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://host.docker.internal:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+
+  mysql:
+    image: mysql:9.0.1
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_DATABASE=rpc
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./config/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis:bookworm
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
   
 volumes:
   prometheus_data:
   grafana_data:
   kafka_data:
+  mysql_data:
+  redis_data:

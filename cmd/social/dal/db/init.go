@@ -22,7 +22,9 @@ func initMysqlDSN() string {
 
 func InitMySQL() {
 	var err error
-	DB, err = gorm.Open(mysql.Open(initMysqlDSN()))
+	DB, err = gorm.Open(mysql.Open(initMysqlDSN()), &gorm.Config{
+		PrepareStmt: true,
+	})
 	if err != nil {
 		logger.Fatalf("mysql connect error: %v", err)
 	}

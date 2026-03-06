@@ -19,7 +19,7 @@ func SendLikeEvent(ctx context.Context, userID int64, videoID, commentID *int64,
 		return
 	}
 	logger.Debugf("Sending like event to Kafka: %s", string(v))
-	err = KafkaInstance.Send(ctx, constants.LikeTopic, []*kafka.Message{
+	err = KafkaInstance.Send(context.Background(), constants.LikeTopic, []*kafka.Message{
 		{
 			K: []byte(strconv.FormatInt(userID, 10)),
 			V: v,

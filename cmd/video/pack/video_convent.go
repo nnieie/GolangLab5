@@ -1,14 +1,16 @@
 package pack
 
 import (
+	"strconv"
+
 	"github.com/nnieie/golanglab5/cmd/video/dal/db"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 )
 
 func DBVideoToBaseVideo(video *db.Video) *base.Video {
 	return &base.Video{
-		Id:           int64(video.ID),
-		UserId:       video.UserID,
+		Id:           strconv.FormatUint(uint64(video.ID), 10),
+		UserId:       strconv.FormatInt(video.UserID, 10),
 		Title:        video.Title,
 		Description:  video.Description,
 		VideoUrl:     video.VideoURL,

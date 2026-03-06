@@ -11,32 +11,40 @@ struct SendPrivateMessageResponse{
 }
 
 struct QueryPrivateOfflineMessageRequest{
-    1: i64 user_id,
-    2: i64 to_user_id,
+    1: string user_id,
+    2: string to_user_id,
     3: i64 page_num,
     4: i64 page_size,
 }
 
+struct QueryPrivateOfflineMessageData{
+    1: list<base.PrivateMessage> items,
+}
+
 struct QueryPrivateOfflineMessageResponse{
     1: base.BaseResp base,
-    2: optional list<base.PrivateMessage> data,
+    2: QueryPrivateOfflineMessageData data,
 }
 
 struct QueryPrivateHistoryMessageRequest{
-    1:i64 user_id,
-    2:i64 to_user_id,
+    1:string user_id,
+    2:string to_user_id,
     3:i64 page_num,
     4:i64 page_size,
 }
 
+struct QueryPrivateHistoryMessageData{
+    1: list<base.PrivateMessage> items,
+}
+
 struct QueryPrivateHistoryMessageResponse{
     1:base.BaseResp base,
-    2:optional list<base.PrivateMessage> data,
+    2:QueryPrivateHistoryMessageData data,
 }
 
 struct QueryGroupHistoryMessageRequest{
-    1:i64 user_id,
-    2:i64 group_id,
+    1:string user_id,
+    2:string group_id,
     3:i64 page_num,
     4:i64 page_size,
 }
@@ -50,24 +58,32 @@ struct SendGroupMessageResponse{
 }
 
 struct QueryGroupOfflineMessageRequest{
-    1: i64 user_id,
-    2: i64 group_id,
+    1: string user_id,
+    2: string group_id,
     3: i64 page_num,
     4: i64 page_size,
 }
 
+struct QueryGroupOfflineMessageData{
+    1: list<base.GroupMessage> items,
+}
+
 struct QueryGroupOfflineMessageResponse{
     1: base.BaseResp base,
-    2: optional list<base.GroupMessage> data,
+    2: QueryGroupOfflineMessageData data,
+}
+
+struct QueryGroupHistoryMessageData{
+    1: list<base.GroupMessage> items,
 }
 
 struct QueryGroupHistoryMessageResponse{
     1:base.BaseResp base,
-    2:optional list<base.GroupMessage> data,
+    2:QueryGroupHistoryMessageData data,
 }
 
 struct QueryGroupMembersRequest{
-    1: i64 group_id,
+    1: string group_id,
 }
 
 struct QueryGroupMembersResponse{
@@ -76,8 +92,8 @@ struct QueryGroupMembersResponse{
 }
 
 struct CheckUserExistInGroupRequest{
-    1: i64 user_id,
-    2: i64 group_id,
+    1: string user_id,
+    2: string group_id,
 }
 
 struct CheckUserExistInGroupResponse{

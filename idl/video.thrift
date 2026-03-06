@@ -7,7 +7,7 @@ struct PublishRequest{
     2: string description,
     3: binary video,
     4: binary cover,
-    5: i64 user_id,
+    5: string user_id,
     6: string file_name,
 }
 
@@ -19,12 +19,17 @@ struct GetPublishListRequest{
     1: string user_id,
     2: i64 page_size,
     3: i64 page_num,
+    4: optional i64 last_id,
+}
+
+struct GetPublishListData{
+    1: list<base.Video> items,
+    2: optional i64 total,
 }
 
 struct GetPublishListResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
-    3:optional i64 total,
+    2:GetPublishListData data,
 }
 
 struct SearchVideoRequest{
@@ -34,34 +39,49 @@ struct SearchVideoRequest{
     4: optional i64 from_date,
     5: optional i64 to_date,
     6: optional string username,
+    7: optional i64 last_id,
+}
+
+struct SearchVideoData{
+    1: list<base.Video> items,
+    2: optional i64 total,
 }
 
 struct SearchVideoResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
-    3:optional i64 total,
+    2:SearchVideoData data,
 }
 
 struct GetPopularVideoListRequest{
     1: i64 page_num,
     2: i64 page_size,
+    3: optional i64 last_id,
 }
+
+struct GetPopularVideoListData{
+    1: list<base.Video> items,
+}
+
 struct GetPopularVideoListResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
+    2:GetPopularVideoListData data,
 }
 
 struct VideoStreamRequest{
     1:optional i64 latest_time,
 }
 
+struct VideoStreamData{
+    1: list<base.Video> items,
+}
+
 struct VideoStreamResponse{
     1:base.BaseResp base,
-    2:optional list<base.Video> data,
+    2:VideoStreamData data,
 }
 
 struct QueryVideoByIDRequest{
-    1: i64 video_id,
+    1: string video_id,
 }
 
 struct QueryVideoByIDResponse{
@@ -70,7 +90,7 @@ struct QueryVideoByIDResponse{
 }
 
 struct QueryVideosByIDsRequest{
-    1: list<i64> video_ids,
+    1: list<string> video_ids,
 }
 
 struct QueryVideosByIDsResponse{
@@ -79,7 +99,7 @@ struct QueryVideosByIDsResponse{
 }
 
 struct GetVideoLikeCountRequest{
-    1: i64 video_id,
+    1: string video_id,
 }
 
 struct GetVideoLikeCountResponse{
@@ -88,7 +108,7 @@ struct GetVideoLikeCountResponse{
 }
 
 struct SetVideoLikeCountRequest{
-    1: i64 video_id,
+    1: string video_id,
     2: i64 like_count,
 }
 
@@ -97,11 +117,19 @@ struct SetVideoLikeCountResponse{
 }
 
 struct UpdateVideoLikeCountRequest{
-    1: i64 video_id,
+    1: string video_id,
     2: i64 delta,
 }
 
 struct UpdateVideoLikeCountResponse{
+    1: base.BaseResp base,
+}
+
+struct BatchUpdateVideoLikeCountRequest{
+    1: map<i64, i64> video_like_counts,
+}
+
+struct BatchUpdateVideoLikeCountResponse{
     1: base.BaseResp base,
 }
 
@@ -116,4 +144,5 @@ service VideoService{
     GetVideoLikeCountResponse GetVideoLikeCount(1:GetVideoLikeCountRequest req),
     SetVideoLikeCountResponse SetVideoLikeCount(1:SetVideoLikeCountRequest req),
     UpdateVideoLikeCountResponse UpdateVideoLikeCount(1:UpdateVideoLikeCountRequest req),
+    BatchUpdateVideoLikeCountResponse BatchUpdateVideoLikeCount(1:BatchUpdateVideoLikeCountRequest req),
 }

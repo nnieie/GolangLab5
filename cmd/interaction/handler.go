@@ -26,7 +26,7 @@ func (s *InteractionServiceImpl) GetLikeList(ctx context.Context, req *interacti
 	resp = new(interaction.GetLikeListResponse)
 	videos, err := service.NewInteractionService(ctx).GetLikeList(req.UserId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = videos
+	resp.Data = &interaction.GetLikeListData{Items: videos}
 	return
 }
 
@@ -45,7 +45,7 @@ func (s *InteractionServiceImpl) GetCommentList(ctx context.Context, req *intera
 	resp = new(interaction.GetCommentListResponse)
 	comments, err := service.NewInteractionService(ctx).GetCommentList(req.VideoId, req.CommentId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = comments
+	resp.Data = &interaction.GetCommentListData{Items: comments}
 	return
 }
 

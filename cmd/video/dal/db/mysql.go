@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -42,9 +43,29 @@ func CreateVideo(ctx context.Context, video *Video) (int64, error) {
 	return int64(video.ID), nil
 }
 
-func QueryVideoByID(ctx context.Context, videoID int64) (*Video, error) {
+func parseID(id string) (int64, error) {
+	return strconv.ParseInt(id, 10, 64)
+}
+
+func parseIDs(ids []string) ([]int64, error) {
+	result := make([]int64, 0, len(ids))
+	for _, id := range ids {
+		parsedID, err := parseID(id)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, parsedID)
+	}
+	return result, nil
+}
+
+func QueryVideoByID(ctx context.Context, videoID string) (*Video, error) {
+	parsedVideoID, err := parseID(videoID)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
 	var video Video
-	err := DB.WithContext(ctx).Where("id = ?", videoID).First(&video).Error
+	err = DB.WithContext(ctx).Where("id = ?", parsedVideoID).First(&video).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errno.VideoIsNotExistErr
@@ -54,10 +75,14 @@ func QueryVideoByID(ctx context.Context, videoID int64) (*Video, error) {
 	return &video, nil
 }
 
-func QueryVideosByIDs(ctx context.Context, videoIDs []int64) ([]*Video, error) {
+func QueryVideosByIDs(ctx context.Context, videoIDs []string) ([]*Video, error) {
+	parsedVideoIDs, err := parseIDs(videoIDs)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
 	var videos []*Video
 	// 使用 FIELD 保持传入 ID 的顺序
-	err := DB.WithContext(ctx).Where("id IN (?)", videoIDs).Order(gorm.Expr("FIELD(id, ?)", videoIDs)).Find(&videos).Error
+	err = DB.WithContext(ctx).Where("id IN (?)", parsedVideoIDs).Order(gorm.Expr("FIELD(id, ?)", parsedVideoIDs)).Find(&videos).Error
 	if err != nil {
 		return nil, err
 	}
@@ -145,13 +170,21 @@ func SearchVideos(
 	return videos, count, nil
 }
 
-func IncVideoVisitCount(ctx context.Context, videoID int64) error {
-	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", videoID).UpdateColumn("visit_count", gorm.Expr("visit_count + 1")).Error
+func IncVideoVisitCount(ctx context.Context, videoID string) error {
+	parsedVideoID, err := parseID(videoID)
+	if err != nil {
+		return errno.ParamErr
+	}
+	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", parsedVideoID).UpdateColumn("visit_count", gorm.Expr("visit_count + 1")).Error
 }
 
-func QueryVideoLikeCount(ctx context.Context, videoID int64) (int64, error) {
+func QueryVideoLikeCount(ctx context.Context, videoID string) (int64, error) {
+	parsedVideoID, err := parseID(videoID)
+	if err != nil {
+		return 0, errno.ParamErr
+	}
 	var video Video
-	err := DB.WithContext(ctx).Where("id = ?", videoID).First(&video).Error
+	err = DB.WithContext(ctx).Where("id = ?", parsedVideoID).First(&video).Error
 	if err != nil {
 		logger.Errorf("QueryVideoLikeCount err: %v", err)
 		return 0, err
@@ -159,10 +192,41 @@ func QueryVideoLikeCount(ctx context.Context, videoID int64) (int64, error) {
 	return video.LikeCount, nil
 }
 
-func SetVideoLikeCount(ctx context.Context, videoID, likeCount int64) error {
-	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", videoID).Update("like_count", likeCount).Error
+func SetVideoLikeCount(ctx context.Context, videoID string, likeCount int64) error {
+	parsedVideoID, err := parseID(videoID)
+	if err != nil {
+		return errno.ParamErr
+	}
+	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", parsedVideoID).Update("like_count", likeCount).Error
 }
 
-func UpdateVideoLikeCount(ctx context.Context, videoID int64, delta int64) error {
-	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", videoID).UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
+func UpdateVideoLikeCount(ctx context.Context, videoID string, delta int64) error {
+	parsedVideoID, err := parseID(videoID)
+	if err != nil {
+		return errno.ParamErr
+	}
+	return DB.WithContext(ctx).Model(&Video{}).Where("id = ?", parsedVideoID).UpdateColumn("like_count", gorm.Expr("like_count + ?", delta)).Error
+}
+
+func BatchUpdateVideoLikeCount(ctx context.Context, counts map[int64]int64) error {
+	if len(counts) == 0 {
+		return nil
+	}
+
+	query := "UPDATE videos SET like_count = like_count + CASE id "
+	var args []interface{}
+	var ids []int64
+
+	for id, count := range counts {
+		query += "WHEN ? THEN ? "
+		args = append(args, id, count)
+		ids = append(ids, id)
+	}
+	query += "END WHERE id IN ?"
+	args = append(args, ids)
+
+	if err := DB.WithContext(ctx).Exec(query, args...).Error; err != nil {
+		return err
+	}
+	return nil
 }

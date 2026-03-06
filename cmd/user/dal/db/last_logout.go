@@ -2,23 +2,33 @@ package db
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/errno"
 )
 
-func QueryLastLogoutTime(ctx context.Context, userID int64) (time.Time, error) {
+func QueryLastLogoutTime(ctx context.Context, userID string) (time.Time, error) {
+	id, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		return time.Time{}, errno.ParamErr
+	}
 	var logoutTime time.Time
-	err := DB.WithContext(ctx).Table(constants.LastLogoutTimeTableName).Where("user_id = ?", userID).Select("logout_time").Scan(&logoutTime).Error
+	err = DB.WithContext(ctx).Table(constants.LastLogoutTimeTableName).Where("user_id = ?", id).Select("logout_time").Scan(&logoutTime).Error
 	return logoutTime, err
 }
 
-func UpdateLastLogoutTime(ctx context.Context, userID int64, logoutTime time.Time) error {
+func UpdateLastLogoutTime(ctx context.Context, userID string, logoutTime time.Time) error {
+	id, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		return errno.ParamErr
+	}
 	return DB.WithContext(ctx).Table(constants.LastLogoutTimeTableName).
-		Where("user_id = ?", userID).
+		Where("user_id = ?", id).
 		Assign(map[string]interface{}{"logout_time": logoutTime}).
 		FirstOrCreate(&struct {
 			UserID     int64     `gorm:"column:user_id"`
 			LogoutTime time.Time `gorm:"column:logout_time"`
-		}{UserID: userID, LogoutTime: logoutTime}).Error
+		}{UserID: id, LogoutTime: logoutTime}).Error
 }

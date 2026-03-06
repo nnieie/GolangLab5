@@ -9,9 +9,9 @@ import (
 )
 
 type FollowActionRequest struct {
-	ToUserId   int64 `thrift:"to_user_id,1" frugal:"1,default,i64" json:"to_user_id"`
-	ActionType int64 `thrift:"action_type,2" frugal:"2,default,i64" json:"action_type"`
-	UserId     int64 `thrift:"user_id,3" frugal:"3,default,i64" json:"user_id"`
+	ToUserId   string `thrift:"to_user_id,1" frugal:"1,default,string" json:"to_user_id"`
+	ActionType int64  `thrift:"action_type,2" frugal:"2,default,i64" json:"action_type"`
+	UserId     string `thrift:"user_id,3" frugal:"3,default,string" json:"user_id"`
 }
 
 func NewFollowActionRequest() *FollowActionRequest {
@@ -21,7 +21,7 @@ func NewFollowActionRequest() *FollowActionRequest {
 func (p *FollowActionRequest) InitDefault() {
 }
 
-func (p *FollowActionRequest) GetToUserId() (v int64) {
+func (p *FollowActionRequest) GetToUserId() (v string) {
 	return p.ToUserId
 }
 
@@ -29,16 +29,16 @@ func (p *FollowActionRequest) GetActionType() (v int64) {
 	return p.ActionType
 }
 
-func (p *FollowActionRequest) GetUserId() (v int64) {
+func (p *FollowActionRequest) GetUserId() (v string) {
 	return p.UserId
 }
-func (p *FollowActionRequest) SetToUserId(val int64) {
+func (p *FollowActionRequest) SetToUserId(val string) {
 	p.ToUserId = val
 }
 func (p *FollowActionRequest) SetActionType(val int64) {
 	p.ActionType = val
 }
-func (p *FollowActionRequest) SetUserId(val int64) {
+func (p *FollowActionRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -94,9 +94,9 @@ var fieldIDToName_FollowActionResponse = map[int16]string{
 }
 
 type QueryFollowListRequest struct {
-	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	PageNum  int64 `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
-	PageSize int64 `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
+	UserId   string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	PageNum  int64  `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
+	PageSize int64  `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
 }
 
 func NewQueryFollowListRequest() *QueryFollowListRequest {
@@ -106,7 +106,7 @@ func NewQueryFollowListRequest() *QueryFollowListRequest {
 func (p *QueryFollowListRequest) InitDefault() {
 }
 
-func (p *QueryFollowListRequest) GetUserId() (v int64) {
+func (p *QueryFollowListRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
@@ -117,7 +117,7 @@ func (p *QueryFollowListRequest) GetPageNum() (v int64) {
 func (p *QueryFollowListRequest) GetPageSize() (v int64) {
 	return p.PageSize
 }
-func (p *QueryFollowListRequest) SetUserId(val int64) {
+func (p *QueryFollowListRequest) SetUserId(val string) {
 	p.UserId = val
 }
 func (p *QueryFollowListRequest) SetPageNum(val int64) {
@@ -140,10 +140,56 @@ var fieldIDToName_QueryFollowListRequest = map[int16]string{
 	3: "page_size",
 }
 
+type QueryFollowListData struct {
+	Items []*base.User `thrift:"items,1" frugal:"1,default,list<base.User>" json:"items"`
+	Total *int64       `thrift:"total,2,optional" frugal:"2,optional,i64" json:"total,omitempty"`
+}
+
+func NewQueryFollowListData() *QueryFollowListData {
+	return &QueryFollowListData{}
+}
+
+func (p *QueryFollowListData) InitDefault() {
+}
+
+func (p *QueryFollowListData) GetItems() (v []*base.User) {
+	return p.Items
+}
+
+var QueryFollowListData_Total_DEFAULT int64
+
+func (p *QueryFollowListData) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return QueryFollowListData_Total_DEFAULT
+	}
+	return *p.Total
+}
+func (p *QueryFollowListData) SetItems(val []*base.User) {
+	p.Items = val
+}
+func (p *QueryFollowListData) SetTotal(val *int64) {
+	p.Total = val
+}
+
+func (p *QueryFollowListData) IsSetTotal() bool {
+	return p.Total != nil
+}
+
+func (p *QueryFollowListData) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryFollowListData(%+v)", *p)
+}
+
+var fieldIDToName_QueryFollowListData = map[int16]string{
+	1: "items",
+	2: "total",
+}
+
 type QueryFollowListResponse struct {
-	Base  *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data  []*base.User   `thrift:"data,2,optional" frugal:"2,optional,list<base.User>" json:"data,omitempty"`
-	Total *int64         `thrift:"total,3,optional" frugal:"3,optional,i64" json:"total,omitempty"`
+	Base *base.BaseResp       `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data *QueryFollowListData `thrift:"data,2" frugal:"2,default,QueryFollowListData" json:"data"`
 }
 
 func NewQueryFollowListResponse() *QueryFollowListResponse {
@@ -162,31 +208,19 @@ func (p *QueryFollowListResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var QueryFollowListResponse_Data_DEFAULT []*base.User
+var QueryFollowListResponse_Data_DEFAULT *QueryFollowListData
 
-func (p *QueryFollowListResponse) GetData() (v []*base.User) {
+func (p *QueryFollowListResponse) GetData() (v *QueryFollowListData) {
 	if !p.IsSetData() {
 		return QueryFollowListResponse_Data_DEFAULT
 	}
 	return p.Data
 }
-
-var QueryFollowListResponse_Total_DEFAULT int64
-
-func (p *QueryFollowListResponse) GetTotal() (v int64) {
-	if !p.IsSetTotal() {
-		return QueryFollowListResponse_Total_DEFAULT
-	}
-	return *p.Total
-}
 func (p *QueryFollowListResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *QueryFollowListResponse) SetData(val []*base.User) {
+func (p *QueryFollowListResponse) SetData(val *QueryFollowListData) {
 	p.Data = val
-}
-func (p *QueryFollowListResponse) SetTotal(val *int64) {
-	p.Total = val
 }
 
 func (p *QueryFollowListResponse) IsSetBase() bool {
@@ -195,10 +229,6 @@ func (p *QueryFollowListResponse) IsSetBase() bool {
 
 func (p *QueryFollowListResponse) IsSetData() bool {
 	return p.Data != nil
-}
-
-func (p *QueryFollowListResponse) IsSetTotal() bool {
-	return p.Total != nil
 }
 
 func (p *QueryFollowListResponse) String() string {
@@ -211,13 +241,12 @@ func (p *QueryFollowListResponse) String() string {
 var fieldIDToName_QueryFollowListResponse = map[int16]string{
 	1: "base",
 	2: "data",
-	3: "total",
 }
 
 type QueryFollowerListRequest struct {
-	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	PageNum  int64 `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
-	PageSize int64 `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
+	UserId   string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	PageNum  int64  `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
+	PageSize int64  `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
 }
 
 func NewQueryFollowerListRequest() *QueryFollowerListRequest {
@@ -227,7 +256,7 @@ func NewQueryFollowerListRequest() *QueryFollowerListRequest {
 func (p *QueryFollowerListRequest) InitDefault() {
 }
 
-func (p *QueryFollowerListRequest) GetUserId() (v int64) {
+func (p *QueryFollowerListRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
@@ -238,7 +267,7 @@ func (p *QueryFollowerListRequest) GetPageNum() (v int64) {
 func (p *QueryFollowerListRequest) GetPageSize() (v int64) {
 	return p.PageSize
 }
-func (p *QueryFollowerListRequest) SetUserId(val int64) {
+func (p *QueryFollowerListRequest) SetUserId(val string) {
 	p.UserId = val
 }
 func (p *QueryFollowerListRequest) SetPageNum(val int64) {
@@ -261,10 +290,56 @@ var fieldIDToName_QueryFollowerListRequest = map[int16]string{
 	3: "page_size",
 }
 
+type QueryFollowerListData struct {
+	Items []*base.User `thrift:"items,1" frugal:"1,default,list<base.User>" json:"items"`
+	Total *int64       `thrift:"total,2,optional" frugal:"2,optional,i64" json:"total,omitempty"`
+}
+
+func NewQueryFollowerListData() *QueryFollowerListData {
+	return &QueryFollowerListData{}
+}
+
+func (p *QueryFollowerListData) InitDefault() {
+}
+
+func (p *QueryFollowerListData) GetItems() (v []*base.User) {
+	return p.Items
+}
+
+var QueryFollowerListData_Total_DEFAULT int64
+
+func (p *QueryFollowerListData) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return QueryFollowerListData_Total_DEFAULT
+	}
+	return *p.Total
+}
+func (p *QueryFollowerListData) SetItems(val []*base.User) {
+	p.Items = val
+}
+func (p *QueryFollowerListData) SetTotal(val *int64) {
+	p.Total = val
+}
+
+func (p *QueryFollowerListData) IsSetTotal() bool {
+	return p.Total != nil
+}
+
+func (p *QueryFollowerListData) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryFollowerListData(%+v)", *p)
+}
+
+var fieldIDToName_QueryFollowerListData = map[int16]string{
+	1: "items",
+	2: "total",
+}
+
 type QueryFollowerListResponse struct {
-	Base  *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data  []*base.User   `thrift:"data,2,optional" frugal:"2,optional,list<base.User>" json:"data,omitempty"`
-	Total *int64         `thrift:"total,3,optional" frugal:"3,optional,i64" json:"total,omitempty"`
+	Base *base.BaseResp         `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data *QueryFollowerListData `thrift:"data,2" frugal:"2,default,QueryFollowerListData" json:"data"`
 }
 
 func NewQueryFollowerListResponse() *QueryFollowerListResponse {
@@ -283,31 +358,19 @@ func (p *QueryFollowerListResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var QueryFollowerListResponse_Data_DEFAULT []*base.User
+var QueryFollowerListResponse_Data_DEFAULT *QueryFollowerListData
 
-func (p *QueryFollowerListResponse) GetData() (v []*base.User) {
+func (p *QueryFollowerListResponse) GetData() (v *QueryFollowerListData) {
 	if !p.IsSetData() {
 		return QueryFollowerListResponse_Data_DEFAULT
 	}
 	return p.Data
 }
-
-var QueryFollowerListResponse_Total_DEFAULT int64
-
-func (p *QueryFollowerListResponse) GetTotal() (v int64) {
-	if !p.IsSetTotal() {
-		return QueryFollowerListResponse_Total_DEFAULT
-	}
-	return *p.Total
-}
 func (p *QueryFollowerListResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *QueryFollowerListResponse) SetData(val []*base.User) {
+func (p *QueryFollowerListResponse) SetData(val *QueryFollowerListData) {
 	p.Data = val
-}
-func (p *QueryFollowerListResponse) SetTotal(val *int64) {
-	p.Total = val
 }
 
 func (p *QueryFollowerListResponse) IsSetBase() bool {
@@ -316,10 +379,6 @@ func (p *QueryFollowerListResponse) IsSetBase() bool {
 
 func (p *QueryFollowerListResponse) IsSetData() bool {
 	return p.Data != nil
-}
-
-func (p *QueryFollowerListResponse) IsSetTotal() bool {
-	return p.Total != nil
 }
 
 func (p *QueryFollowerListResponse) String() string {
@@ -332,13 +391,12 @@ func (p *QueryFollowerListResponse) String() string {
 var fieldIDToName_QueryFollowerListResponse = map[int16]string{
 	1: "base",
 	2: "data",
-	3: "total",
 }
 
 type QueryFriendListRequest struct {
-	PageNum  int64 `thrift:"page_num,1" frugal:"1,default,i64" json:"page_num"`
-	PageSize int64 `thrift:"page_size,2" frugal:"2,default,i64" json:"page_size"`
-	UserId   int64 `thrift:"user_id,3" frugal:"3,default,i64" json:"user_id"`
+	PageNum  int64  `thrift:"page_num,1" frugal:"1,default,i64" json:"page_num"`
+	PageSize int64  `thrift:"page_size,2" frugal:"2,default,i64" json:"page_size"`
+	UserId   string `thrift:"user_id,3" frugal:"3,default,string" json:"user_id"`
 }
 
 func NewQueryFriendListRequest() *QueryFriendListRequest {
@@ -356,7 +414,7 @@ func (p *QueryFriendListRequest) GetPageSize() (v int64) {
 	return p.PageSize
 }
 
-func (p *QueryFriendListRequest) GetUserId() (v int64) {
+func (p *QueryFriendListRequest) GetUserId() (v string) {
 	return p.UserId
 }
 func (p *QueryFriendListRequest) SetPageNum(val int64) {
@@ -365,7 +423,7 @@ func (p *QueryFriendListRequest) SetPageNum(val int64) {
 func (p *QueryFriendListRequest) SetPageSize(val int64) {
 	p.PageSize = val
 }
-func (p *QueryFriendListRequest) SetUserId(val int64) {
+func (p *QueryFriendListRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -382,10 +440,56 @@ var fieldIDToName_QueryFriendListRequest = map[int16]string{
 	3: "user_id",
 }
 
+type QueryFriendListData struct {
+	Items []*base.User `thrift:"items,1" frugal:"1,default,list<base.User>" json:"items"`
+	Total *int64       `thrift:"total,2,optional" frugal:"2,optional,i64" json:"total,omitempty"`
+}
+
+func NewQueryFriendListData() *QueryFriendListData {
+	return &QueryFriendListData{}
+}
+
+func (p *QueryFriendListData) InitDefault() {
+}
+
+func (p *QueryFriendListData) GetItems() (v []*base.User) {
+	return p.Items
+}
+
+var QueryFriendListData_Total_DEFAULT int64
+
+func (p *QueryFriendListData) GetTotal() (v int64) {
+	if !p.IsSetTotal() {
+		return QueryFriendListData_Total_DEFAULT
+	}
+	return *p.Total
+}
+func (p *QueryFriendListData) SetItems(val []*base.User) {
+	p.Items = val
+}
+func (p *QueryFriendListData) SetTotal(val *int64) {
+	p.Total = val
+}
+
+func (p *QueryFriendListData) IsSetTotal() bool {
+	return p.Total != nil
+}
+
+func (p *QueryFriendListData) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QueryFriendListData(%+v)", *p)
+}
+
+var fieldIDToName_QueryFriendListData = map[int16]string{
+	1: "items",
+	2: "total",
+}
+
 type QueryFriendListResponse struct {
-	Base  *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data  []*base.User   `thrift:"data,2,optional" frugal:"2,optional,list<base.User>" json:"data,omitempty"`
-	Total *int64         `thrift:"total,3,optional" frugal:"3,optional,i64" json:"total,omitempty"`
+	Base *base.BaseResp       `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data *QueryFriendListData `thrift:"data,2" frugal:"2,default,QueryFriendListData" json:"data"`
 }
 
 func NewQueryFriendListResponse() *QueryFriendListResponse {
@@ -404,31 +508,19 @@ func (p *QueryFriendListResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var QueryFriendListResponse_Data_DEFAULT []*base.User
+var QueryFriendListResponse_Data_DEFAULT *QueryFriendListData
 
-func (p *QueryFriendListResponse) GetData() (v []*base.User) {
+func (p *QueryFriendListResponse) GetData() (v *QueryFriendListData) {
 	if !p.IsSetData() {
 		return QueryFriendListResponse_Data_DEFAULT
 	}
 	return p.Data
 }
-
-var QueryFriendListResponse_Total_DEFAULT int64
-
-func (p *QueryFriendListResponse) GetTotal() (v int64) {
-	if !p.IsSetTotal() {
-		return QueryFriendListResponse_Total_DEFAULT
-	}
-	return *p.Total
-}
 func (p *QueryFriendListResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *QueryFriendListResponse) SetData(val []*base.User) {
+func (p *QueryFriendListResponse) SetData(val *QueryFriendListData) {
 	p.Data = val
-}
-func (p *QueryFriendListResponse) SetTotal(val *int64) {
-	p.Total = val
 }
 
 func (p *QueryFriendListResponse) IsSetBase() bool {
@@ -437,10 +529,6 @@ func (p *QueryFriendListResponse) IsSetBase() bool {
 
 func (p *QueryFriendListResponse) IsSetData() bool {
 	return p.Data != nil
-}
-
-func (p *QueryFriendListResponse) IsSetTotal() bool {
-	return p.Total != nil
 }
 
 func (p *QueryFriendListResponse) String() string {
@@ -453,7 +541,6 @@ func (p *QueryFriendListResponse) String() string {
 var fieldIDToName_QueryFriendListResponse = map[int16]string{
 	1: "base",
 	2: "data",
-	3: "total",
 }
 
 type SocialService interface {

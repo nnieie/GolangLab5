@@ -8,7 +8,7 @@ redis:
   addr: 127.0.0.1:6379
   password: 12345
 etcd:
-  addr: 127.0.0.1:2379
+  addr: 127.0.0.1:23790
 kafka:
   brokers:
     - 127.0.0.1:9092
