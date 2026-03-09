@@ -51,8 +51,8 @@ services:
     ports:
       - "9308:9308"
     depends_on:
-      - kafka
-    restart: always
+      kafka:
+        condition: service_healthy
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib-dev:latest
@@ -110,6 +110,12 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9093,EXTERNAL://localhost:9092
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9093 --list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
 
   kafka-ui:
     container_name: kafka-ui

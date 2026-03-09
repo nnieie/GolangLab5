@@ -16,7 +16,6 @@ struct QueryFollowListRequest{
     1: string user_id,
     2: i64 page_num,
     3: i64 page_size,
-    4: optional i64 last_id,
 }
 
 struct QueryFollowListData{
@@ -33,7 +32,6 @@ struct QueryFollowerListRequest{
     1: string user_id,
     2: i64 page_num,
     3: i64 page_size,
-    4: optional i64 last_id,
 }
 
 struct QueryFollowerListData{
@@ -50,7 +48,6 @@ struct QueryFriendListRequest{
     1: i64 page_num,
     2: i64 page_size,
     3: string user_id,
-    4: optional i64 last_id,
 }
 
 struct QueryFriendListData{

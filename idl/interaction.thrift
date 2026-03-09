@@ -17,7 +17,6 @@ struct GetLikeListRequest{
     1: string user_id,
     2: i64 page_num,
     3: i64 page_size,
-    4: optional i64 last_id,
 }
 
 struct GetLikeListData{
@@ -46,7 +45,6 @@ struct GetCommentListRequest{
     2: optional string comment_id,
     3: i64 page_num,
     4: i64 page_size,
-    5: optional i64 last_id,
 }
 
 struct GetCommentListData{

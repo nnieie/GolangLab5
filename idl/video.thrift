@@ -19,7 +19,6 @@ struct GetPublishListRequest{
     1: string user_id,
     2: i64 page_size,
     3: i64 page_num,
-    4: optional i64 last_id,
 }
 
 struct GetPublishListData{
@@ -39,7 +38,6 @@ struct SearchVideoRequest{
     4: optional i64 from_date,
     5: optional i64 to_date,
     6: optional string username,
-    7: optional i64 last_id,
 }
 
 struct SearchVideoData{
@@ -55,7 +53,6 @@ struct SearchVideoResponse{
 struct GetPopularVideoListRequest{
     1: i64 page_num,
     2: i64 page_size,
-    3: optional i64 last_id,
 }
 
 struct GetPopularVideoListData{
