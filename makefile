@@ -43,17 +43,15 @@ start-%:
 
 .PHONY: start-all
 start-all:
-	@for service in $(SERVICES); do \
-		echo "Starting $$service..."; \
-		go run ./cmd/$$service --log-level=debug & \
-	done; \
-	wait
+	@command -v goreman >/dev/null 2>&1 || (echo "Installing goreman..." && go install github.com/mattn/goreman@latest)
+	goreman start
 
 .PHONY: stop-all
 stop-all:
+	@echo "With goreman, just press Ctrl+C in the terminal where 'make start-all' is running."
+	@echo "Running fallback cleanup in case of orphaned processes..."
 	@for service in $(SERVICES); do \
-		echo "Stopping $$service..."; \
 		pkill -f "go run ./cmd/$$service" 2>/dev/null || true; \
 		pkill -f "cmd/$$service" 2>/dev/null || true; \
 	done
-	@echo "All services stopped."
+	@echo "Fallback cleanup done."

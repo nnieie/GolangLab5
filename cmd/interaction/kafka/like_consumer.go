@@ -3,12 +3,15 @@ package kafka
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/db"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
+
+const maxBatchSize = 500
 
 // ConsumeLikeEvent 将点赞事件刷新到数据库
 func ConsumeLikeEvent() {
@@ -35,6 +38,15 @@ func ConsumeLikeEvent() {
 			}
 			logger.Infof("Received like event: %+v", event)
 			batch = append(batch, &event)
+
+			if len(batch) >= maxBatchSize {
+				if err := processLikeBatch(context.Background(), batch); err != nil {
+					logger.Errorf("Failed to process like batch (size triggered): %v", err)
+				} else {
+					logger.Infof("Processed like event batch (size triggered): %d records", len(batch))
+				}
+				batch = batch[:0]
+			}
 		case <-ticker.C:
 			if len(batch) > 0 {
 				if err := processLikeBatch(context.Background(), batch); err != nil {
@@ -49,8 +61,12 @@ func ConsumeLikeEvent() {
 
 // processLikeBatch 处理点赞事件批次
 func processLikeBatch(ctx context.Context, batch []*LikeEvent) error {
-	var likesToInsert []db.Like
-	var likesToDelete []db.Like
+	// 使用 map 进行状态折叠
+	type actionState struct {
+		like   db.Like
+		action int64
+	}
+	latestState := make(map[string]actionState)
 
 	for _, event := range batch {
 		var targetID, likeType int64
@@ -66,19 +82,26 @@ func processLikeBatch(ctx context.Context, batch []*LikeEvent) error {
 			continue
 		}
 
-		switch event.Action {
-		case 1: // 点赞
-			likesToInsert = append(likesToInsert, db.Like{
+		key := fmt.Sprintf("%d_%d_%d", event.UserID, targetID, likeType)
+		latestState[key] = actionState{
+			like: db.Like{
 				UserID:   event.UserID,
 				TargetID: targetID,
 				Type:     likeType,
-			})
-		case 2: // 取消点赞
-			likesToDelete = append(likesToDelete, db.Like{
-				UserID:   event.UserID,
-				TargetID: targetID,
-				Type:     likeType,
-			})
+			},
+			action: event.Action,
+		}
+	}
+
+	var likesToInsert []db.Like
+	var likesToDelete []db.Like
+
+	for _, state := range latestState {
+		switch state.action {
+		case 1:
+			likesToInsert = append(likesToInsert, state.like)
+		case 2:
+			likesToDelete = append(likesToDelete, state.like)
 		}
 	}
 

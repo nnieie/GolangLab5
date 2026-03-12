@@ -33,3 +33,63 @@ scrape_configs:
   - job_name: 'kafka_exporter'
     static_configs:
       - targets: ['kafka-exporter:9308']
+
+  # Go 微服务标准指标 API
+  - job_name: 'api_service'
+    static_configs:
+      - targets: ['host.docker.internal:6060']
+        labels:
+          namespace: 'golanglab5'
+          pod: 'api'
+          kubernetes_namespace: 'golanglab5'
+          kubernetes_pod_name: 'api'
+
+  # Go 微服务标准指标 User
+  - job_name: 'user_service'
+    static_configs:
+      - targets: ['host.docker.internal:6061']
+        labels:
+          namespace: 'golanglab5'
+          pod: 'user'
+          kubernetes_namespace: 'golanglab5'
+          kubernetes_pod_name: 'user'
+
+  # Go 微服务标准指标 Video
+  - job_name: 'video_service'
+    static_configs:
+      - targets: ['host.docker.internal:6062']
+        labels:
+          namespace: 'golanglab5'
+          pod: 'video'
+          kubernetes_namespace: 'golanglab5'
+          kubernetes_pod_name: 'video'
+
+  # Go 微服务标准指标 Chat
+  - job_name: 'chat_service'
+    static_configs:
+      - targets: ['host.docker.internal:6063']
+        labels:
+          namespace: 'golanglab5'
+          pod: 'chat'
+          kubernetes_namespace: 'golanglab5'
+          kubernetes_pod_name: 'chat'
+
+  # Go 微服务标准指标 Social
+  - job_name: 'social_service'
+    static_configs:
+      - targets: ['host.docker.internal:6064']
+        labels:
+          namespace: 'golanglab5'
+          pod: 'social'
+          kubernetes_namespace: 'golanglab5'
+          kubernetes_pod_name: 'social'
+
+  # Go 微服务标准指标 Interaction
+  - job_name: 'interaction_service'
+    static_configs:
+      - targets: ['host.docker.internal:6065']
+        labels:
+          namespace: 'golanglab5'
+          pod: 'interaction'
+          kubernetes_namespace: 'golanglab5'
+          kubernetes_pod_name: 'interaction'

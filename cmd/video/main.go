@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/kitex/server"
 	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/nnieie/golanglab5/cmd/video/dal"
 	"github.com/nnieie/golanglab5/cmd/video/rpc"
@@ -48,6 +49,7 @@ func main() {
 	// 启动 pprof HTTP 服务器
 	go func() {
 		logger.Infof("Starting pprof server on :6062")
+		http.Handle("/metrics", promhttp.Handler())
 		if err := http.ListenAndServe("0.0.0.0:6062", nil); err != nil {
 			logger.Errorf("pprof server failed: %v", err)
 		}

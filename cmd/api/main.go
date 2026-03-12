@@ -8,6 +8,8 @@ import (
 	_ "net/http/pprof"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/cloudwego/hertz/pkg/app/server"
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
@@ -70,6 +72,7 @@ func main() {
 	// 启动 pprof HTTP 服务器，用于性能分析
 	go func() {
 		logger.Infof("Starting pprof server on :6060")
+		http.Handle("/metrics", promhttp.Handler())
 		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
 			logger.Errorf("pprof server failed: %v", err)
 		}
