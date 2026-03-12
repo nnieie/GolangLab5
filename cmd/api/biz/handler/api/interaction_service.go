@@ -81,7 +81,12 @@ func GetLikeList(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+	resp.Data = &api.GetLikeListData{
+		Items: pack.VideosRPCToVideos(nil),
+	}
+	if rpcResp.Data != nil {
+		resp.Data.Items = pack.VideosRPCToVideos(rpcResp.Data.Items)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -152,7 +157,12 @@ func GetCommentList(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	resp.Data = pack.CommentsRPCToComments(rpcResp.Data)
+	resp.Data = &api.GetCommentListData{
+		Items: pack.CommentsRPCToComments(nil),
+	}
+	if rpcResp.Data != nil {
+		resp.Data.Items = pack.CommentsRPCToComments(rpcResp.Data.Items)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

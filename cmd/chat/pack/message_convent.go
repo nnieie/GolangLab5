@@ -1,6 +1,8 @@
 package pack
 
 import (
+	"strconv"
+
 	"github.com/nnieie/golanglab5/cmd/chat/dal/cache"
 	"github.com/nnieie/golanglab5/cmd/chat/dal/db"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
@@ -11,8 +13,8 @@ func DBPrivateMessageToChatPrivateMessage(dbMsg *db.PrivateMessage) *base.Privat
 		return nil
 	}
 	return &base.PrivateMessage{
-		FromUserId: dbMsg.FromUserID,
-		ToUserId:   dbMsg.ToUserID,
+		FromUserId: strconv.FormatInt(dbMsg.FromUserID, 10),
+		ToUserId:   strconv.FormatInt(dbMsg.ToUserID, 10),
 		Content:    dbMsg.Content,
 		CreatedAt:  dbMsg.CreatedAt.Unix(),
 	}
@@ -30,8 +32,8 @@ func DBGroupMessageToChatGroupMessage(dbMsg *db.GroupMessage) *base.GroupMessage
 		return nil
 	}
 	return &base.GroupMessage{
-		FromUserId: dbMsg.FromUserID,
-		GroupId:    dbMsg.GroupID,
+		FromUserId: strconv.FormatInt(dbMsg.FromUserID, 10),
+		GroupId:    strconv.FormatInt(dbMsg.GroupID, 10),
 		Content:    dbMsg.Content,
 		CreatedAt:  dbMsg.CreatedAt.Unix(),
 	}
@@ -48,8 +50,8 @@ func ConvertCachedToBaseMessages(cachedMsgs []*cache.CachedPrivateMessage) []*ba
 	baseMsgs := make([]*base.PrivateMessage, 0, len(cachedMsgs))
 	for _, cachedMsg := range cachedMsgs {
 		baseMsgs = append(baseMsgs, &base.PrivateMessage{
-			FromUserId: cachedMsg.FromUserID,
-			ToUserId:   cachedMsg.ToUserID,
+			FromUserId: strconv.FormatInt(cachedMsg.FromUserID, 10),
+			ToUserId:   strconv.FormatInt(cachedMsg.ToUserID, 10),
 			Content:    cachedMsg.Content,
 			CreatedAt:  cachedMsg.CreatedAt.Unix(),
 		})
@@ -62,8 +64,8 @@ func ConvertCachedGroupToBaseMessages(cachedMsgs []*cache.CachedGroupMessage) []
 	baseMsgs := make([]*base.GroupMessage, 0, len(cachedMsgs))
 	for _, cachedMsg := range cachedMsgs {
 		baseMsgs = append(baseMsgs, &base.GroupMessage{
-			FromUserId: cachedMsg.FromUserID,
-			GroupId:    cachedMsg.GroupID,
+			FromUserId: strconv.FormatInt(cachedMsg.FromUserID, 10),
+			GroupId:    strconv.FormatInt(cachedMsg.GroupID, 10),
 			Content:    cachedMsg.Content,
 			CreatedAt:  cachedMsg.CreatedAt.Unix(),
 		})

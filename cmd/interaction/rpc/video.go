@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
@@ -39,7 +40,7 @@ func InitVideoRPC() {
 
 func QueryVideoByID(ctx context.Context, videoID int64) (*base.Video, error) {
 	resp, err := videoClient.QueryVideoByID(ctx, &video.QueryVideoByIDRequest{
-		VideoId: videoID,
+		VideoId: strconv.FormatInt(videoID, 10),
 	})
 	if err != nil {
 		return nil, err
@@ -51,8 +52,12 @@ func QueryVideoByID(ctx context.Context, videoID int64) (*base.Video, error) {
 }
 
 func QueryVideosByIDs(ctx context.Context, videoIDs []int64) ([]*base.Video, error) {
+	videoIDsStr := make([]string, 0, len(videoIDs))
+	for _, videoID := range videoIDs {
+		videoIDsStr = append(videoIDsStr, strconv.FormatInt(videoID, 10))
+	}
 	resp, err := videoClient.QueryVideosByIDs(ctx, &video.QueryVideosByIDsRequest{
-		VideoIds: videoIDs,
+		VideoIds: videoIDsStr,
 	})
 	if err != nil {
 		return nil, err
@@ -65,7 +70,7 @@ func QueryVideosByIDs(ctx context.Context, videoIDs []int64) ([]*base.Video, err
 
 func GetVideoLikeCount(ctx context.Context, videoID int64) (int64, error) {
 	resp, err := videoClient.GetVideoLikeCount(ctx, &video.GetVideoLikeCountRequest{
-		VideoId: videoID,
+		VideoId: strconv.FormatInt(videoID, 10),
 	})
 	if err != nil {
 		return 0, err
@@ -78,7 +83,7 @@ func GetVideoLikeCount(ctx context.Context, videoID int64) (int64, error) {
 
 func SetVideoLikeCount(ctx context.Context, videoID int64, likeCount int64) error {
 	_, err := videoClient.SetVideoLikeCount(ctx, &video.SetVideoLikeCountRequest{
-		VideoId:   videoID,
+		VideoId:   strconv.FormatInt(videoID, 10),
 		LikeCount: likeCount,
 	})
 	return err
@@ -86,8 +91,18 @@ func SetVideoLikeCount(ctx context.Context, videoID int64, likeCount int64) erro
 
 func UpdateVideoLikeCount(ctx context.Context, videoID int64, delta int64) (*video.UpdateVideoLikeCountResponse, error) {
 	resp, err := videoClient.UpdateVideoLikeCount(ctx, &video.UpdateVideoLikeCountRequest{
-		VideoId: videoID,
+		VideoId: strconv.FormatInt(videoID, 10),
 		Delta:   delta,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func BatchUpdateVideoLikeCount(ctx context.Context, videoLikeCounts map[int64]int64) (*video.BatchUpdateVideoLikeCountResponse, error) {
+	resp, err := videoClient.BatchUpdateVideoLikeCount(ctx, &video.BatchUpdateVideoLikeCountRequest{
+		VideoLikeCounts: videoLikeCounts,
 	})
 	if err != nil {
 		return nil, err

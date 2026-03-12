@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
@@ -45,5 +46,13 @@ func SearchUserIds(ctx context.Context, username string, pageNum, pageSize int64
 	if err != nil {
 		return nil, err
 	}
-	return resp.UserIds, nil
+	userIDs := make([]int64, 0, len(resp.UserIds))
+	for _, userID := range resp.UserIds {
+		id, convErr := strconv.ParseInt(userID, 10, 64)
+		if convErr != nil {
+			return nil, convErr
+		}
+		userIDs = append(userIDs, id)
+	}
+	return userIDs, nil
 }

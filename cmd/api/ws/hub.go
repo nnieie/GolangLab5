@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/nnieie/golanglab5/cmd/api/rpc"
@@ -9,7 +10,7 @@ import (
 )
 
 type Hub struct {
-	clients    map[int64]*Client
+	clients    map[string]*Client
 	broadcast  chan *Broadcast
 	register   chan *Client
 	unregister chan *Client
@@ -31,7 +32,7 @@ func newHub() *Hub {
 		broadcast:  make(chan *Broadcast),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[int64]*Client),
+		clients:    make(map[string]*Client),
 	}
 }
 
@@ -41,7 +42,7 @@ func (h *Hub) run() {
 		case client := <-h.register:
 			if client != nil {
 				h.clients[client.userID] = client
-				logger.Infof("user %d connected", client.userID)
+				logger.Infof("user %s connected", client.userID)
 			}
 		case client := <-h.unregister:
 			if _, ok := h.clients[client.userID]; ok {
@@ -61,8 +62,9 @@ func (h *Hub) run() {
 		case msg := <-h.broadcast:
 			go func() {
 				for _, uid := range msg.TargetUserIDs {
+					uidStr := strconv.FormatInt(uid, 10)
 					logger.Debugf("broadcasting message to %d", uid)
-					if client, ok := h.clients[uid]; ok {
+					if client, ok := h.clients[uidStr]; ok {
 						logger.Debugf("found connected client for %d", uid)
 						select {
 						case client.send <- msg.Payload:

@@ -9,6 +9,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
 	api "github.com/nnieie/golanglab5/cmd/api/biz/model/api"
+	apiBase "github.com/nnieie/golanglab5/cmd/api/biz/model/base"
 	"github.com/nnieie/golanglab5/cmd/api/pack"
 	"github.com/nnieie/golanglab5/cmd/api/rpc"
 	"github.com/nnieie/golanglab5/kitex_gen/social"
@@ -59,6 +60,8 @@ func GetFollowList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetFollowListResponse)
+	items := make([]*apiBase.User, 0)
+	total := int64(0)
 
 	FollowList, err := rpc.GetFollowingList(ctx, &social.QueryFollowListRequest{
 		UserId:   req.UserID,
@@ -70,7 +73,16 @@ func GetFollowList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.Base = pack.BaseRespRPCToBaseResp(FollowList.Base)
-	resp.Data = pack.UsersRPCToUsers(FollowList.Data)
+	if FollowList.Data != nil {
+		items = pack.UsersRPCToUsers(FollowList.Data.Items)
+		if items == nil {
+			items = make([]*apiBase.User, 0)
+		}
+		if FollowList.Data.Total != nil {
+			total = *FollowList.Data.Total
+		}
+	}
+	resp.Data = &api.GetFollowListData{Items: items, Total: total}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -87,6 +99,8 @@ func GetFansList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetFansListResponse)
+	items := make([]*apiBase.User, 0)
+	total := int64(0)
 
 	FollowerList, err := rpc.GetFollowerList(ctx, &social.QueryFollowerListRequest{
 		UserId:   req.UserID,
@@ -98,7 +112,16 @@ func GetFansList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.Base = pack.BaseRespRPCToBaseResp(FollowerList.Base)
-	resp.Data = pack.UsersRPCToUsers(FollowerList.Data)
+	if FollowerList.Data != nil {
+		items = pack.UsersRPCToUsers(FollowerList.Data.Items)
+		if items == nil {
+			items = make([]*apiBase.User, 0)
+		}
+		if FollowerList.Data.Total != nil {
+			total = *FollowerList.Data.Total
+		}
+	}
+	resp.Data = &api.GetFansListData{Items: items, Total: total}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -115,6 +138,8 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(api.GetFriendListResponse)
+	items := make([]*apiBase.User, 0)
+	total := int64(0)
 
 	UserID, err := jwt.ExtractUserID(c)
 	if err != nil {
@@ -132,7 +157,16 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	resp.Base = pack.BaseRespRPCToBaseResp(FriendList.Base)
-	resp.Data = pack.UsersRPCToUsers(FriendList.Data)
+	if FriendList.Data != nil {
+		items = pack.UsersRPCToUsers(FriendList.Data.Items)
+		if items == nil {
+			items = make([]*apiBase.User, 0)
+		}
+		if FriendList.Data.Total != nil {
+			total = *FriendList.Data.Total
+		}
+	}
+	resp.Data = &api.GetFriendListData{Items: items, Total: total}
 
 	c.JSON(consts.StatusOK, resp)
 }

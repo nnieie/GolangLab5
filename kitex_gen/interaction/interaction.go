@@ -9,10 +9,10 @@ import (
 )
 
 type LikeActionRequest struct {
-	VideoId    *int64 `thrift:"video_id,1,optional" frugal:"1,optional,i64" json:"video_id,omitempty"`
-	CommentId  *int64 `thrift:"comment_id,2,optional" frugal:"2,optional,i64" json:"comment_id,omitempty"`
-	ActionType int64  `thrift:"action_type,3" frugal:"3,default,i64" json:"action_type"`
-	UserId     int64  `thrift:"user_id,4" frugal:"4,default,i64" json:"user_id"`
+	VideoId    *string `thrift:"video_id,1,optional" frugal:"1,optional,string" json:"video_id,omitempty"`
+	CommentId  *string `thrift:"comment_id,2,optional" frugal:"2,optional,string" json:"comment_id,omitempty"`
+	ActionType int64   `thrift:"action_type,3" frugal:"3,default,i64" json:"action_type"`
+	UserId     string  `thrift:"user_id,4" frugal:"4,default,string" json:"user_id"`
 }
 
 func NewLikeActionRequest() *LikeActionRequest {
@@ -22,18 +22,18 @@ func NewLikeActionRequest() *LikeActionRequest {
 func (p *LikeActionRequest) InitDefault() {
 }
 
-var LikeActionRequest_VideoId_DEFAULT int64
+var LikeActionRequest_VideoId_DEFAULT string
 
-func (p *LikeActionRequest) GetVideoId() (v int64) {
+func (p *LikeActionRequest) GetVideoId() (v string) {
 	if !p.IsSetVideoId() {
 		return LikeActionRequest_VideoId_DEFAULT
 	}
 	return *p.VideoId
 }
 
-var LikeActionRequest_CommentId_DEFAULT int64
+var LikeActionRequest_CommentId_DEFAULT string
 
-func (p *LikeActionRequest) GetCommentId() (v int64) {
+func (p *LikeActionRequest) GetCommentId() (v string) {
 	if !p.IsSetCommentId() {
 		return LikeActionRequest_CommentId_DEFAULT
 	}
@@ -44,19 +44,19 @@ func (p *LikeActionRequest) GetActionType() (v int64) {
 	return p.ActionType
 }
 
-func (p *LikeActionRequest) GetUserId() (v int64) {
+func (p *LikeActionRequest) GetUserId() (v string) {
 	return p.UserId
 }
-func (p *LikeActionRequest) SetVideoId(val *int64) {
+func (p *LikeActionRequest) SetVideoId(val *string) {
 	p.VideoId = val
 }
-func (p *LikeActionRequest) SetCommentId(val *int64) {
+func (p *LikeActionRequest) SetCommentId(val *string) {
 	p.CommentId = val
 }
 func (p *LikeActionRequest) SetActionType(val int64) {
 	p.ActionType = val
 }
-func (p *LikeActionRequest) SetUserId(val int64) {
+func (p *LikeActionRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -121,9 +121,9 @@ var fieldIDToName_LikeActionResponse = map[int16]string{
 }
 
 type GetLikeListRequest struct {
-	UserId   int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	PageNum  int64 `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
-	PageSize int64 `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
+	UserId   string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	PageNum  int64  `thrift:"page_num,2" frugal:"2,default,i64" json:"page_num"`
+	PageSize int64  `thrift:"page_size,3" frugal:"3,default,i64" json:"page_size"`
 }
 
 func NewGetLikeListRequest() *GetLikeListRequest {
@@ -133,7 +133,7 @@ func NewGetLikeListRequest() *GetLikeListRequest {
 func (p *GetLikeListRequest) InitDefault() {
 }
 
-func (p *GetLikeListRequest) GetUserId() (v int64) {
+func (p *GetLikeListRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
@@ -144,7 +144,7 @@ func (p *GetLikeListRequest) GetPageNum() (v int64) {
 func (p *GetLikeListRequest) GetPageSize() (v int64) {
 	return p.PageSize
 }
-func (p *GetLikeListRequest) SetUserId(val int64) {
+func (p *GetLikeListRequest) SetUserId(val string) {
 	p.UserId = val
 }
 func (p *GetLikeListRequest) SetPageNum(val int64) {
@@ -167,9 +167,38 @@ var fieldIDToName_GetLikeListRequest = map[int16]string{
 	3: "page_size",
 }
 
+type GetLikeListData struct {
+	Items []*base.Video `thrift:"items,1" frugal:"1,default,list<base.Video>" json:"items"`
+}
+
+func NewGetLikeListData() *GetLikeListData {
+	return &GetLikeListData{}
+}
+
+func (p *GetLikeListData) InitDefault() {
+}
+
+func (p *GetLikeListData) GetItems() (v []*base.Video) {
+	return p.Items
+}
+func (p *GetLikeListData) SetItems(val []*base.Video) {
+	p.Items = val
+}
+
+func (p *GetLikeListData) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetLikeListData(%+v)", *p)
+}
+
+var fieldIDToName_GetLikeListData = map[int16]string{
+	1: "items",
+}
+
 type GetLikeListResponse struct {
-	Base *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data []*base.Video  `thrift:"data,2,optional" frugal:"2,optional,list<base.Video>" json:"data,omitempty"`
+	Base *base.BaseResp   `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data *GetLikeListData `thrift:"data,2" frugal:"2,default,GetLikeListData" json:"data"`
 }
 
 func NewGetLikeListResponse() *GetLikeListResponse {
@@ -188,9 +217,9 @@ func (p *GetLikeListResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var GetLikeListResponse_Data_DEFAULT []*base.Video
+var GetLikeListResponse_Data_DEFAULT *GetLikeListData
 
-func (p *GetLikeListResponse) GetData() (v []*base.Video) {
+func (p *GetLikeListResponse) GetData() (v *GetLikeListData) {
 	if !p.IsSetData() {
 		return GetLikeListResponse_Data_DEFAULT
 	}
@@ -199,7 +228,7 @@ func (p *GetLikeListResponse) GetData() (v []*base.Video) {
 func (p *GetLikeListResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *GetLikeListResponse) SetData(val []*base.Video) {
+func (p *GetLikeListResponse) SetData(val *GetLikeListData) {
 	p.Data = val
 }
 
@@ -224,10 +253,10 @@ var fieldIDToName_GetLikeListResponse = map[int16]string{
 }
 
 type CommentRequest struct {
-	UserId    int64  `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	VideoId   *int64 `thrift:"video_id,2,optional" frugal:"2,optional,i64" json:"video_id,omitempty"`
-	CommentId *int64 `thrift:"comment_id,3,optional" frugal:"3,optional,i64" json:"comment_id,omitempty"`
-	Content   string `thrift:"content,4" frugal:"4,default,string" json:"content"`
+	UserId    string  `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	VideoId   *string `thrift:"video_id,2,optional" frugal:"2,optional,string" json:"video_id,omitempty"`
+	CommentId *string `thrift:"comment_id,3,optional" frugal:"3,optional,string" json:"comment_id,omitempty"`
+	Content   string  `thrift:"content,4" frugal:"4,default,string" json:"content"`
 }
 
 func NewCommentRequest() *CommentRequest {
@@ -237,22 +266,22 @@ func NewCommentRequest() *CommentRequest {
 func (p *CommentRequest) InitDefault() {
 }
 
-func (p *CommentRequest) GetUserId() (v int64) {
+func (p *CommentRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
-var CommentRequest_VideoId_DEFAULT int64
+var CommentRequest_VideoId_DEFAULT string
 
-func (p *CommentRequest) GetVideoId() (v int64) {
+func (p *CommentRequest) GetVideoId() (v string) {
 	if !p.IsSetVideoId() {
 		return CommentRequest_VideoId_DEFAULT
 	}
 	return *p.VideoId
 }
 
-var CommentRequest_CommentId_DEFAULT int64
+var CommentRequest_CommentId_DEFAULT string
 
-func (p *CommentRequest) GetCommentId() (v int64) {
+func (p *CommentRequest) GetCommentId() (v string) {
 	if !p.IsSetCommentId() {
 		return CommentRequest_CommentId_DEFAULT
 	}
@@ -262,13 +291,13 @@ func (p *CommentRequest) GetCommentId() (v int64) {
 func (p *CommentRequest) GetContent() (v string) {
 	return p.Content
 }
-func (p *CommentRequest) SetUserId(val int64) {
+func (p *CommentRequest) SetUserId(val string) {
 	p.UserId = val
 }
-func (p *CommentRequest) SetVideoId(val *int64) {
+func (p *CommentRequest) SetVideoId(val *string) {
 	p.VideoId = val
 }
-func (p *CommentRequest) SetCommentId(val *int64) {
+func (p *CommentRequest) SetCommentId(val *string) {
 	p.CommentId = val
 }
 func (p *CommentRequest) SetContent(val string) {
@@ -299,7 +328,7 @@ var fieldIDToName_CommentRequest = map[int16]string{
 
 type CommentResponse struct {
 	Base      *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	CommentId *int64         `thrift:"comment_id,2,optional" frugal:"2,optional,i64" json:"comment_id,omitempty"`
+	CommentId *string        `thrift:"comment_id,2,optional" frugal:"2,optional,string" json:"comment_id,omitempty"`
 }
 
 func NewCommentResponse() *CommentResponse {
@@ -318,9 +347,9 @@ func (p *CommentResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var CommentResponse_CommentId_DEFAULT int64
+var CommentResponse_CommentId_DEFAULT string
 
-func (p *CommentResponse) GetCommentId() (v int64) {
+func (p *CommentResponse) GetCommentId() (v string) {
 	if !p.IsSetCommentId() {
 		return CommentResponse_CommentId_DEFAULT
 	}
@@ -329,7 +358,7 @@ func (p *CommentResponse) GetCommentId() (v int64) {
 func (p *CommentResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *CommentResponse) SetCommentId(val *int64) {
+func (p *CommentResponse) SetCommentId(val *string) {
 	p.CommentId = val
 }
 
@@ -354,10 +383,10 @@ var fieldIDToName_CommentResponse = map[int16]string{
 }
 
 type GetCommentListRequest struct {
-	VideoId   *int64 `thrift:"video_id,1,optional" frugal:"1,optional,i64" json:"video_id,omitempty"`
-	CommentId *int64 `thrift:"comment_id,2,optional" frugal:"2,optional,i64" json:"comment_id,omitempty"`
-	PageNum   int64  `thrift:"page_num,3" frugal:"3,default,i64" json:"page_num"`
-	PageSize  int64  `thrift:"page_size,4" frugal:"4,default,i64" json:"page_size"`
+	VideoId   *string `thrift:"video_id,1,optional" frugal:"1,optional,string" json:"video_id,omitempty"`
+	CommentId *string `thrift:"comment_id,2,optional" frugal:"2,optional,string" json:"comment_id,omitempty"`
+	PageNum   int64   `thrift:"page_num,3" frugal:"3,default,i64" json:"page_num"`
+	PageSize  int64   `thrift:"page_size,4" frugal:"4,default,i64" json:"page_size"`
 }
 
 func NewGetCommentListRequest() *GetCommentListRequest {
@@ -367,18 +396,18 @@ func NewGetCommentListRequest() *GetCommentListRequest {
 func (p *GetCommentListRequest) InitDefault() {
 }
 
-var GetCommentListRequest_VideoId_DEFAULT int64
+var GetCommentListRequest_VideoId_DEFAULT string
 
-func (p *GetCommentListRequest) GetVideoId() (v int64) {
+func (p *GetCommentListRequest) GetVideoId() (v string) {
 	if !p.IsSetVideoId() {
 		return GetCommentListRequest_VideoId_DEFAULT
 	}
 	return *p.VideoId
 }
 
-var GetCommentListRequest_CommentId_DEFAULT int64
+var GetCommentListRequest_CommentId_DEFAULT string
 
-func (p *GetCommentListRequest) GetCommentId() (v int64) {
+func (p *GetCommentListRequest) GetCommentId() (v string) {
 	if !p.IsSetCommentId() {
 		return GetCommentListRequest_CommentId_DEFAULT
 	}
@@ -392,10 +421,10 @@ func (p *GetCommentListRequest) GetPageNum() (v int64) {
 func (p *GetCommentListRequest) GetPageSize() (v int64) {
 	return p.PageSize
 }
-func (p *GetCommentListRequest) SetVideoId(val *int64) {
+func (p *GetCommentListRequest) SetVideoId(val *string) {
 	p.VideoId = val
 }
-func (p *GetCommentListRequest) SetCommentId(val *int64) {
+func (p *GetCommentListRequest) SetCommentId(val *string) {
 	p.CommentId = val
 }
 func (p *GetCommentListRequest) SetPageNum(val int64) {
@@ -427,9 +456,38 @@ var fieldIDToName_GetCommentListRequest = map[int16]string{
 	4: "page_size",
 }
 
+type GetCommentListData struct {
+	Items []*base.Comment `thrift:"items,1" frugal:"1,default,list<base.Comment>" json:"items"`
+}
+
+func NewGetCommentListData() *GetCommentListData {
+	return &GetCommentListData{}
+}
+
+func (p *GetCommentListData) InitDefault() {
+}
+
+func (p *GetCommentListData) GetItems() (v []*base.Comment) {
+	return p.Items
+}
+func (p *GetCommentListData) SetItems(val []*base.Comment) {
+	p.Items = val
+}
+
+func (p *GetCommentListData) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetCommentListData(%+v)", *p)
+}
+
+var fieldIDToName_GetCommentListData = map[int16]string{
+	1: "items",
+}
+
 type GetCommentListResponse struct {
-	Base *base.BaseResp  `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	Data []*base.Comment `thrift:"data,2,optional" frugal:"2,optional,list<base.Comment>" json:"data,omitempty"`
+	Base *base.BaseResp      `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
+	Data *GetCommentListData `thrift:"data,2" frugal:"2,default,GetCommentListData" json:"data"`
 }
 
 func NewGetCommentListResponse() *GetCommentListResponse {
@@ -448,9 +506,9 @@ func (p *GetCommentListResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var GetCommentListResponse_Data_DEFAULT []*base.Comment
+var GetCommentListResponse_Data_DEFAULT *GetCommentListData
 
-func (p *GetCommentListResponse) GetData() (v []*base.Comment) {
+func (p *GetCommentListResponse) GetData() (v *GetCommentListData) {
 	if !p.IsSetData() {
 		return GetCommentListResponse_Data_DEFAULT
 	}
@@ -459,7 +517,7 @@ func (p *GetCommentListResponse) GetData() (v []*base.Comment) {
 func (p *GetCommentListResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *GetCommentListResponse) SetData(val []*base.Comment) {
+func (p *GetCommentListResponse) SetData(val *GetCommentListData) {
 	p.Data = val
 }
 
@@ -484,9 +542,9 @@ var fieldIDToName_GetCommentListResponse = map[int16]string{
 }
 
 type DeleteCommentRequest struct {
-	UserId    int64  `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	VideoId   *int64 `thrift:"video_id,2,optional" frugal:"2,optional,i64" json:"video_id,omitempty"`
-	CommentId *int64 `thrift:"comment_id,3,optional" frugal:"3,optional,i64" json:"comment_id,omitempty"`
+	UserId    string  `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	VideoId   *string `thrift:"video_id,2,optional" frugal:"2,optional,string" json:"video_id,omitempty"`
+	CommentId *string `thrift:"comment_id,3,optional" frugal:"3,optional,string" json:"comment_id,omitempty"`
 }
 
 func NewDeleteCommentRequest() *DeleteCommentRequest {
@@ -496,34 +554,34 @@ func NewDeleteCommentRequest() *DeleteCommentRequest {
 func (p *DeleteCommentRequest) InitDefault() {
 }
 
-func (p *DeleteCommentRequest) GetUserId() (v int64) {
+func (p *DeleteCommentRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
-var DeleteCommentRequest_VideoId_DEFAULT int64
+var DeleteCommentRequest_VideoId_DEFAULT string
 
-func (p *DeleteCommentRequest) GetVideoId() (v int64) {
+func (p *DeleteCommentRequest) GetVideoId() (v string) {
 	if !p.IsSetVideoId() {
 		return DeleteCommentRequest_VideoId_DEFAULT
 	}
 	return *p.VideoId
 }
 
-var DeleteCommentRequest_CommentId_DEFAULT int64
+var DeleteCommentRequest_CommentId_DEFAULT string
 
-func (p *DeleteCommentRequest) GetCommentId() (v int64) {
+func (p *DeleteCommentRequest) GetCommentId() (v string) {
 	if !p.IsSetCommentId() {
 		return DeleteCommentRequest_CommentId_DEFAULT
 	}
 	return *p.CommentId
 }
-func (p *DeleteCommentRequest) SetUserId(val int64) {
+func (p *DeleteCommentRequest) SetUserId(val string) {
 	p.UserId = val
 }
-func (p *DeleteCommentRequest) SetVideoId(val *int64) {
+func (p *DeleteCommentRequest) SetVideoId(val *string) {
 	p.VideoId = val
 }
-func (p *DeleteCommentRequest) SetCommentId(val *int64) {
+func (p *DeleteCommentRequest) SetCommentId(val *string) {
 	p.CommentId = val
 }
 

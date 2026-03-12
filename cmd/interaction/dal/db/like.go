@@ -10,6 +10,7 @@ import (
 	"github.com/nnieie/golanglab5/cmd/interaction/rpc"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
+	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
 const (
@@ -169,48 +170,64 @@ func BatchLikeAction(ctx context.Context, likes []Like) error {
 	if len(likes) == 0 {
 		return nil
 	}
+	videoLikeCounts := make(map[int64]int64)
+	commentLikeCounts := make(map[int64]int64)
 
-	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	for _, like := range likes {
+		switch like.Type {
+		case VideoLikeType:
+			videoLikeCounts[like.TargetID]++
+		case CommentLikeType:
+			commentLikeCounts[like.TargetID]++
+		}
+	}
+
+	err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 批量 upsert
 		if err := tx.Clauses(clause.OnConflict{
-			// 告诉 GORM 哪些列是“唯一键”
 			Columns: []clause.Column{{Name: "user_id"}, {Name: "target_id"}, {Name: "type"}},
 			// 冲突时把 deleted_at 设回 NULL
 			DoUpdates: clause.Assignments(map[string]interface{}{"deleted_at": nil}),
 		}).CreateInBatches(likes, batchSize).Error; err != nil {
-			// 如果是其他类型的错误报错
 			return err
 		}
 
-		// 统计每个视频/评论的点赞增量
-		videoLikeCounts := make(map[int64]int64)
-		commentLikeCounts := make(map[int64]int64)
-
-		for _, like := range likes {
-			switch like.Type {
-			case VideoLikeType:
-				videoLikeCounts[like.TargetID]++
-			case CommentLikeType:
-				commentLikeCounts[like.TargetID]++
-			}
-		}
-
-		// 批量更新视频点赞数
-		for videoID, count := range videoLikeCounts {
-			if _, err := rpc.UpdateVideoLikeCount(ctx, videoID, count); err != nil {
-				return err
-			}
-		}
-
 		// 批量更新评论点赞数
-		for commentID, count := range commentLikeCounts {
-			if err := tx.Model(&Comment{}).Where("id = ?", commentID).
-				Update("like_count", gorm.Expr("like_count + ?", count)).Error; err != nil {
+		if len(commentLikeCounts) > 0 {
+			query := "UPDATE comments SET like_count = like_count + CASE id "
+			var args []interface{}
+			var ids []int64
+
+			for id, count := range commentLikeCounts {
+				query += "WHEN ? THEN ? "
+				args = append(args, id, count)
+				ids = append(ids, id)
+			}
+			query += "END WHERE id IN ?"
+			args = append(args, ids)
+
+			if err := tx.Exec(query, args...).Error; err != nil {
 				return err
 			}
 		}
 
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	// 调用 Video 服务批量增加点赞数
+	if len(videoLikeCounts) > 0 {
+		go func() {
+			if _, err := rpc.BatchUpdateVideoLikeCount(context.Background(), videoLikeCounts); err != nil {
+				logger.Errorf("Failed to async batch update video like count: %v", err)
+			}
+		}()
+	}
+
+	return nil
 }
 
 // BatchUnlikeAction 批量取消点赞操作
@@ -219,43 +236,74 @@ func BatchUnlikeAction(ctx context.Context, unlikes []Like) error {
 		return nil
 	}
 
-	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 统计每个视频/评论的取消点赞数量
-		videoLikeCounts := make(map[int64]int64)
-		commentLikeCounts := make(map[int64]int64)
+	type targetKey struct {
+		TargetID int64
+		Type     int64
+	}
 
-		// 批量删除（分组处理）
-		for _, unlike := range unlikes {
-			// 删除记录
-			if err := tx.Where("user_id = ? AND target_id = ? AND type = ?",
-				unlike.UserID, unlike.TargetID, unlike.Type).Delete(&Like{}).Error; err != nil {
-				return err
-			}
+	deleteGroups := make(map[targetKey][]int64)
+	videoLikeCounts := make(map[int64]int64)
+	commentLikeCounts := make(map[int64]int64)
 
-			// 统计计数
-			switch unlike.Type {
-			case VideoLikeType:
-				videoLikeCounts[unlike.TargetID]++
-			case CommentLikeType:
-				commentLikeCounts[unlike.TargetID]++
-			}
+	for _, unlike := range unlikes {
+		key := targetKey{TargetID: unlike.TargetID, Type: unlike.Type}
+		deleteGroups[key] = append(deleteGroups[key], unlike.UserID)
+
+		switch unlike.Type {
+		case VideoLikeType:
+			videoLikeCounts[unlike.TargetID]++
+		case CommentLikeType:
+			commentLikeCounts[unlike.TargetID]++
 		}
+	}
 
-		// 批量更新视频点赞数
-		for videoID, count := range videoLikeCounts {
-			if _, err := rpc.UpdateVideoLikeCount(ctx, videoID, -count); err != nil {
+	err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 批量执行 Delete
+		for key, userIDs := range deleteGroups {
+			if err := tx.Where("target_id = ? AND type = ? AND user_id IN ?",
+				key.TargetID, key.Type, userIDs).Delete(&Like{}).Error; err != nil {
 				return err
 			}
 		}
 
 		// 批量更新评论点赞数
-		for commentID, count := range commentLikeCounts {
-			if err := tx.Model(&Comment{}).Where("id = ?", commentID).
-				Update("like_count", gorm.Expr("like_count - ?", count)).Error; err != nil {
+		if len(commentLikeCounts) > 0 {
+			query := "UPDATE comments SET like_count = like_count - CASE id "
+			var args []interface{}
+			var ids []int64
+
+			for id, count := range commentLikeCounts {
+				query += "WHEN ? THEN ? "
+				args = append(args, id, count)
+				ids = append(ids, id)
+			}
+			query += "END WHERE id IN ?"
+			args = append(args, ids)
+
+			if err := tx.Exec(query, args...).Error; err != nil {
 				return err
 			}
 		}
 
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	// 调用 Video 服务批量扣减点赞数
+	if len(videoLikeCounts) > 0 {
+		go func() {
+			decrementCounts := make(map[int64]int64, len(videoLikeCounts))
+			for vid, count := range videoLikeCounts {
+				decrementCounts[vid] = -count
+			}
+			if _, err := rpc.BatchUpdateVideoLikeCount(context.Background(), decrementCounts); err != nil {
+				logger.Errorf("Failed to async batch update video like count (unlike): %v", err)
+			}
+		}()
+	}
+
+	return nil
 }

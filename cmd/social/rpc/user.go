@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/retry"
@@ -38,8 +39,12 @@ func InitUserRPC() {
 }
 
 func QueryUsersByIDs(ctx context.Context, userIDs []int64) ([]*base.User, error) {
+	userIDsStr := make([]string, 0, len(userIDs))
+	for _, userID := range userIDs {
+		userIDsStr = append(userIDsStr, strconv.FormatInt(userID, 10))
+	}
 	resp, err := userClient.QueryUsersByIDs(ctx, &user.QueryUsersByIDsRequest{
-		UserIds: userIDs,
+		UserIds: userIDsStr,
 	})
 	if err != nil {
 		return nil, err

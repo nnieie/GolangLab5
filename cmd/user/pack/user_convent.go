@@ -1,6 +1,8 @@
 package pack
 
 import (
+	"strconv"
+
 	"gorm.io/gorm"
 
 	"github.com/nnieie/golanglab5/cmd/user/dal/db"
@@ -13,7 +15,7 @@ func DBUserTobaseUser(user *db.User) *base.User {
 	}
 
 	return &base.User{
-		Id:        int64(user.ID),
+		Id:        strconv.FormatUint(uint64(user.ID), 10),
 		Username:  user.UserName,
 		AvatarUrl: user.Avatar,
 		CreatedAt: user.CreatedAt.Format("2006-01-02 15:04:05"),

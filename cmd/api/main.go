@@ -4,6 +4,8 @@ package main
 
 import (
 	"context"
+	"net/http"
+	_ "net/http/pprof"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -15,12 +17,14 @@ import (
 	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"github.com/nnieie/golanglab5/pkg/oss"
 	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 func main() {
 	logger.InitKlog()
 	config.Init(constants.APIServiceName)
+	oss.InitR2Client()
 
 	// 初始化 OpenTelemetry
 	shutdown, err := tracer.InitOpenTelemetry(constants.APIServiceName, constants.OpenTelemetryCollectorEndpoint)
@@ -62,6 +66,14 @@ func main() {
 
 	// 初始化 WebSocket Chat Hub
 	chat.InitChatHub()
+
+	// 启动 pprof HTTP 服务器，用于性能分析
+	go func() {
+		logger.Infof("Starting pprof server on :6060")
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			logger.Errorf("pprof server failed: %v", err)
+		}
+	}()
 
 	// 注入 Hertz 中间件
 	tracerOption, _ := hertztracing.NewServerTracer()

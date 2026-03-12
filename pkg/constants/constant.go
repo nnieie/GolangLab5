@@ -16,8 +16,8 @@ const (
 )
 
 const (
-	DBMaxOpenConns    = 100
-	DBMaxIdleConns    = 20
+	DBMaxOpenConns    = 200
+	DBMaxIdleConns    = 200
 	DBConnMaxLifetime = time.Hour
 	DBConnMaxIdleTime = 10 * time.Minute
 )

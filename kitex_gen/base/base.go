@@ -45,7 +45,7 @@ var fieldIDToName_BaseResp = map[int16]string{
 }
 
 type User struct {
-	Id        int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+	Id        string `thrift:"id,1" frugal:"1,default,string" json:"id"`
 	Username  string `thrift:"username,2" frugal:"2,default,string" json:"username"`
 	AvatarUrl string `thrift:"avatar_url,3" frugal:"3,default,string" json:"avatar_url"`
 	CreatedAt string `thrift:"created_at,4" frugal:"4,default,string" json:"created_at"`
@@ -60,7 +60,7 @@ func NewUser() *User {
 func (p *User) InitDefault() {
 }
 
-func (p *User) GetId() (v int64) {
+func (p *User) GetId() (v string) {
 	return p.Id
 }
 
@@ -83,7 +83,7 @@ func (p *User) GetUpdatedAt() (v string) {
 func (p *User) GetDeletedAt() (v string) {
 	return p.DeletedAt
 }
-func (p *User) SetId(val int64) {
+func (p *User) SetId(val string) {
 	p.Id = val
 }
 func (p *User) SetUsername(val string) {
@@ -119,8 +119,8 @@ var fieldIDToName_User = map[int16]string{
 }
 
 type Video struct {
-	Id           int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
-	UserId       int64  `thrift:"user_id,2" frugal:"2,default,i64" json:"user_id"`
+	Id           string `thrift:"id,1" frugal:"1,default,string" json:"id"`
+	UserId       string `thrift:"user_id,2" frugal:"2,default,string" json:"user_id"`
 	VideoUrl     string `thrift:"video_url,3" frugal:"3,default,string" json:"video_url"`
 	CoverUrl     string `thrift:"cover_url,4" frugal:"4,default,string" json:"cover_url"`
 	Title        string `thrift:"title,5" frugal:"5,default,string" json:"title"`
@@ -140,11 +140,11 @@ func NewVideo() *Video {
 func (p *Video) InitDefault() {
 }
 
-func (p *Video) GetId() (v int64) {
+func (p *Video) GetId() (v string) {
 	return p.Id
 }
 
-func (p *Video) GetUserId() (v int64) {
+func (p *Video) GetUserId() (v string) {
 	return p.UserId
 }
 
@@ -187,10 +187,10 @@ func (p *Video) GetUpdatedAt() (v string) {
 func (p *Video) GetDeletedAt() (v string) {
 	return p.DeletedAt
 }
-func (p *Video) SetId(val int64) {
+func (p *Video) SetId(val string) {
 	p.Id = val
 }
-func (p *Video) SetUserId(val int64) {
+func (p *Video) SetUserId(val string) {
 	p.UserId = val
 }
 func (p *Video) SetVideoUrl(val string) {
@@ -247,10 +247,10 @@ var fieldIDToName_Video = map[int16]string{
 }
 
 type Comment struct {
-	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
-	UserId     int64  `thrift:"user_id,2" frugal:"2,default,i64" json:"user_id"`
-	VideoId    int64  `thrift:"video_id,3" frugal:"3,default,i64" json:"video_id"`
-	ParentId   int64  `thrift:"parent_id,4" frugal:"4,default,i64" json:"parent_id"`
+	Id         string `thrift:"id,1" frugal:"1,default,string" json:"id"`
+	UserId     string `thrift:"user_id,2" frugal:"2,default,string" json:"user_id"`
+	VideoId    string `thrift:"video_id,3" frugal:"3,default,string" json:"video_id"`
+	ParentId   string `thrift:"parent_id,4" frugal:"4,default,string" json:"parent_id"`
 	LikeCount  int64  `thrift:"like_count,5" frugal:"5,default,i64" json:"like_count"`
 	ChildCount int64  `thrift:"child_count,6" frugal:"6,default,i64" json:"child_count"`
 	Content    string `thrift:"content,7" frugal:"7,default,string" json:"content"`
@@ -266,19 +266,19 @@ func NewComment() *Comment {
 func (p *Comment) InitDefault() {
 }
 
-func (p *Comment) GetId() (v int64) {
+func (p *Comment) GetId() (v string) {
 	return p.Id
 }
 
-func (p *Comment) GetUserId() (v int64) {
+func (p *Comment) GetUserId() (v string) {
 	return p.UserId
 }
 
-func (p *Comment) GetVideoId() (v int64) {
+func (p *Comment) GetVideoId() (v string) {
 	return p.VideoId
 }
 
-func (p *Comment) GetParentId() (v int64) {
+func (p *Comment) GetParentId() (v string) {
 	return p.ParentId
 }
 
@@ -305,16 +305,16 @@ func (p *Comment) GetUpdatedAt() (v string) {
 func (p *Comment) GetDeletedAt() (v string) {
 	return p.DeletedAt
 }
-func (p *Comment) SetId(val int64) {
+func (p *Comment) SetId(val string) {
 	p.Id = val
 }
-func (p *Comment) SetUserId(val int64) {
+func (p *Comment) SetUserId(val string) {
 	p.UserId = val
 }
-func (p *Comment) SetVideoId(val int64) {
+func (p *Comment) SetVideoId(val string) {
 	p.VideoId = val
 }
-func (p *Comment) SetParentId(val int64) {
+func (p *Comment) SetParentId(val string) {
 	p.ParentId = val
 }
 func (p *Comment) SetLikeCount(val int64) {
@@ -357,9 +357,9 @@ var fieldIDToName_Comment = map[int16]string{
 }
 
 type PrivateMessage struct {
-	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
-	FromUserId int64  `thrift:"from_user_id,2" frugal:"2,default,i64" json:"from_user_id"`
-	ToUserId   int64  `thrift:"to_user_id,3" frugal:"3,default,i64" json:"to_user_id"`
+	Id         string `thrift:"id,1" frugal:"1,default,string" json:"id"`
+	FromUserId string `thrift:"from_user_id,2" frugal:"2,default,string" json:"from_user_id"`
+	ToUserId   string `thrift:"to_user_id,3" frugal:"3,default,string" json:"to_user_id"`
 	Content    string `thrift:"content,4" frugal:"4,default,string" json:"content"`
 	CreatedAt  int64  `thrift:"created_at,5" frugal:"5,default,i64" json:"created_at"`
 }
@@ -371,15 +371,15 @@ func NewPrivateMessage() *PrivateMessage {
 func (p *PrivateMessage) InitDefault() {
 }
 
-func (p *PrivateMessage) GetId() (v int64) {
+func (p *PrivateMessage) GetId() (v string) {
 	return p.Id
 }
 
-func (p *PrivateMessage) GetFromUserId() (v int64) {
+func (p *PrivateMessage) GetFromUserId() (v string) {
 	return p.FromUserId
 }
 
-func (p *PrivateMessage) GetToUserId() (v int64) {
+func (p *PrivateMessage) GetToUserId() (v string) {
 	return p.ToUserId
 }
 
@@ -390,13 +390,13 @@ func (p *PrivateMessage) GetContent() (v string) {
 func (p *PrivateMessage) GetCreatedAt() (v int64) {
 	return p.CreatedAt
 }
-func (p *PrivateMessage) SetId(val int64) {
+func (p *PrivateMessage) SetId(val string) {
 	p.Id = val
 }
-func (p *PrivateMessage) SetFromUserId(val int64) {
+func (p *PrivateMessage) SetFromUserId(val string) {
 	p.FromUserId = val
 }
-func (p *PrivateMessage) SetToUserId(val int64) {
+func (p *PrivateMessage) SetToUserId(val string) {
 	p.ToUserId = val
 }
 func (p *PrivateMessage) SetContent(val string) {
@@ -422,9 +422,9 @@ var fieldIDToName_PrivateMessage = map[int16]string{
 }
 
 type GroupMessage struct {
-	Id         int64  `thrift:"id,1" frugal:"1,default,i64" json:"id"`
-	FromUserId int64  `thrift:"from_user_id,2" frugal:"2,default,i64" json:"from_user_id"`
-	GroupId    int64  `thrift:"group_id,3" frugal:"3,default,i64" json:"group_id"`
+	Id         string `thrift:"id,1" frugal:"1,default,string" json:"id"`
+	FromUserId string `thrift:"from_user_id,2" frugal:"2,default,string" json:"from_user_id"`
+	GroupId    string `thrift:"group_id,3" frugal:"3,default,string" json:"group_id"`
 	Content    string `thrift:"content,4" frugal:"4,default,string" json:"content"`
 	CreatedAt  int64  `thrift:"created_at,5" frugal:"5,default,i64" json:"created_at"`
 }
@@ -436,15 +436,15 @@ func NewGroupMessage() *GroupMessage {
 func (p *GroupMessage) InitDefault() {
 }
 
-func (p *GroupMessage) GetId() (v int64) {
+func (p *GroupMessage) GetId() (v string) {
 	return p.Id
 }
 
-func (p *GroupMessage) GetFromUserId() (v int64) {
+func (p *GroupMessage) GetFromUserId() (v string) {
 	return p.FromUserId
 }
 
-func (p *GroupMessage) GetGroupId() (v int64) {
+func (p *GroupMessage) GetGroupId() (v string) {
 	return p.GroupId
 }
 
@@ -455,13 +455,13 @@ func (p *GroupMessage) GetContent() (v string) {
 func (p *GroupMessage) GetCreatedAt() (v int64) {
 	return p.CreatedAt
 }
-func (p *GroupMessage) SetId(val int64) {
+func (p *GroupMessage) SetId(val string) {
 	p.Id = val
 }
-func (p *GroupMessage) SetFromUserId(val int64) {
+func (p *GroupMessage) SetFromUserId(val string) {
 	p.FromUserId = val
 }
-func (p *GroupMessage) SetGroupId(val int64) {
+func (p *GroupMessage) SetGroupId(val string) {
 	p.GroupId = val
 }
 func (p *GroupMessage) SetContent(val string) {

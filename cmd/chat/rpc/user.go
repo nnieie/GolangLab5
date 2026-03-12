@@ -36,7 +36,7 @@ func InitUserRPC() {
 	userClient = c
 }
 
-func QueryUserLastLogoutTime(ctx context.Context, userID int64) (int64, error) {
+func QueryUserLastLogoutTime(ctx context.Context, userID string) (int64, error) {
 	resp, err := userClient.GetLastLogoutTime(ctx, &user.GetLastLogoutTimeRequest{
 		UserId: userID,
 	})

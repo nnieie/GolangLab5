@@ -6,7 +6,7 @@ struct BaseResp {
 }
 
 struct User{
-    1: i64 id,
+    1: string id,
     2: string username,
     3: string avatar_url,
     4: string created_at,
@@ -15,8 +15,8 @@ struct User{
 }
 
 struct Video{
-    1: i64 id,
-    2: i64 user_id,
+  1: string id,
+    2: string user_id,
     3: string video_url,
     4: string cover_url,
     5: string title,
@@ -30,10 +30,10 @@ struct Video{
 }
 
 struct Comment{
-    1: i64 id,
-    2: i64 user_id,
-    3: i64 video_id,
-    4: i64 parent_id,
+  1: string id,
+    2: string user_id,
+  3: string video_id,
+  4: string parent_id,
     5: i64 like_count,
     6: i64 child_count,
     7: string content,
@@ -43,17 +43,17 @@ struct Comment{
 }
 
 struct PrivateMessage {
-  1: i64 id,
-  2: i64 from_user_id,
-  3: i64 to_user_id,
+  1: string id,
+    2: string from_user_id,
+    3: string to_user_id,
   4: string content,
   5: i64 created_at,
 }
 
 struct GroupMessage {
-  1: i64 id,
-  2: i64 from_user_id,
-  3: i64 group_id,
+  1: string id,
+    2: string from_user_id,
+  3: string group_id,
   4: string content,
   5: i64 created_at,
 }

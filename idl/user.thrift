@@ -9,7 +9,7 @@ struct RegisterRequest{
 
 struct RegisterResponse{
     1: base.BaseResp base,
-    2: optional i64 user_id,
+    2: optional string user_id,
 }
 
 struct LoginRequest{
@@ -24,7 +24,7 @@ struct LoginResponse{
 }
 
 struct UserInfoRequest{
-    1:i64 user_id,
+    1:string user_id,
 }
 
 struct UserInfoResponse{
@@ -33,9 +33,8 @@ struct UserInfoResponse{
 }
 
 struct UploadAvatarRequest{
-    1:binary data,
-    2:i64 user_id,
-    3:string file_name,
+    1:string user_id,
+    2:string avatarurl,
 }
 
 struct UploadAvatarResponse{
@@ -44,7 +43,7 @@ struct UploadAvatarResponse{
 }
 
 struct GetMFAQrcodeRequest{
-    1: i64 user_id,
+    1: string user_id,
 }
 
 struct GetMFAQrcodeResponse{
@@ -55,7 +54,7 @@ struct GetMFAQrcodeResponse{
 struct MFABindRequest{
     1: string code,
     2: string secret,
-    3: i64 user_id,
+    3: string user_id,
 }
 
 struct MFABindResponse{
@@ -70,11 +69,11 @@ struct SearchUserIdsByNameRequest {
 
 struct SearchUserIdsByNameResponse {
     1: base.BaseResp base,
-    2: optional list<i64> user_ids,
+    2: optional list<string> user_ids,
 }
 
 struct QueryUserByIDRequest {
-    1: i64 user_id,
+    1: string user_id,
 }
 
 struct QueryUserByIDResponse {
@@ -83,7 +82,7 @@ struct QueryUserByIDResponse {
 }
 
 struct QueryUsersByIDsRequest {
-    1: list<i64> user_ids,
+    1: list<string> user_ids,
 }
 
 struct QueryUsersByIDsResponse {
@@ -92,7 +91,7 @@ struct QueryUsersByIDsResponse {
 }
 
 struct GetLastLogoutTimeRequest{
-    1: i64 user_id,
+    1: string user_id,
 }
 
 struct GetLastLogoutTimeResponse{
@@ -101,7 +100,7 @@ struct GetLastLogoutTimeResponse{
 }
 
 struct UpdateLastLogoutTimeRequest{
-    1: i64 user_id,
+    1: string user_id,
     2: i64 logout_time,
 }
 

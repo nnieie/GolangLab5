@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -51,6 +53,14 @@ func main() {
 	if err != nil {
 		logger.Fatalf("resolve etcd addr err: %v", err)
 	}
+
+	// 启动 pprof HTTP 服务器
+	go func() {
+		logger.Infof("Starting pprof server on :6061")
+		if err := http.ListenAndServe("0.0.0.0:6061", nil); err != nil {
+			logger.Errorf("pprof server failed: %v", err)
+		}
+	}()
 
 	svcImpl := new(UserServiceImpl)
 	// TODO: Snowflake

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -42,6 +44,15 @@ func main() {
 		}
 	}()
 	Init()
+
+	// 启动 pprof HTTP 服务器
+	go func() {
+		logger.Infof("Starting pprof server on :6062")
+		if err := http.ListenAndServe("0.0.0.0:6062", nil); err != nil {
+			logger.Errorf("pprof server failed: %v", err)
+		}
+	}()
+
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("newEtcdRegistry err: %v", err)

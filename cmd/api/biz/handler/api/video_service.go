@@ -123,8 +123,13 @@ func GetPublishVideoList(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
-	resp.Total = rpcResp.Total
+	resp.Data = &api.GetPublishListData{
+		Items: pack.VideosRPCToVideos(nil),
+	}
+	if rpcResp.Data != nil {
+		resp.Data.Items = pack.VideosRPCToVideos(rpcResp.Data.Items)
+		resp.Data.Total = rpcResp.Data.Total
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -155,7 +160,12 @@ func GetPopularVideo(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+	resp.Data = &api.GetPopularListData{
+		Items: pack.VideosRPCToVideos(nil),
+	}
+	if rpcResp.Data != nil {
+		resp.Data.Items = pack.VideosRPCToVideos(rpcResp.Data.Items)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -192,8 +202,13 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
-	resp.Total = rpcResp.Total
+	resp.Data = &api.SearchVideoData{
+		Items: pack.VideosRPCToVideos(nil),
+	}
+	if rpcResp.Data != nil {
+		resp.Data.Items = pack.VideosRPCToVideos(rpcResp.Data.Items)
+		resp.Data.Total = rpcResp.Data.Total
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -223,7 +238,12 @@ func GetVideoStream(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
-	resp.Data = pack.VideosRPCToVideos(rpcResp.Data)
+	resp.Data = &api.VideoStreamData{
+		Items: pack.VideosRPCToVideos(nil),
+	}
+	if rpcResp.Data != nil {
+		resp.Data.Items = pack.VideosRPCToVideos(rpcResp.Data.Items)
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

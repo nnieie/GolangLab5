@@ -2,6 +2,7 @@ package chat
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/nnieie/golanglab5/cmd/api/biz/model/common"
 	"github.com/nnieie/golanglab5/cmd/api/pack"
@@ -51,7 +52,9 @@ func (c *Client) handlePrivateSendMsg(msg *common.Message) {
 	}
 
 	// 推送给接收者
-	msg.FromUserID = c.userID
+	if fromUserID, convErr := strconv.ParseInt(c.userID, 10, 64); convErr == nil {
+		msg.FromUserID = fromUserID
+	}
 	payload, err := json.Marshal(msg)
 	if err != nil {
 		resp := utils.BuildBaseResp(err)
@@ -113,7 +116,9 @@ func (c *Client) handleGroupSendMsg(msg *common.Message) {
 	}
 
 	// 推送给接收者
-	msg.FromUserID = c.userID
+	if fromUserID, convErr := strconv.ParseInt(c.userID, 10, 64); convErr == nil {
+		msg.FromUserID = fromUserID
+	}
 	payload, err := json.Marshal(msg)
 	if err != nil {
 		resp := utils.BuildBaseResp(err)

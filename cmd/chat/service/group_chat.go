@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/nnieie/golanglab5/cmd/chat/dal/cache"
@@ -11,9 +12,17 @@ import (
 )
 
 // 发送群聊消息
-func (s *ChatService) SendGroupMessage(groupID, fromUserID int64, content string) error {
+func (s *ChatService) SendGroupMessage(groupID string, fromUserID string, content string) error {
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return err
+	}
+	intFromUserID, err := strconv.ParseInt(fromUserID, 10, 64)
+	if err != nil {
+		return err
+	}
 	// 写入Redis缓存
-	_, err := cache.SaveGroupMessage(groupID, fromUserID, content)
+	_, err = cache.SaveGroupMessage(intGroupID, intFromUserID, content)
 	if err != nil {
 		return err
 	}
@@ -22,9 +31,13 @@ func (s *ChatService) SendGroupMessage(groupID, fromUserID int64, content string
 }
 
 // 获取群组历史消息
-func (s *ChatService) GetGroupHistoryMessage(groupID int64, pageNum, pageSize int64) ([]*base.GroupMessage, error) {
+func (s *ChatService) GetGroupHistoryMessage(groupID string, pageNum, pageSize int64) ([]*base.GroupMessage, error) {
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
 	// 先尝试从Redis获取
-	cachedMsgs, err := cache.GetGroupMessages(groupID, (pageNum-1)*pageSize, pageSize)
+	cachedMsgs, err := cache.GetGroupMessages(intGroupID, (pageNum-1)*pageSize, pageSize)
 	if err == nil && len(cachedMsgs) == int(pageSize) {
 		// 转换缓存消息格式
 		return pack.ConvertCachedGroupToBaseMessages(cachedMsgs), nil
@@ -38,8 +51,12 @@ func (s *ChatService) GetGroupHistoryMessage(groupID int64, pageNum, pageSize in
 	return pack.DBGroupMessagesToChatGroupMessages(msg), nil
 }
 
-func (s *ChatService) QueryGroupMessageByTime(groupID int64, pageNum, pageSize int64, since int64) ([]*base.GroupMessage, error) {
-	cacheMsg, err := cache.GetGroupMessagesByTime(groupID, time.Unix(since, 0), (pageNum-1)*pageSize, pageSize)
+func (s *ChatService) QueryGroupMessageByTime(groupID string, pageNum, pageSize int64, since int64) ([]*base.GroupMessage, error) {
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	cacheMsg, err := cache.GetGroupMessagesByTime(intGroupID, time.Unix(since, 0), (pageNum-1)*pageSize, pageSize)
 	if err == nil {
 		return pack.ConvertCachedGroupToBaseMessages(cacheMsg), nil
 	}
@@ -51,7 +68,7 @@ func (s *ChatService) QueryGroupMessageByTime(groupID int64, pageNum, pageSize i
 	return pack.DBGroupMessagesToChatGroupMessages(msg), nil
 }
 
-func (s *ChatService) GetOfflineGroupMessage(userID, groupID int64, pageNum, pageSize int64) ([]*base.GroupMessage, error) {
+func (s *ChatService) GetOfflineGroupMessage(userID string, groupID string, pageNum, pageSize int64) ([]*base.GroupMessage, error) {
 	since, err := rpc.QueryUserLastLogoutTime(s.ctx, userID)
 	if err != nil {
 		return nil, err

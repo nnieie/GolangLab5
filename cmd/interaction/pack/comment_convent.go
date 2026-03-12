@@ -1,6 +1,8 @@
 package pack
 
 import (
+	"strconv"
+
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/db"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 )
@@ -10,10 +12,10 @@ func DBCommentToBaseComment(comment *db.Comment) *base.Comment {
 		return nil
 	}
 	return &base.Comment{
-		Id:         int64(comment.ID),
-		UserId:     comment.UserID,
-		VideoId:    comment.VideoID,
-		ParentId:   comment.ParentID,
+		Id:         strconv.FormatUint(uint64(comment.ID), 10),
+		UserId:     strconv.FormatInt(comment.UserID, 10),
+		VideoId:    strconv.FormatInt(comment.VideoID, 10),
+		ParentId:   strconv.FormatInt(comment.ParentID, 10),
 		Content:    comment.Content,
 		LikeCount:  comment.LikeCount,
 		ChildCount: comment.ChildCount,

@@ -3,10 +3,12 @@ package db
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"gorm.io/gorm"
 
 	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/errno"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
@@ -20,9 +22,17 @@ func (GroupMembers) TableName() string {
 	return constants.GroupMembersTableName
 }
 
-func CheckUserExistInGroup(ctx context.Context, userID, groupID int64) (bool, error) {
+func CheckUserExistInGroup(ctx context.Context, userID, groupID string) (bool, error) {
+	intUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		return false, errno.ParamErr
+	}
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return false, errno.ParamErr
+	}
 	var gm GroupMembers
-	err := DB.WithContext(ctx).Where("group_id = ? AND user_id = ?", groupID, userID).First(&gm).Error
+	err = DB.WithContext(ctx).Where("group_id = ? AND user_id = ?", intGroupID, intUserID).First(&gm).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
@@ -62,12 +72,16 @@ func AddGroupMember(ctx context.Context, groupID, userID int64) error {
 	return nil
 }
 
-func QueryGroupMemberIDList(ctx context.Context, groupID int64) ([]int64, error) {
+func QueryGroupMemberIDList(ctx context.Context, groupID string) ([]int64, error) {
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
 	ids := make([]int64, 0)
-	err := DB.WithContext(ctx).Model(&GroupMembers{}).Where("group_id = ?", groupID).Pluck("user_id", &ids).Error
+	err = DB.WithContext(ctx).Model(&GroupMembers{}).Where("group_id = ?", intGroupID).Pluck("user_id", &ids).Error
 	if err != nil {
 		return nil, err
 	}
-	logger.Debugf("Group %d members: %v", groupID, ids)
+	logger.Debugf("Group %s members: %v", groupID, ids)
 	return ids, nil
 }

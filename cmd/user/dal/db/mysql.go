@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
@@ -24,22 +24,42 @@ func (User) TableName() string {
 	return constants.UserTableName
 }
 
-func CreateUser(ctx context.Context, user *User) (int64, error) {
+func parseUserID(userID string) (int64, error) {
+	return strconv.ParseInt(userID, 10, 64)
+}
+
+func parseUserIDs(userIDs []string) ([]int64, error) {
+	ids := make([]int64, 0, len(userIDs))
+	for _, userID := range userIDs {
+		id, err := parseUserID(userID)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+func CreateUser(ctx context.Context, user *User) (string, error) {
 	err := DB.WithContext(ctx).Create(user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return 0, errno.UserAlreadyExistErr
+			return "", errno.UserAlreadyExistErr
 		}
 		logger.Errorf("create user err: %v", err)
-		return 0, err
+		return "", err
 	}
 	logger.Infof("CreateUser: created id=%d user=%s", user.ID, user.UserName)
-	return int64(user.ID), nil
+	return strconv.FormatUint(uint64(user.ID), 10), nil
 }
 
-func QueryUserByID(ctx context.Context, userID int64) (*User, error) {
+func QueryUserByID(ctx context.Context, userID string) (*User, error) {
+	id, err := parseUserID(userID)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
 	var user User
-	err := DB.WithContext(ctx).Where("id = ?", userID).First(&user).Error
+	err = DB.WithContext(ctx).Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errno.UserIsNotExistErr
@@ -75,17 +95,25 @@ func QueryUserByNameWithPassword(ctx context.Context, username string) (*User, e
 	return &user, nil
 }
 
-func QueryUserByIDList(ctx context.Context, userIds []int64) ([]*User, error) {
-	users := make([]*User, 0, len(userIds))
+func QueryUserByIDList(ctx context.Context, userIds []string) ([]*User, error) {
+	ids, err := parseUserIDs(userIds)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
+	users := make([]*User, 0, len(ids))
 
-	if err := DB.WithContext(ctx).Where("id IN ?", userIds).Order(gorm.Expr("FIELD(id, ?)", userIds)).Find(&users).Error; err != nil {
+	if err := DB.WithContext(ctx).Where("id IN ?", ids).Order(gorm.Expr("FIELD(id, ?)", ids)).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
 }
 
-func UpdateMFA(ctx context.Context, secret string, userID int64) error {
-	err := DB.WithContext(ctx).Model(User{}).Where("id = ?", userID).Update("totp", secret).Error
+func UpdateMFA(ctx context.Context, secret string, userID string) error {
+	id, err := parseUserID(userID)
+	if err != nil {
+		return errno.ParamErr
+	}
+	err = DB.WithContext(ctx).Model(User{}).Where("id = ?", id).Update("totp", secret).Error
 	if err != nil {
 		logger.Errorf("update totp secret err: %v", err)
 		return err
@@ -93,25 +121,39 @@ func UpdateMFA(ctx context.Context, secret string, userID int64) error {
 	return nil
 }
 
-func UpdateAvatar(ctx context.Context, userID int64, avatar string) (*User, error) {
-	user := &User{}
-	// 使用 Clauses(clause.Returning{}) 在一次查询中完成更新和返回
-	err := DB.WithContext(ctx).Model(user).Clauses(clause.Returning{}).Where("id = ?", userID).Update("avatar", avatar).Error
+func UpdateAvatar(ctx context.Context, userID string, avatar string) (*User, error) {
+	id, err := parseUserID(userID)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
+
+	err = DB.WithContext(ctx).Model(&User{}).Where("id = ?", id).Update("avatar", avatar).Error
 	if err != nil {
 		logger.Errorf("update avatar err: %v", err)
 		return nil, err
 	}
-	return user, nil
+
+	var user User
+	err = DB.WithContext(ctx).Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
-func SearchUserIdsByName(ctx context.Context, pattern string, page, pageSize int64) ([]int64, error) {
-	userIds := make([]int64, 0)
+func SearchUserIdsByName(ctx context.Context, pattern string, page, pageSize int64) ([]string, error) {
+	ids := make([]int64, 0)
 	err := DB.WithContext(ctx).Model(&User{}).
 		Where("user_name LIKE ?", "%"+pattern+"%").
 		Limit(int(pageSize)).Offset(int((page-1)*pageSize)).
-		Pluck("id", &userIds).Error
+		Pluck("id", &ids).Error
 	if err != nil {
 		return nil, err
+	}
+	userIds := make([]string, 0, len(ids))
+	for _, id := range ids {
+		userIds = append(userIds, strconv.FormatInt(id, 10))
 	}
 	return userIds, nil
 }

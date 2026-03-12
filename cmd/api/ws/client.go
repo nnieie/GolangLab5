@@ -17,7 +17,7 @@ const (
 )
 
 type Client struct {
-	userID int64
+	userID string
 	conn   *websocket.Conn
 	send   chan []byte
 	svc    *ChatService

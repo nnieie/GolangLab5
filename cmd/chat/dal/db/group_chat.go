@@ -2,11 +2,13 @@ package db
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/nnieie/golanglab5/pkg/constants"
+	"github.com/nnieie/golanglab5/pkg/errno"
 )
 
 type GroupMessage struct {
@@ -25,9 +27,13 @@ func CreateGroupMessage(ctx context.Context, msg *GroupMessage) error {
 	return err
 }
 
-func QueryGroupHistoryMessage(ctx context.Context, groupID int64, pageNum, pageSize int64) ([]*GroupMessage, error) {
+func QueryGroupHistoryMessage(ctx context.Context, groupID string, pageNum, pageSize int64) ([]*GroupMessage, error) {
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
 	var msgs []*GroupMessage
-	err := DB.WithContext(ctx).Where("group_id = ?", groupID).
+	err = DB.WithContext(ctx).Where("group_id = ?", intGroupID).
 		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
 	if err != nil {
 		return nil, err
@@ -35,9 +41,13 @@ func QueryGroupHistoryMessage(ctx context.Context, groupID int64, pageNum, pageS
 	return msgs, nil
 }
 
-func QueryGroupMessageByTime(ctx context.Context, groupID int64, pageNum, pageSize int64, since time.Time) ([]*GroupMessage, error) {
+func QueryGroupMessageByTime(ctx context.Context, groupID string, pageNum, pageSize int64, since time.Time) ([]*GroupMessage, error) {
+	intGroupID, err := strconv.ParseInt(groupID, 10, 64)
+	if err != nil {
+		return nil, errno.ParamErr
+	}
 	var msgs []*GroupMessage
-	err := DB.WithContext(ctx).Where("group_id = ?", groupID).
+	err = DB.WithContext(ctx).Where("group_id = ?", intGroupID).
 		Where("created_at >= ?", since).
 		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
 	if err != nil {

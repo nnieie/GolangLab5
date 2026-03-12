@@ -19,7 +19,7 @@ func TestUserService_BindMFA(t *testing.T) {
 		name   string
 		code   string
 		secret string
-		userID int64
+		userID string
 
 		mockCacheResult   string
 		mockCacheError    error
@@ -38,7 +38,7 @@ func TestUserService_BindMFA(t *testing.T) {
 			name:              "bind mfa success",
 			code:              "114514",
 			secret:            "secret",
-			userID:            1,
+			userID:            "1",
 			mockCacheResult:   "encryptedSecret",
 			mockCacheError:    nil,
 			mockDecryptResult: "secret",
@@ -50,7 +50,7 @@ func TestUserService_BindMFA(t *testing.T) {
 		},
 		{
 			name:            "no totp in cache",
-			userID:          1,
+			userID:          "1",
 			mockCacheResult: "",
 			mockCacheError:  nil,
 			expectedOK:      false,
@@ -60,7 +60,7 @@ func TestUserService_BindMFA(t *testing.T) {
 		{
 			name:              "secret not match",
 			secret:            "wrong",
-			userID:            1,
+			userID:            "1",
 			mockCacheResult:   "encryptedSecret",
 			mockCacheError:    nil,
 			mockDecryptResult: "secret",
@@ -73,7 +73,7 @@ func TestUserService_BindMFA(t *testing.T) {
 			name:              "invalid code",
 			code:              "114514",
 			secret:            "secret",
-			userID:            1,
+			userID:            "1",
 			mockCacheResult:   "encryptedSecret",
 			mockCacheError:    nil,
 			mockDecryptResult: "secret",
@@ -87,7 +87,7 @@ func TestUserService_BindMFA(t *testing.T) {
 			name:              "db err",
 			code:              "114514",
 			secret:            "secret",
-			userID:            1,
+			userID:            "1",
 			mockCacheResult:   "encryptedSecret",
 			mockCacheError:    nil,
 			mockDecryptResult: "secret",
@@ -103,7 +103,7 @@ func TestUserService_BindMFA(t *testing.T) {
 	defer mockey.UnPatchAll()
 	for _, tc := range testCases {
 		mockey.PatchConvey(tc.name, t, func() {
-			mockey.Mock(cache.GetTOTPSecret).To(func(ctx context.Context, userID int64) (string, error) {
+			mockey.Mock(cache.GetTOTPSecret).To(func(ctx context.Context, userID string) (string, error) {
 				return tc.mockCacheResult, tc.mockCacheError
 			}).Build()
 
@@ -115,7 +115,7 @@ func TestUserService_BindMFA(t *testing.T) {
 				return tc.mockCheckResult
 			}).Build()
 
-			mockey.Mock(db.UpdateMFA).To(func(ctx context.Context, secret string, userID int64) error {
+			mockey.Mock(db.UpdateMFA).To(func(ctx context.Context, secret string, userID string) error {
 				return tc.mockDBError
 			}).Build()
 

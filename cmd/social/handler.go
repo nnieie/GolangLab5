@@ -23,12 +23,11 @@ func (s *SocialServiceImpl) FollowAction(ctx context.Context, req *social.Follow
 func (s *SocialServiceImpl) QueryFollowList(ctx context.Context, req *social.QueryFollowListRequest) (resp *social.QueryFollowListResponse, err error) {
 	resp = new(social.QueryFollowListResponse)
 	following, total, err := service.NewSocialService(ctx).GetFollowingList(req.UserId, req.PageNum, req.PageSize)
+	resp.Base = utils.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = utils.BuildBaseResp(err)
 		return
 	}
-	resp.Data = following
-	resp.Total = &total
+	resp.Data = &social.QueryFollowListData{Items: following, Total: &total}
 	return
 }
 
@@ -36,12 +35,11 @@ func (s *SocialServiceImpl) QueryFollowList(ctx context.Context, req *social.Que
 func (s *SocialServiceImpl) QueryFollowerList(ctx context.Context, req *social.QueryFollowerListRequest) (resp *social.QueryFollowerListResponse, err error) {
 	resp = new(social.QueryFollowerListResponse)
 	followers, total, err := service.NewSocialService(ctx).GetFollowerList(req.UserId, req.PageNum, req.PageSize)
+	resp.Base = utils.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = utils.BuildBaseResp(err)
 		return
 	}
-	resp.Data = followers
-	resp.Total = &total
+	resp.Data = &social.QueryFollowerListData{Items: followers, Total: &total}
 	return
 }
 
@@ -49,11 +47,10 @@ func (s *SocialServiceImpl) QueryFollowerList(ctx context.Context, req *social.Q
 func (s *SocialServiceImpl) QueryFriendList(ctx context.Context, req *social.QueryFriendListRequest) (resp *social.QueryFriendListResponse, err error) {
 	resp = new(social.QueryFriendListResponse)
 	friends, total, err := service.NewSocialService(ctx).GetFriendList(req.UserId, req.PageNum, req.PageSize)
+	resp.Base = utils.BuildBaseResp(err)
 	if err != nil {
-		resp.Base = utils.BuildBaseResp(err)
 		return
 	}
-	resp.Data = friends
-	resp.Total = &total
+	resp.Data = &social.QueryFriendListData{Items: friends, Total: &total}
 	return
 }

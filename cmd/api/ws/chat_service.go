@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cloudwego/hertz/pkg/app"
 
@@ -14,7 +15,7 @@ import (
 type ChatService struct {
 	ctx    context.Context
 	c      *app.RequestContext
-	userID int64
+	userID string
 }
 
 func NewChatService(ctx context.Context, c *app.RequestContext) *ChatService {
@@ -29,7 +30,7 @@ func (s *ChatService) SendPrivateMessage(toUserID int64, content string) error {
 	req := &chat.SendPrivateMessageRequest{
 		Data: &base.PrivateMessage{
 			FromUserId: s.userID,
-			ToUserId:   toUserID,
+			ToUserId:   strconv.FormatInt(toUserID, 10),
 			Content:    content,
 		},
 	}
@@ -41,7 +42,7 @@ func (s *ChatService) SendPrivateMessage(toUserID int64, content string) error {
 func (s *ChatService) GetPrivateOfflineMessage(toUserID int64, pageNum, pageSize int64) ([]*base.PrivateMessage, error) {
 	req := &chat.QueryPrivateOfflineMessageRequest{
 		UserId:   s.userID,
-		ToUserId: toUserID,
+		ToUserId: strconv.FormatInt(toUserID, 10),
 		PageNum:  pageNum,
 		PageSize: pageSize,
 	}
@@ -50,14 +51,17 @@ func (s *ChatService) GetPrivateOfflineMessage(toUserID int64, pageNum, pageSize
 	if err != nil {
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, nil
+	}
 
-	return resp.Data, nil
+	return resp.Data.Items, nil
 }
 
 func (s *ChatService) GetPrivateHistoryMessage(toUserID int64, pageNum, pageSize int64) ([]*base.PrivateMessage, error) {
 	req := &chat.QueryPrivateHistoryMessageRequest{
 		UserId:   s.userID,
-		ToUserId: toUserID,
+		ToUserId: strconv.FormatInt(toUserID, 10),
 		PageNum:  pageNum,
 		PageSize: pageSize,
 	}
@@ -66,15 +70,18 @@ func (s *ChatService) GetPrivateHistoryMessage(toUserID int64, pageNum, pageSize
 	if err != nil {
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, nil
+	}
 
-	return resp.Data, nil
+	return resp.Data.Items, nil
 }
 
 func (s *ChatService) SendGroupMessage(groupID int64, content string) error {
 	req := &chat.SendGroupMessageRequest{
 		Data: &base.GroupMessage{
 			FromUserId: s.userID,
-			GroupId:    groupID,
+			GroupId:    strconv.FormatInt(groupID, 10),
 			Content:    content,
 		},
 	}
@@ -86,7 +93,7 @@ func (s *ChatService) SendGroupMessage(groupID int64, content string) error {
 func (s *ChatService) GetGroupOfflineMessage(groupID int64, pageNum, pageSize int64) ([]*base.GroupMessage, error) {
 	req := &chat.QueryGroupOfflineMessageRequest{
 		UserId:   s.userID,
-		GroupId:  groupID,
+		GroupId:  strconv.FormatInt(groupID, 10),
 		PageNum:  pageNum,
 		PageSize: pageSize,
 	}
@@ -95,14 +102,17 @@ func (s *ChatService) GetGroupOfflineMessage(groupID int64, pageNum, pageSize in
 	if err != nil {
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, nil
+	}
 
-	return resp.Data, nil
+	return resp.Data.Items, nil
 }
 
 func (s *ChatService) GetGroupHistoryMessage(groupID int64, pageNum, pageSize int64) ([]*base.GroupMessage, error) {
 	req := &chat.QueryGroupHistoryMessageRequest{
 		UserId:   s.userID,
-		GroupId:  groupID,
+		GroupId:  strconv.FormatInt(groupID, 10),
 		PageNum:  pageNum,
 		PageSize: pageSize,
 	}
@@ -111,13 +121,16 @@ func (s *ChatService) GetGroupHistoryMessage(groupID int64, pageNum, pageSize in
 	if err != nil {
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, nil
+	}
 
-	return resp.Data, nil
+	return resp.Data.Items, nil
 }
 
 func (s *ChatService) GetGroupMembers(groupID int64) ([]int64, error) {
 	req := &chat.QueryGroupMembersRequest{
-		GroupId: groupID,
+		GroupId: strconv.FormatInt(groupID, 10),
 	}
 
 	resp, err := rpc.QueryGroupMembers(s.ctx, req)
@@ -130,8 +143,8 @@ func (s *ChatService) GetGroupMembers(groupID int64) ([]int64, error) {
 
 func (s *ChatService) CheckUserExistInGroup(userID, groupID int64) (bool, error) {
 	req := &chat.CheckUserExistInGroupRequest{
-		UserId:  userID,
-		GroupId: groupID,
+		UserId:  strconv.FormatInt(userID, 10),
+		GroupId: strconv.FormatInt(groupID, 10),
 	}
 
 	resp, err := rpc.CheckUserExistInGroup(s.ctx, req)

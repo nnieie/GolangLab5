@@ -48,7 +48,7 @@ var fieldIDToName_RegisterRequest = map[int16]string{
 
 type RegisterResponse struct {
 	Base   *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	UserId *int64         `thrift:"user_id,2,optional" frugal:"2,optional,i64" json:"user_id,omitempty"`
+	UserId *string        `thrift:"user_id,2,optional" frugal:"2,optional,string" json:"user_id,omitempty"`
 }
 
 func NewRegisterResponse() *RegisterResponse {
@@ -67,9 +67,9 @@ func (p *RegisterResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var RegisterResponse_UserId_DEFAULT int64
+var RegisterResponse_UserId_DEFAULT string
 
-func (p *RegisterResponse) GetUserId() (v int64) {
+func (p *RegisterResponse) GetUserId() (v string) {
 	if !p.IsSetUserId() {
 		return RegisterResponse_UserId_DEFAULT
 	}
@@ -78,7 +78,7 @@ func (p *RegisterResponse) GetUserId() (v int64) {
 func (p *RegisterResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *RegisterResponse) SetUserId(val *int64) {
+func (p *RegisterResponse) SetUserId(val *string) {
 	p.UserId = val
 }
 
@@ -215,7 +215,7 @@ var fieldIDToName_LoginResponse = map[int16]string{
 }
 
 type UserInfoRequest struct {
-	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	UserId string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
 }
 
 func NewUserInfoRequest() *UserInfoRequest {
@@ -225,10 +225,10 @@ func NewUserInfoRequest() *UserInfoRequest {
 func (p *UserInfoRequest) InitDefault() {
 }
 
-func (p *UserInfoRequest) GetUserId() (v int64) {
+func (p *UserInfoRequest) GetUserId() (v string) {
 	return p.UserId
 }
-func (p *UserInfoRequest) SetUserId(val int64) {
+func (p *UserInfoRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -300,9 +300,8 @@ var fieldIDToName_UserInfoResponse = map[int16]string{
 }
 
 type UploadAvatarRequest struct {
-	Data     []byte `thrift:"data,1" frugal:"1,default,binary" json:"data"`
-	UserId   int64  `thrift:"user_id,2" frugal:"2,default,i64" json:"user_id"`
-	FileName string `thrift:"file_name,3" frugal:"3,default,string" json:"file_name"`
+	UserId    string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	Avatarurl string `thrift:"avatarurl,2" frugal:"2,default,string" json:"avatarurl"`
 }
 
 func NewUploadAvatarRequest() *UploadAvatarRequest {
@@ -312,25 +311,18 @@ func NewUploadAvatarRequest() *UploadAvatarRequest {
 func (p *UploadAvatarRequest) InitDefault() {
 }
 
-func (p *UploadAvatarRequest) GetData() (v []byte) {
-	return p.Data
-}
-
-func (p *UploadAvatarRequest) GetUserId() (v int64) {
+func (p *UploadAvatarRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
-func (p *UploadAvatarRequest) GetFileName() (v string) {
-	return p.FileName
+func (p *UploadAvatarRequest) GetAvatarurl() (v string) {
+	return p.Avatarurl
 }
-func (p *UploadAvatarRequest) SetData(val []byte) {
-	p.Data = val
-}
-func (p *UploadAvatarRequest) SetUserId(val int64) {
+func (p *UploadAvatarRequest) SetUserId(val string) {
 	p.UserId = val
 }
-func (p *UploadAvatarRequest) SetFileName(val string) {
-	p.FileName = val
+func (p *UploadAvatarRequest) SetAvatarurl(val string) {
+	p.Avatarurl = val
 }
 
 func (p *UploadAvatarRequest) String() string {
@@ -341,9 +333,8 @@ func (p *UploadAvatarRequest) String() string {
 }
 
 var fieldIDToName_UploadAvatarRequest = map[int16]string{
-	1: "data",
-	2: "user_id",
-	3: "file_name",
+	1: "user_id",
+	2: "avatarurl",
 }
 
 type UploadAvatarResponse struct {
@@ -403,7 +394,7 @@ var fieldIDToName_UploadAvatarResponse = map[int16]string{
 }
 
 type GetMFAQrcodeRequest struct {
-	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	UserId string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
 }
 
 func NewGetMFAQrcodeRequest() *GetMFAQrcodeRequest {
@@ -413,10 +404,10 @@ func NewGetMFAQrcodeRequest() *GetMFAQrcodeRequest {
 func (p *GetMFAQrcodeRequest) InitDefault() {
 }
 
-func (p *GetMFAQrcodeRequest) GetUserId() (v int64) {
+func (p *GetMFAQrcodeRequest) GetUserId() (v string) {
 	return p.UserId
 }
-func (p *GetMFAQrcodeRequest) SetUserId(val int64) {
+func (p *GetMFAQrcodeRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -490,7 +481,7 @@ var fieldIDToName_GetMFAQrcodeResponse = map[int16]string{
 type MFABindRequest struct {
 	Code   string `thrift:"code,1" frugal:"1,default,string" json:"code"`
 	Secret string `thrift:"secret,2" frugal:"2,default,string" json:"secret"`
-	UserId int64  `thrift:"user_id,3" frugal:"3,default,i64" json:"user_id"`
+	UserId string `thrift:"user_id,3" frugal:"3,default,string" json:"user_id"`
 }
 
 func NewMFABindRequest() *MFABindRequest {
@@ -508,7 +499,7 @@ func (p *MFABindRequest) GetSecret() (v string) {
 	return p.Secret
 }
 
-func (p *MFABindRequest) GetUserId() (v int64) {
+func (p *MFABindRequest) GetUserId() (v string) {
 	return p.UserId
 }
 func (p *MFABindRequest) SetCode(val string) {
@@ -517,7 +508,7 @@ func (p *MFABindRequest) SetCode(val string) {
 func (p *MFABindRequest) SetSecret(val string) {
 	p.Secret = val
 }
-func (p *MFABindRequest) SetUserId(val int64) {
+func (p *MFABindRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -621,7 +612,7 @@ var fieldIDToName_SearchUserIdsByNameRequest = map[int16]string{
 
 type SearchUserIdsByNameResponse struct {
 	Base    *base.BaseResp `thrift:"base,1" frugal:"1,default,base.BaseResp" json:"base"`
-	UserIds []int64        `thrift:"user_ids,2,optional" frugal:"2,optional,list<i64>" json:"user_ids,omitempty"`
+	UserIds []string       `thrift:"user_ids,2,optional" frugal:"2,optional,list<string>" json:"user_ids,omitempty"`
 }
 
 func NewSearchUserIdsByNameResponse() *SearchUserIdsByNameResponse {
@@ -640,9 +631,9 @@ func (p *SearchUserIdsByNameResponse) GetBase() (v *base.BaseResp) {
 	return p.Base
 }
 
-var SearchUserIdsByNameResponse_UserIds_DEFAULT []int64
+var SearchUserIdsByNameResponse_UserIds_DEFAULT []string
 
-func (p *SearchUserIdsByNameResponse) GetUserIds() (v []int64) {
+func (p *SearchUserIdsByNameResponse) GetUserIds() (v []string) {
 	if !p.IsSetUserIds() {
 		return SearchUserIdsByNameResponse_UserIds_DEFAULT
 	}
@@ -651,7 +642,7 @@ func (p *SearchUserIdsByNameResponse) GetUserIds() (v []int64) {
 func (p *SearchUserIdsByNameResponse) SetBase(val *base.BaseResp) {
 	p.Base = val
 }
-func (p *SearchUserIdsByNameResponse) SetUserIds(val []int64) {
+func (p *SearchUserIdsByNameResponse) SetUserIds(val []string) {
 	p.UserIds = val
 }
 
@@ -676,7 +667,7 @@ var fieldIDToName_SearchUserIdsByNameResponse = map[int16]string{
 }
 
 type QueryUserByIDRequest struct {
-	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	UserId string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
 }
 
 func NewQueryUserByIDRequest() *QueryUserByIDRequest {
@@ -686,10 +677,10 @@ func NewQueryUserByIDRequest() *QueryUserByIDRequest {
 func (p *QueryUserByIDRequest) InitDefault() {
 }
 
-func (p *QueryUserByIDRequest) GetUserId() (v int64) {
+func (p *QueryUserByIDRequest) GetUserId() (v string) {
 	return p.UserId
 }
-func (p *QueryUserByIDRequest) SetUserId(val int64) {
+func (p *QueryUserByIDRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -761,7 +752,7 @@ var fieldIDToName_QueryUserByIDResponse = map[int16]string{
 }
 
 type QueryUsersByIDsRequest struct {
-	UserIds []int64 `thrift:"user_ids,1" frugal:"1,default,list<i64>" json:"user_ids"`
+	UserIds []string `thrift:"user_ids,1" frugal:"1,default,list<string>" json:"user_ids"`
 }
 
 func NewQueryUsersByIDsRequest() *QueryUsersByIDsRequest {
@@ -771,10 +762,10 @@ func NewQueryUsersByIDsRequest() *QueryUsersByIDsRequest {
 func (p *QueryUsersByIDsRequest) InitDefault() {
 }
 
-func (p *QueryUsersByIDsRequest) GetUserIds() (v []int64) {
+func (p *QueryUsersByIDsRequest) GetUserIds() (v []string) {
 	return p.UserIds
 }
-func (p *QueryUsersByIDsRequest) SetUserIds(val []int64) {
+func (p *QueryUsersByIDsRequest) SetUserIds(val []string) {
 	p.UserIds = val
 }
 
@@ -846,7 +837,7 @@ var fieldIDToName_QueryUsersByIDsResponse = map[int16]string{
 }
 
 type GetLastLogoutTimeRequest struct {
-	UserId int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
+	UserId string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
 }
 
 func NewGetLastLogoutTimeRequest() *GetLastLogoutTimeRequest {
@@ -856,10 +847,10 @@ func NewGetLastLogoutTimeRequest() *GetLastLogoutTimeRequest {
 func (p *GetLastLogoutTimeRequest) InitDefault() {
 }
 
-func (p *GetLastLogoutTimeRequest) GetUserId() (v int64) {
+func (p *GetLastLogoutTimeRequest) GetUserId() (v string) {
 	return p.UserId
 }
-func (p *GetLastLogoutTimeRequest) SetUserId(val int64) {
+func (p *GetLastLogoutTimeRequest) SetUserId(val string) {
 	p.UserId = val
 }
 
@@ -931,8 +922,8 @@ var fieldIDToName_GetLastLogoutTimeResponse = map[int16]string{
 }
 
 type UpdateLastLogoutTimeRequest struct {
-	UserId     int64 `thrift:"user_id,1" frugal:"1,default,i64" json:"user_id"`
-	LogoutTime int64 `thrift:"logout_time,2" frugal:"2,default,i64" json:"logout_time"`
+	UserId     string `thrift:"user_id,1" frugal:"1,default,string" json:"user_id"`
+	LogoutTime int64  `thrift:"logout_time,2" frugal:"2,default,i64" json:"logout_time"`
 }
 
 func NewUpdateLastLogoutTimeRequest() *UpdateLastLogoutTimeRequest {
@@ -942,14 +933,14 @@ func NewUpdateLastLogoutTimeRequest() *UpdateLastLogoutTimeRequest {
 func (p *UpdateLastLogoutTimeRequest) InitDefault() {
 }
 
-func (p *UpdateLastLogoutTimeRequest) GetUserId() (v int64) {
+func (p *UpdateLastLogoutTimeRequest) GetUserId() (v string) {
 	return p.UserId
 }
 
 func (p *UpdateLastLogoutTimeRequest) GetLogoutTime() (v int64) {
 	return p.LogoutTime
 }
-func (p *UpdateLastLogoutTimeRequest) SetUserId(val int64) {
+func (p *UpdateLastLogoutTimeRequest) SetUserId(val string) {
 	p.UserId = val
 }
 func (p *UpdateLastLogoutTimeRequest) SetLogoutTime(val int64) {

@@ -145,8 +145,20 @@ func DeleteCommentsByVideoID(ctx context.Context, userID, videoID int64) error {
 		if err != nil {
 			return err
 		}
-		for _, update := range updates {
-			if err := tx.Model(&Comment{}).Where("id = ?", update.ParentID).Update("child_count", gorm.Expr("child_count - ?", update.Count)).Error; err != nil {
+		if len(updates) > 0 {
+			query := "UPDATE comments SET child_count = child_count - CASE id "
+			var args []interface{}
+			var ids []int64
+
+			for _, update := range updates {
+				query += "WHEN ? THEN ? "
+				args = append(args, update.ParentID, update.Count)
+				ids = append(ids, update.ParentID)
+			}
+			query += "END WHERE id IN ?"
+			args = append(args, ids)
+
+			if err := tx.Exec(query, args...).Error; err != nil {
 				return err
 			}
 		}

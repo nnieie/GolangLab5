@@ -28,8 +28,7 @@ func (s *VideoServiceImpl) GetPublishList(ctx context.Context, req *video.GetPub
 	resp = new(video.GetPublishListResponse)
 	videos, total, err := service.NewVideoService(ctx, s.Snowflake).GetVideoList(req.UserId, req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = videos
-	resp.Total = &total
+	resp.Data = &video.GetPublishListData{Items: videos, Total: &total}
 	return
 }
 
@@ -38,8 +37,7 @@ func (s *VideoServiceImpl) SearchVideo(ctx context.Context, req *video.SearchVid
 	resp = new(video.SearchVideoResponse)
 	videos, total, err := service.NewVideoService(ctx, s.Snowflake).SearchVideo(req.Keywords, req.PageNum, req.PageSize, req.FromDate, req.ToDate, req.Username)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = videos
-	resp.Total = &total
+	resp.Data = &video.SearchVideoData{Items: videos, Total: &total}
 	return
 }
 
@@ -48,7 +46,7 @@ func (s *VideoServiceImpl) GetPopularVideo(ctx context.Context, req *video.GetPo
 	resp = new(video.GetPopularVideoListResponse)
 	videos, err := service.NewVideoService(ctx, s.Snowflake).GetPopularVideo(req.PageNum, req.PageSize)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = videos
+	resp.Data = &video.GetPopularVideoListData{Items: videos}
 	return
 }
 
@@ -57,7 +55,7 @@ func (s *VideoServiceImpl) GetVideoStream(ctx context.Context, req *video.VideoS
 	resp = new(video.VideoStreamResponse)
 	videos, err := service.NewVideoService(ctx, s.Snowflake).FeedVideo(req.LatestTime)
 	resp.Base = utils.BuildBaseResp(err)
-	resp.Data = videos
+	resp.Data = &video.VideoStreamData{Items: videos}
 	return
 }
 
@@ -99,6 +97,15 @@ func (s *VideoServiceImpl) UpdateVideoLikeCount(ctx context.Context, req *video.
 	resp *video.UpdateVideoLikeCountResponse, err error) {
 	resp = new(video.UpdateVideoLikeCountResponse)
 	err = service.NewVideoService(ctx, s.Snowflake).UpdateVideoLikeCount(req.VideoId, req.Delta)
+	resp.Base = utils.BuildBaseResp(err)
+	return
+}
+
+// BatchUpdateVideoLikeCount implements the VideoServiceImpl interface.
+func (s *VideoServiceImpl) BatchUpdateVideoLikeCount(ctx context.Context, req *video.BatchUpdateVideoLikeCountRequest) (
+	resp *video.BatchUpdateVideoLikeCountResponse, err error) {
+	resp = new(video.BatchUpdateVideoLikeCountResponse)
+	err = service.NewVideoService(ctx, s.Snowflake).BatchUpdateVideoLikeCount(req.VideoLikeCounts)
 	resp.Base = utils.BuildBaseResp(err)
 	return
 }
