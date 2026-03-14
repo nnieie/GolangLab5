@@ -6,7 +6,6 @@ import (
 
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/cache"
 	"github.com/nnieie/golanglab5/cmd/interaction/kafka"
-	"github.com/nnieie/golanglab5/pkg/errno"
 )
 
 func (s *interactionService) LikeAction(userID string, actionType int64, videoID, commentID *string) error {
@@ -46,10 +45,10 @@ func (s *interactionService) LikeAction(userID string, actionType int64, videoID
 		return err
 	}
 	if actionType == 1 && exists {
-		return errno.LikeAlreadyExistErr
+		return nil
 	}
 	if actionType == 2 && !exists {
-		return errno.LikeIsNotExistErr
+		return nil
 	}
 
 	//  更新 Redis

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/nnieie/golanglab5/cmd/video/dal/db"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 // TODO: 分片上传
@@ -32,5 +33,6 @@ func (s *VideoService) PublishVideo(userID string, video io.Reader, fileName str
 	if err != nil {
 		return err
 	}
+	tracer.VideoPublishCounter.Add(s.ctx, 1)
 	return nil
 }

@@ -11,6 +11,7 @@ const (
 	ParamErrCode
 	AuthorizationFailedErrCode
 	InvalidFileTypeErrCode
+	FileTooLargeErrCode
 
 	UserAlreadyExistErrCode
 	UserIsNotExistErrCode
@@ -49,6 +50,7 @@ const (
 	ServerErrMsg                   = "service is unable to start successfully"
 	ParamErrMsg                    = "wrong parameter has been given"
 	InvalidFileTypeErrMsg          = "invalid file type"
+	FileTooLargeErrMsg             = "file is too large"
 	UserIsNotExistErrMsg           = "user is not exist"
 	UserIsNotExistOrPasswordErrMsg = "username or password error"
 	FavoriteActionErrMsg           = "favorite add failed"
@@ -98,6 +100,7 @@ var (
 	UserAlreadyExistErr             = NewErrNo(UserAlreadyExistErrCode, "User already exists")
 	AuthorizationFailedErr          = NewErrNo(AuthorizationFailedErrCode, "Authorization failed")
 	InvalidFileTypeErr              = NewErrNo(InvalidFileTypeErrCode, InvalidFileTypeErrMsg)
+	FileTooLargeErr                 = NewErrNo(FileTooLargeErrCode, FileTooLargeErrMsg)
 	UserIsNotExistErr               = NewErrNo(UserIsNotExistErrCode, UserIsNotExistErrMsg)
 	UserIsNotExistOrPasswordErr     = NewErrNo(AuthorizationFailedErrCode, UserIsNotExistOrPasswordErrMsg)
 	FollowRelationAlreadyExistErr   = NewErrNo(FollowRelationAlreadyExistErrCode, "Follow Relation already exist")

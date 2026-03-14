@@ -5,9 +5,13 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/kafka"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 func SendLikeEvent(ctx context.Context, userID int64, videoID, commentID *int64, action int64) {
@@ -27,7 +31,15 @@ func SendLikeEvent(ctx context.Context, userID int64, videoID, commentID *int64,
 	})
 	if err != nil {
 		logger.Errorf("kafka send msg failed: %v", err)
+		tracer.MQProduceCounter.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("topic", constants.LikeTopic),
+			attribute.String("status", "fail"),
+		))
 	} else {
 		logger.Infof("Successfully sent like event to Kafka")
+		tracer.MQProduceCounter.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("topic", constants.LikeTopic),
+			attribute.String("status", "success"),
+		))
 	}
 }

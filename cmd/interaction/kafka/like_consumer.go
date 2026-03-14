@@ -6,9 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+
 	"github.com/nnieie/golanglab5/cmd/interaction/dal/db"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 const maxBatchSize = 500
@@ -109,18 +113,42 @@ func processLikeBatch(ctx context.Context, batch []*LikeEvent) error {
 	if len(likesToInsert) > 0 {
 		if err := db.BatchLikeAction(ctx, likesToInsert); err != nil {
 			logger.Errorf("Failed to batch insert likes: %v", err)
+			tracer.MQConsumeCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("topic", constants.LikeTopic),
+				attribute.String("status", "fail"),
+				attribute.String("error_type", "db_insert_error"),
+			))
 			return err
 		}
 		logger.Infof("Successfully inserted %d likes", len(likesToInsert))
+		tracer.MQConsumeCounter.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("topic", constants.LikeTopic),
+			attribute.String("status", "success"),
+		))
+		tracer.InteractionLikeCounter.Add(ctx, int64(len(likesToInsert)), metric.WithAttributes(
+			attribute.String("action", "like"),
+		))
 	}
 
 	// 批量删除点赞
 	if len(likesToDelete) > 0 {
 		if err := db.BatchUnlikeAction(ctx, likesToDelete); err != nil {
 			logger.Errorf("Failed to batch delete likes: %v", err)
+			tracer.MQConsumeCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("topic", constants.LikeTopic),
+				attribute.String("status", "fail"),
+				attribute.String("error_type", "db_delete_error"),
+			))
 			return err
 		}
 		logger.Infof("Successfully deleted %d likes", len(likesToDelete))
+		tracer.MQConsumeCounter.Add(ctx, 1, metric.WithAttributes(
+			attribute.String("topic", constants.LikeTopic),
+			attribute.String("status", "success"),
+		))
+		tracer.InteractionLikeCounter.Add(ctx, int64(len(likesToDelete)), metric.WithAttributes(
+			attribute.String("action", "unlike"),
+		))
 	}
 
 	return nil

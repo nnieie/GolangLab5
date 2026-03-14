@@ -36,12 +36,20 @@ func main() {
 		logger.Fatalf("init tracer failed: %v", err)
 	}
 
+	shutdownMetrics, err := tracer.InitMetrics(constants.UserServiceName, constants.OpenTelemetryCollectorEndpoint)
+	if err != nil {
+		logger.Fatalf("init metrics failed: %v", err)
+	}
+
 	// 程序退出前把最后的 Trace 数据发出去
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), constants.ShutdownTimeout)
 		defer cancel()
 		if err := shutdown(ctx); err != nil {
 			logger.Errorf("shutdown tracer failed: %v", err)
+		}
+		if err := shutdownMetrics(ctx); err != nil {
+			logger.Errorf("shutdown metrics failed: %v", err)
 		}
 	}()
 

@@ -61,7 +61,8 @@ func QueryCommentByID(ctx context.Context, id int64) (*Comment, error) {
 
 func QueryCommentByVideoID(ctx context.Context, videoID int64, pageNum, pageSize int64) ([]*Comment, error) {
 	var comments []*Comment
-	err := DB.WithContext(ctx).Model(&Comment{}).Where("video_id = ?", videoID).Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&comments).Error
+	err := DB.WithContext(ctx).Model(&Comment{}).Where("video_id = ?", videoID).Order("id DESC").
+		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&comments).Error
 	if err != nil {
 		return nil, err
 	}
