@@ -5,6 +5,7 @@ package api
 import (
 	"context"
 	"fmt"
+
 	"github.com/apache/thrift/lib/go/thrift"
 	"github.com/nnieie/golanglab5/cmd/api/biz/model/base"
 )

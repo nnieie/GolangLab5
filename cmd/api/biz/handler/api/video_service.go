@@ -3,8 +3,8 @@
 package api
 
 import (
-	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -19,6 +19,8 @@ import (
 	"github.com/nnieie/golanglab5/pkg/errno"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
+
+const sniffLen = 512
 
 // PublishVideo .
 // @router /video/publish [POST]
@@ -45,6 +47,14 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		pack.SendErrResp(c, err)
 		return
 	}
+	if file.Size <= 0 {
+		pack.SendErrResp(c, errno.ParamErr.WithMessage("video file is empty"))
+		return
+	}
+	if file.Size > constants.MaxVideoSize {
+		pack.SendErrResp(c, errno.FileTooLargeErr.WithMessage("video file exceeds upload limit"))
+		return
+	}
 	openedFile, err := file.Open()
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -52,32 +62,34 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	}
 	defer openedFile.Close()
 
-	// 读取前512字节用于验证文件类型
-	header := make([]byte, 512)
-	if _, err := openedFile.Read(header); err != nil {
+	// 读取前 512 字节用于验证文件类型
+	header := make([]byte, sniffLen)
+	n, err := io.ReadFull(openedFile, header)
+	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
 		pack.SendErrResp(c, err)
 		return
 	}
-	contentType := http.DetectContentType(header)
+	contentType := http.DetectContentType(header[:n])
 	if contentType != "video/mp4" && contentType != "video/x-msvideo" && contentType != "video/x-ms-wmv" &&
 		contentType != "video/x-flv" && contentType != "video/quicktime" {
 		pack.SendErrResp(c, errno.InvalidFileTypeErr)
 		return
 	}
 
-	// 把header恢复回去并限制整体读取大小
-	reader := io.MultiReader(bytes.NewReader(header), io.LimitReader(openedFile, constants.MaxVideoSize))
+	if _, err := openedFile.Seek(0, io.SeekStart); err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
 
-	// 把内容读到buffer
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, reader); err != nil {
+	videoData, err := io.ReadAll(io.LimitReader(openedFile, constants.MaxVideoSize))
+	if err != nil {
 		pack.SendErrResp(c, err)
 		return
 	}
 
 	rpcResp, err := rpc.PublishVideo(ctx, &video.PublishRequest{
 		UserId:      UserID,
-		Video:       buf.Bytes(),
+		Video:       videoData,
 		FileName:    file.Filename,
 		Title:       req.Title,
 		Description: req.Description,

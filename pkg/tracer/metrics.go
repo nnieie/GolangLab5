@@ -3,9 +3,10 @@ package tracer
 import (
 	"context"
 	"fmt"
-	"runtime"
+	"time"
 
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
@@ -14,6 +15,8 @@ import (
 )
 
 var (
+	metricExportInterval = 5 * time.Second
+
 	// 请求计数器
 	RequestCounter metric.Int64Counter
 
@@ -23,8 +26,23 @@ var (
 	// 错误计数器
 	ErrorCounter metric.Int64Counter
 
-	// 活跃 Goroutine 数量
-	GoroutineGauge metric.Int64ObservableGauge
+	// 互动服务
+	InteractionLikeCounter    metric.Int64Counter // 点赞/取消赞计数 (Tags: action="like"|"unlike")
+	InteractionCommentCounter metric.Int64Counter // 评论发布数 (Tags: action="add"|"delete")
+
+	// 视频服务
+	VideoPublishCounter metric.Int64Counter // 视频投稿量
+
+	// 聊天服务
+	ChatMessageCounter metric.Int64Counter // 消息发送量
+
+	// 用户服务
+	UserRegisterCounter metric.Int64Counter // 新用户注册量
+	UserLoginCounter    metric.Int64Counter // 用户登录成功/失败情况 (Tags: status="success"|"fail")
+
+	// Kafka
+	MQProduceCounter metric.Int64Counter // 消息发送成功/失败次数 (Tags: topic, status="success"|"fail")
+	MQConsumeCounter metric.Int64Counter // 消费者处理成功/失败次数 (Tags: topic, status="success"|"fail", error_type)
 )
 
 // InitMetrics 初始化 Metrics
@@ -51,10 +69,21 @@ func InitMetrics(serviceName string, collectorAddr string) (func(context.Context
 		return nil, fmt.Errorf("failed to create resource: %w", err)
 	}
 
+	// 定义直方图分桶 View
+	durationView := sdkmetric.NewView(
+		sdkmetric.Instrument{Name: "http_request_duration_seconds"},
+		sdkmetric.Stream{
+			Aggregation: sdkmetric.AggregationExplicitBucketHistogram{
+				Boundaries: []float64{0.005, 0.01, 0.02, 0.035, 0.05, 0.075, 0.1, 0.25, 0.5, 1, 2.5, 5},
+			},
+		},
+	)
+
 	// 创建 MeterProvider
 	mp := sdkmetric.NewMeterProvider(
-		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter)),
+		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter, sdkmetric.WithInterval(metricExportInterval))),
 		sdkmetric.WithResource(res),
+		sdkmetric.WithView(durationView),
 	)
 
 	otel.SetMeterProvider(mp)
@@ -87,13 +116,71 @@ func InitMetrics(serviceName string, collectorAddr string) (func(context.Context
 		return nil, err
 	}
 
-	GoroutineGauge, err = meter.Int64ObservableGauge(
-		"runtime_goroutines",
-		metric.WithDescription("Number of live goroutines"),
-		metric.WithInt64Callback(func(ctx context.Context, observer metric.Int64Observer) error {
-			observer.Observe(int64(runtime.NumGoroutine()))
-			return nil
-		}),
+	// 业务指标初始化
+
+	InteractionLikeCounter, err = meter.Int64Counter(
+		"biz_interaction_like_total",
+		metric.WithDescription("Total number of video likes/unlikes"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	InteractionLikeCounter.Add(ctx, 0, metric.WithAttributes(attribute.String("action", "like")))
+	InteractionLikeCounter.Add(ctx, 0, metric.WithAttributes(attribute.String("action", "unlike")))
+
+	InteractionCommentCounter, err = meter.Int64Counter(
+		"biz_interaction_comment_total",
+		metric.WithDescription("Total number of published/deleted comments"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	InteractionCommentCounter.Add(ctx, 0, metric.WithAttributes(attribute.String("action", "add")))
+	InteractionCommentCounter.Add(ctx, 0, metric.WithAttributes(attribute.String("action", "delete")))
+
+	VideoPublishCounter, err = meter.Int64Counter(
+		"biz_video_publish_total",
+		metric.WithDescription("Total number of published videos"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	ChatMessageCounter, err = meter.Int64Counter(
+		"biz_chat_message_sent_total",
+		metric.WithDescription("Total number of chat messages sent"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	UserRegisterCounter, err = meter.Int64Counter(
+		"biz_user_register_total",
+		metric.WithDescription("Total number of new user registrations"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	UserLoginCounter, err = meter.Int64Counter(
+		"biz_user_login_total",
+		metric.WithDescription("Total number of user logins (success or fail)"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	MQProduceCounter, err = meter.Int64Counter(
+		"biz_mq_produce_total",
+		metric.WithDescription("Total number of Kafka messages produced"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	MQConsumeCounter, err = meter.Int64Counter(
+		"biz_mq_consume_total",
+		metric.WithDescription("Total number of Kafka messages consumed"),
 	)
 	if err != nil {
 		return nil, err

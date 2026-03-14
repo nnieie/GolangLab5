@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/kitex/server"
 	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/nnieie/golanglab5/cmd/user/dal"
 	"github.com/nnieie/golanglab5/config"
@@ -35,12 +36,20 @@ func main() {
 		logger.Fatalf("init tracer failed: %v", err)
 	}
 
+	shutdownMetrics, err := tracer.InitMetrics(constants.UserServiceName, constants.OpenTelemetryCollectorEndpoint)
+	if err != nil {
+		logger.Fatalf("init metrics failed: %v", err)
+	}
+
 	// 程序退出前把最后的 Trace 数据发出去
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), constants.ShutdownTimeout)
 		defer cancel()
 		if err := shutdown(ctx); err != nil {
 			logger.Errorf("shutdown tracer failed: %v", err)
+		}
+		if err := shutdownMetrics(ctx); err != nil {
+			logger.Errorf("shutdown metrics failed: %v", err)
 		}
 	}()
 
@@ -57,6 +66,7 @@ func main() {
 	// 启动 pprof HTTP 服务器
 	go func() {
 		logger.Infof("Starting pprof server on :6061")
+		http.Handle("/metrics", promhttp.Handler())
 		if err := http.ListenAndServe("0.0.0.0:6061", nil); err != nil {
 			logger.Errorf("pprof server failed: %v", err)
 		}

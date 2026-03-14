@@ -9,6 +9,7 @@ import (
 	"github.com/nnieie/golanglab5/cmd/chat/pack"
 	"github.com/nnieie/golanglab5/cmd/chat/rpc"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
+	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
 // 发送群聊消息
@@ -27,6 +28,7 @@ func (s *ChatService) SendGroupMessage(groupID string, fromUserID string, conten
 		return err
 	}
 
+	tracer.ChatMessageCounter.Add(s.ctx, 1)
 	return nil
 }
 

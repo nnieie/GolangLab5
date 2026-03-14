@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -29,6 +28,7 @@ type Snowflake struct {
 	lastTimestamp int64
 	workerID      int64
 	sequence      int64
+	nowFunc       func() int64
 }
 
 func NewSnowflake(workerID int64) (*Snowflake, error) {
@@ -37,6 +37,9 @@ func NewSnowflake(workerID int64) (*Snowflake, error) {
 	}
 	return &Snowflake{
 		workerID: workerID,
+		nowFunc: func() int64 {
+			return time.Now().UnixMilli()
+		},
 	}, nil
 }
 
@@ -47,11 +50,11 @@ func (n *Snowflake) Generate() (int64, error) {
 	defer n.mu.Unlock()
 
 	// 获取当前时间的毫秒数
-	now := time.Now().UnixMilli()
+	now := n.currentTimestamp()
 
-	// 如果当前时间小于上次生成 ID 的时间，说明发生了时钟回拨
+	// 如果系统时钟发生回拨，则继续沿用上一次的逻辑时间，避免业务直接失败。
 	if now < n.lastTimestamp {
-		return 0, errors.New("clock moved backwards, refusing to generate id")
+		now = n.lastTimestamp
 	}
 
 	// 如果是同一毫秒内生成的
@@ -61,9 +64,7 @@ func (n *Snowflake) Generate() (int64, error) {
 		// 如果序列号溢出（回到 0），则表示当前毫秒的 4096 个 ID 已用完
 		if n.sequence == 0 {
 			// 等待下一毫秒
-			for now <= n.lastTimestamp {
-				now = time.Now().UnixMilli()
-			}
+			now = n.waitNextMillis(n.lastTimestamp)
 		}
 	} else {
 		// 如果是新的毫秒，则序列号重置为 0
@@ -78,4 +79,19 @@ func (n *Snowflake) Generate() (int64, error) {
 		n.sequence
 
 	return id, nil
+}
+
+func (n *Snowflake) currentTimestamp() int64 {
+	if n.nowFunc == nil {
+		return time.Now().UnixMilli()
+	}
+	return n.nowFunc()
+}
+
+func (n *Snowflake) waitNextMillis(lastTimestamp int64) int64 {
+	now := n.currentTimestamp()
+	for now <= lastTimestamp {
+		now = n.currentTimestamp()
+	}
+	return now
 }

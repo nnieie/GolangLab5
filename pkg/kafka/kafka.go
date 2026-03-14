@@ -158,11 +158,11 @@ func getNewWriter(config ProducerConfig) *kafka.Writer {
 	writer := &kafka.Writer{
 		Addr:         kafka.TCP(config.Brokers...),
 		Topic:        config.Topic,
-		Balancer:     &kafka.LeastBytes{}, // 负载均衡策略
-		BatchSize:    batchSize,           // 批量发送大小
+		Balancer:     &kafka.Hash{}, // Hash 策略保证相同 Key 的消息发往相同 Partition
+		BatchSize:    batchSize,     // 批量发送大小
 		BatchTimeout: batchTimeout,
 		RequiredAcks: kafka.RequireOne, // 至少一个副本确认
-		Async:        false,            // 同步发送
+		Async:        true,             // 异步发送
 		Compression:  kafka.Snappy,     // 压缩算法
 	}
 	return writer

@@ -43,17 +43,9 @@ start-%:
 
 .PHONY: start-all
 start-all:
-	@for service in $(SERVICES); do \
-		echo "Starting $$service..."; \
-		go run ./cmd/$$service --log-level=debug & \
-	done; \
-	wait
+	@command -v goreman >/dev/null 2>&1 || (echo "Installing goreman..." && go install github.com/mattn/goreman@latest)
+	goreman start 2>&1 | tee -a app.log
 
 .PHONY: stop-all
 stop-all:
-	@for service in $(SERVICES); do \
-		echo "Stopping $$service..."; \
-		pkill -f "go run ./cmd/$$service" 2>/dev/null || true; \
-		pkill -f "cmd/$$service" 2>/dev/null || true; \
-	done
-	@echo "All services stopped."
+	bash cleanup_ports.sh
