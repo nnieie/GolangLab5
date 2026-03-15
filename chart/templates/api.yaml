@@ -33,6 +33,8 @@ spec:
     metadata:
       labels:
         app: {{ .Values.apiGateway.name }}
+      annotations:
+        checksum/config: {{ include "golanglab5.configChecksum" . }}
     spec:
       containers:
       - name: api

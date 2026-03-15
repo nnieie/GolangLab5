@@ -81,6 +81,8 @@ Write-Host "Waiting for Redis..." -ForegroundColor White
 kubectl wait --for=condition=ready pod -l app=redis --timeout=300s
 Write-Host "Waiting for Kafka..." -ForegroundColor White
 kubectl wait --for=condition=ready pod -l app=kafka --timeout=300s
+Write-Host "Waiting for OTel Collector..." -ForegroundColor White
+kubectl wait --for=condition=ready pod -l app=otel-collector --timeout=300s
 
 # 6. 等待服务就绪
 Write-Host ""

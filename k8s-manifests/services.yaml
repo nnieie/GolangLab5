@@ -24,6 +24,8 @@ spec:
     metadata:
       labels:
         app: user-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: user
@@ -103,6 +105,8 @@ spec:
     metadata:
       labels:
         app: video-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: video
@@ -182,6 +186,8 @@ spec:
     metadata:
       labels:
         app: social-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: social
@@ -246,6 +252,8 @@ spec:
     metadata:
       labels:
         app: interaction-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: interaction
@@ -310,6 +318,8 @@ spec:
     metadata:
       labels:
         app: chat-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: chat
@@ -376,6 +386,8 @@ spec:
     metadata:
       labels:
         app: api-gateway
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: api

@@ -60,6 +60,7 @@ kubectl wait --for=condition=ready pod -l app=mysql --timeout=300s
 kubectl wait --for=condition=ready pod -l app=etcd --timeout=300s
 kubectl wait --for=condition=ready pod -l app=redis --timeout=300s
 kubectl wait --for=condition=ready pod -l app=kafka --timeout=300s
+kubectl wait --for=condition=ready pod -l app=otel-collector --timeout=300s
 
 # 6. 等待服务就绪
 echo ""

@@ -108,6 +108,7 @@ kubectl wait --for=condition=ready pod -l app=mysql --timeout=300s
 kubectl wait --for=condition=ready pod -l app=etcd --timeout=300s
 kubectl wait --for=condition=ready pod -l app=redis --timeout=300s
 kubectl wait --for=condition=ready pod -l app=kafka --timeout=300s
+kubectl wait --for=condition=ready pod -l app=otel-collector --timeout=300s
 if ($LASTEXITCODE -ne 0) {
     Write-Host "✗ Middleware pods did not become ready in time" -ForegroundColor Red
     exit 1
