@@ -21,20 +21,21 @@ import (
 	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
-func Init() {
-	logger.InitKlog()
-	config.Init(constants.ChatServiceName)
+func initDependencies() {
 	dal.Init()
 	rpc.InitUserRPC()
 }
 
 func main() {
-	shutdown, err := tracer.InitOpenTelemetry(constants.ChatServiceName, constants.OpenTelemetryCollectorEndpoint)
+	logger.InitKlog()
+	config.Init(constants.ChatServiceName)
+
+	shutdown, err := tracer.InitOpenTelemetry(constants.ChatServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init tracer failed: %v", err)
 	}
 
-	shutdownMetrics, err := tracer.InitMetrics(constants.ChatServiceName, constants.OpenTelemetryCollectorEndpoint)
+	shutdownMetrics, err := tracer.InitMetrics(constants.ChatServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init metrics failed: %v", err)
 	}
@@ -50,7 +51,7 @@ func main() {
 		}
 	}()
 
-	Init()
+	initDependencies()
 
 	// 启动 pprof HTTP 服务器
 	go func() {

@@ -47,3 +47,25 @@ Selector labels
 app.kubernetes.io/name: {{ include "golanglab5.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{- define "golanglab5.r2SecretName" -}}
+{{- default (printf "%s-r2" (include "golanglab5.fullname" .)) .Values.r2.secretName -}}
+{{- end }}
+
+{{- define "golanglab5.r2Env" -}}
+- name: R2_Endpoint
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "golanglab5.r2SecretName" . }}
+      key: endpoint
+- name: R2_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "golanglab5.r2SecretName" . }}
+      key: accessKeyId
+- name: R2_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "golanglab5.r2SecretName" . }}
+      key: secretAccessKey
+{{- end }}

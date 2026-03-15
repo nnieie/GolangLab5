@@ -12,6 +12,12 @@ etcd:
 kafka:
   brokers:
     - 127.0.0.1:9092
+otel:
+  endpoint: 127.0.0.1:4318
+r2:
+  endpoint: http://127.0.0.1:9000
+  accessKeyId: local-dev-access-key
+  secretAccessKey: local-dev-secret-key
 services:
   user:
     name: user
@@ -28,3 +34,6 @@ services:
   chat:
     name: chat
     addr: 127.0.0.1:11397
+  api:
+    name: api
+    addr: 127.0.0.1:8888

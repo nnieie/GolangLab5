@@ -31,7 +31,7 @@ services:
     ports:
       - "9121:9121"
     environment:
-      - REDIS_ADDR=redis://host.docker.internal:6379
+      - REDIS_ADDR=redis://:12345@redis:6379
 
   mysql-exporter:
     image: prom/mysqld-exporter
@@ -57,7 +57,8 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib-dev:latest
     container_name: otel-collector
-    command: [ "--config=/etc/otel-collector-config.yml", "${OTELCOL_ARGS}" ]
+    command:
+      - "--config=/etc/otel-collector-config.yml"
     volumes:
       - ./config/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
@@ -136,7 +137,7 @@ services:
       - "2380:2380"
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_ADVERTISE_CLIENT_URLS=http://host.docker.internal:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://127.0.0.1:23790
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
 
   mysql:
@@ -157,6 +158,12 @@ services:
   redis:
     image: redis:bookworm
     container_name: redis
+    command:
+      - redis-server
+      - --requirepass
+      - "12345"
+      - --appendonly
+      - "yes"
     ports:
       - "6379:6379"
     volumes:

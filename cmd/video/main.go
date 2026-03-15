@@ -23,21 +23,22 @@ import (
 	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
-func Init() {
-	logger.InitKlog()
-	config.Init(constants.VideoServiceName)
+func initDependencies() {
 	oss.InitR2Client()
 	dal.Init()
 	rpc.InitUserRPC()
 }
 
 func main() {
-	shutdown, err := tracer.InitOpenTelemetry(constants.VideoServiceName, constants.OpenTelemetryCollectorEndpoint)
+	logger.InitKlog()
+	config.Init(constants.VideoServiceName)
+
+	shutdown, err := tracer.InitOpenTelemetry(constants.VideoServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init tracer failed: %v", err)
 	}
 
-	shutdownMetrics, err := tracer.InitMetrics(constants.VideoServiceName, constants.OpenTelemetryCollectorEndpoint)
+	shutdownMetrics, err := tracer.InitMetrics(constants.VideoServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init metrics failed: %v", err)
 	}
@@ -52,7 +53,7 @@ func main() {
 			logger.Errorf("shutdown metrics failed: %v", err)
 		}
 	}()
-	Init()
+	initDependencies()
 
 	// 启动 pprof HTTP 服务器
 	go func() {

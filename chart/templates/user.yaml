@@ -42,6 +42,7 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "user"
+{{ include "golanglab5.r2Env" . | nindent 8 }}
         resources:
           {{- toYaml .Values.services.user.resources | nindent 10 }}
         volumeMounts:

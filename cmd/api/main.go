@@ -29,7 +29,7 @@ func main() {
 	oss.InitR2Client()
 
 	// 初始化 OpenTelemetry
-	shutdown, err := tracer.InitOpenTelemetry(constants.APIServiceName, constants.OpenTelemetryCollectorEndpoint)
+	shutdown, err := tracer.InitOpenTelemetry(constants.APIServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("InitOpenTelemetry failed: %v", err)
 	}
@@ -46,7 +46,7 @@ func main() {
 	// 初始化 OpenTelemetry Metrics
 	shutdownMetrics, err := tracer.InitMetrics(
 		constants.APIServiceName,
-		constants.OpenTelemetryCollectorEndpoint,
+		config.TelemetryEndpoint(),
 	)
 	if err != nil {
 		logger.Fatalf("InitMetrics failed: %v", err)

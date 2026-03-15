@@ -2,12 +2,17 @@
 # Usage: .\deploy-all.ps1
 
 $ErrorActionPreference = "Stop"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Resolve-Path (Join-Path $scriptDir "../..")
+Set-Location $repoRoot
 
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "GolangLab5 Kind Kubernetes Deployment" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 
 $clusterName = "lab5-cluster"
+$releaseName = "golanglab5"
+$requiredEnvVars = @("R2_Endpoint", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY")
 
 # 1. 创建 Kind 集群
 Write-Host ""
@@ -26,7 +31,7 @@ if ($clusters -contains $clusterName) {
 # 2. 构建镜像
 Write-Host ""
 Write-Host "Step 2: Building Docker images..." -ForegroundColor Yellow
-.\build-images.ps1
+& (Join-Path $scriptDir "build-images.ps1")
 if ($LASTEXITCODE -ne 0) {
     Write-Host "✗ Failed to build images" -ForegroundColor Red
     exit 1
@@ -48,24 +53,26 @@ foreach ($service in $services) {
 # kind load docker-image "golanglab5-interaction:v1.0" --name lab5-cluster
 # kind load docker-image "golanglab5-chat:v1.0" --name lab5-cluster
 
-# 4. 创建 ConfigMap
+# 4. 使用 Helm 部署
 Write-Host ""
-Write-Host "Step 4: Creating ConfigMaps..." -ForegroundColor Yellow
-$configMapExists = kubectl get configmap mysql-init-sql 2>$null
-if ($configMapExists) {
-    Write-Host "ConfigMap already exists, skipping..." -ForegroundColor Gray
-} else {
-    kubectl create configmap mysql-init-sql --from-file=config/sql/init.sql
+Write-Host "Step 4: Deploying with Helm..." -ForegroundColor Yellow
+foreach ($envVar in $requiredEnvVars) {
+    if ([string]::IsNullOrWhiteSpace((Get-Item "Env:$envVar" -ErrorAction SilentlyContinue).Value)) {
+        Write-Host "Missing required environment variable: $envVar" -ForegroundColor Red
+        exit 1
+    }
 }
 
-# 5. 部署中间件
-Write-Host ""
-Write-Host "Step 5: Deploying middleware..." -ForegroundColor Yellow
-kubectl apply -f k8s-manifests/middleware.yaml
+helm upgrade --install $releaseName ./chart `
+    --set-file config.configK8sContent=config/config.k8s.yaml `
+    --set-file config.mysqlInitSqlContent=config/sql/init.sql `
+    --set-string r2.endpoint=$env:R2_Endpoint `
+    --set-string r2.accessKeyId=$env:R2_ACCESS_KEY_ID `
+    --set-string r2.secretAccessKey=$env:R2_SECRET_ACCESS_KEY
 
-# 6. 等待中间件就绪
+# 5. 等待中间件就绪
 Write-Host ""
-Write-Host "Step 6: Waiting for middleware to be ready (this may take a few minutes)..." -ForegroundColor Yellow
+Write-Host "Step 5: Waiting for middleware to be ready (this may take a few minutes)..." -ForegroundColor Yellow
 Write-Host "Waiting for MySQL..." -ForegroundColor White
 kubectl wait --for=condition=ready pod -l app=mysql --timeout=300s
 Write-Host "Waiting for Etcd..." -ForegroundColor White
@@ -75,14 +82,9 @@ kubectl wait --for=condition=ready pod -l app=redis --timeout=300s
 Write-Host "Waiting for Kafka..." -ForegroundColor White
 kubectl wait --for=condition=ready pod -l app=kafka --timeout=300s
 
-# 7. 部署微服务
+# 6. 等待服务就绪
 Write-Host ""
-Write-Host "Step 7: Deploying microservices..." -ForegroundColor Yellow
-kubectl apply -f k8s-manifests/services.yaml
-
-# 8. 等待服务就绪
-Write-Host ""
-Write-Host "Step 8: Waiting for services to be ready..." -ForegroundColor Yellow
+Write-Host "Step 6: Waiting for services to be ready..." -ForegroundColor Yellow
 Start-Sleep -Seconds 30
 kubectl get pods
 

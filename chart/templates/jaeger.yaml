@@ -19,6 +19,10 @@ spec:
     targetPort: {{ .Values.jaeger.service.otlpGrpcPort }}
     protocol: TCP
     name: otlp-grpc
+  - port: {{ .Values.jaeger.service.otlpHttpPort }}
+    targetPort: {{ .Values.jaeger.service.otlpHttpPort }}
+    protocol: TCP
+    name: otlp-http
   selector:
     app: jaeger
 ---
@@ -50,5 +54,7 @@ spec:
         - containerPort: {{ .Values.jaeger.service.uiPort }}
           protocol: TCP
         - containerPort: {{ .Values.jaeger.service.otlpGrpcPort }}
+          protocol: TCP
+        - containerPort: {{ .Values.jaeger.service.otlpHttpPort }}
           protocol: TCP
 {{- end }}

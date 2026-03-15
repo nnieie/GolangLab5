@@ -1,6 +1,10 @@
 # PowerShell Script for Building GolangLab5 Docker Images
 # Usage: .\build-images.ps1
 
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Resolve-Path (Join-Path $scriptDir "../..")
+Set-Location $repoRoot
+
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "Building GolangLab5 Docker Images" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
@@ -13,11 +17,11 @@ foreach ($service in $services) {
     Write-Host ""
     Write-Host "Building image for service: $service" -ForegroundColor Yellow
     Write-Host "-----------------------------------" -ForegroundColor Yellow
-    
+
     docker build -t "golanglab5-${service}:v1.0" `
         --build-arg SERVICE_NAME=$service `
-        -f Dockerfile.template .
-    
+        -f Dockerfile .
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Successfully built golanglab5-${service}:v1.0" -ForegroundColor Green
     } else {

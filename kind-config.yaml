@@ -18,9 +18,5 @@ nodes:
   - containerPort: 30686
     hostPort: 16686
     protocol: TCP
-  # Kafka UI
-  - containerPort: 30081
-    hostPort: 8081
-    protocol: TCP
 - role: worker
 - role: worker

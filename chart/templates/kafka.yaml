@@ -8,6 +8,8 @@ metadata:
     app: kafka
     {{- include "golanglab5.labels" . | nindent 4 }}
 spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
   ports:
   - port: {{ .Values.kafka.service.internalPort }}
     targetPort: {{ .Values.kafka.service.internalPort }}
@@ -60,7 +62,7 @@ spec:
         - name: KAFKA_CFG_LISTENERS
           value: "INTERNAL://:{{ .Values.kafka.service.internalPort }},EXTERNAL://:{{ .Values.kafka.service.externalPort }},CONTROLLER://:{{ .Values.kafka.service.controllerPort }}"
         - name: KAFKA_CFG_ADVERTISED_LISTENERS
-          value: "INTERNAL://kafka:{{ .Values.kafka.service.internalPort }},EXTERNAL://kafka:{{ .Values.kafka.service.externalPort }}"
+          value: "INTERNAL://kafka-0.kafka:{{ .Values.kafka.service.internalPort }},EXTERNAL://kafka:{{ .Values.kafka.service.externalPort }}"
         - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
           value: "CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
         - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME

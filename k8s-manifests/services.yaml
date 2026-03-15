@@ -34,6 +34,21 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "user"
+        - name: R2_Endpoint
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: endpoint
+        - name: R2_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: accessKeyId
+        - name: R2_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: secretAccessKey
         resources:
           requests:
             memory: "128Mi"
@@ -98,6 +113,21 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "video"
+        - name: R2_Endpoint
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: endpoint
+        - name: R2_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: accessKeyId
+        - name: R2_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: secretAccessKey
         resources:
           requests:
             memory: "128Mi"
@@ -319,7 +349,7 @@ spec:
             path: config.yaml
 
 ---
-# API Gateway (Hertz HTTP Service)
+# API
 apiVersion: v1
 kind: Service
 metadata:
@@ -356,6 +386,21 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "api"
+        - name: R2_Endpoint
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: endpoint
+        - name: R2_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: accessKeyId
+        - name: R2_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: secretAccessKey
         resources:
           requests:
             memory: "256Mi"

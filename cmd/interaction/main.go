@@ -22,9 +22,7 @@ import (
 	"github.com/nnieie/golanglab5/pkg/tracer"
 )
 
-func Init() {
-	logger.InitKlog()
-	config.Init(constants.InteractionServiceName)
+func initDependencies() {
 	dal.Init()
 	rpc.InitVideoRPC()
 	kafka.InitKafka()
@@ -32,12 +30,15 @@ func Init() {
 }
 
 func main() {
-	shutdown, err := tracer.InitOpenTelemetry(constants.InteractionServiceName, constants.OpenTelemetryCollectorEndpoint)
+	logger.InitKlog()
+	config.Init(constants.InteractionServiceName)
+
+	shutdown, err := tracer.InitOpenTelemetry(constants.InteractionServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init tracer failed: %v", err)
 	}
 
-	shutdownMetrics, err := tracer.InitMetrics(constants.InteractionServiceName, constants.OpenTelemetryCollectorEndpoint)
+	shutdownMetrics, err := tracer.InitMetrics(constants.InteractionServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init metrics failed: %v", err)
 	}
@@ -53,7 +54,7 @@ func main() {
 		}
 	}()
 
-	Init()
+	initDependencies()
 	defer kafka.CloseKafka()
 
 	// 启动 pprof HTTP 服务器
