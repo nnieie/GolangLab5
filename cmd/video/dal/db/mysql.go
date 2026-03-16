@@ -91,7 +91,22 @@ func QueryVideosByIDs(ctx context.Context, videoIDs []string) ([]*Video, error) 
 
 func QueryVideoByLatestTime(ctx context.Context, latestTime time.Time) ([]*Video, error) {
 	var videos []*Video
-	err := DB.WithContext(ctx).Where("created_at > ?", latestTime).Order("created_at DESC").Find(&videos).Error
+	err := DB.WithContext(ctx).
+		Where("created_at > ?", latestTime).
+		Order("created_at DESC, id DESC").
+		Find(&videos).Error
+	if err != nil {
+		return nil, err
+	}
+	return videos, nil
+}
+
+func QueryLatestVideos(ctx context.Context, limit int) ([]*Video, error) {
+	var videos []*Video
+	err := DB.WithContext(ctx).
+		Order("created_at DESC, id DESC").
+		Limit(limit).
+		Find(&videos).Error
 	if err != nil {
 		return nil, err
 	}
