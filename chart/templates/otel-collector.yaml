@@ -1,0 +1,121 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+    {{- include "golanglab5.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+    {{- include "golanglab5.labels" . | nindent 4 }}
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces", "nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["replicasets", "deployments"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+    {{- include "golanglab5.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector
+subjects:
+- kind: ServiceAccount
+  name: otel-collector
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  labels:
+    app: otel-collector
+    {{- include "golanglab5.labels" . | nindent 4 }}
+data:
+  otel-collector-config.yml: |
+{{ include "golanglab5.otelCollectorConfig" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 4318
+    targetPort: 4318
+    protocol: TCP
+    name: otlp-http
+  - port: 8889
+    targetPort: 8889
+    protocol: TCP
+    name: metrics
+  selector:
+    app: otel-collector
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  labels:
+    app: otel-collector
+    {{- include "golanglab5.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+      annotations:
+        checksum/config: {{ include "golanglab5.otelCollectorConfigChecksum" . }}
+    spec:
+      serviceAccountName: otel-collector
+      containers:
+      - name: otel-collector
+        image: otel/opentelemetry-collector-contrib:latest
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        args:
+        - --config=/conf/otel-collector-config.yml
+        ports:
+        - containerPort: 4318
+          protocol: TCP
+        - containerPort: 8889
+          protocol: TCP
+        - containerPort: 13133
+          protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: 13133
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 13133
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: config
+          mountPath: /conf
+      volumes:
+      - name: config
+        configMap:
+          name: otel-collector-config

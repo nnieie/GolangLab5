@@ -47,3 +47,85 @@ Selector labels
 app.kubernetes.io/name: {{ include "golanglab5.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{- define "golanglab5.r2SecretName" -}}
+{{- default (printf "%s-r2" (include "golanglab5.fullname" .)) .Values.r2.secretName -}}
+{{- end }}
+
+{{- define "golanglab5.r2Env" -}}
+- name: R2_Endpoint
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "golanglab5.r2SecretName" . }}
+      key: endpoint
+- name: R2_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "golanglab5.r2SecretName" . }}
+      key: accessKeyId
+- name: R2_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "golanglab5.r2SecretName" . }}
+      key: secretAccessKey
+{{- end }}
+
+{{- define "golanglab5.configChecksum" -}}
+{{- required "set config.configK8sContent via --set-file config.configK8sContent=config/config.k8s.yaml" .Values.config.configK8sContent | sha256sum -}}
+{{- end }}
+
+{{- define "golanglab5.otelCollectorConfig" -}}
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  k8sattributes:
+    auth_type: serviceAccount
+    extract:
+      metadata:
+        - k8s.namespace.name
+        - k8s.pod.name
+        - k8s.node.name
+        - k8s.deployment.name
+    pod_association:
+      - sources:
+          - from: connection
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: app
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, k8sattributes, batch]
+      exporters: [otlp/jaeger]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, k8sattributes, batch]
+      exporters: [prometheus]
+{{- end }}
+
+{{- define "golanglab5.otelCollectorConfigChecksum" -}}
+{{- include "golanglab5.otelCollectorConfig" . | sha256sum -}}
+{{- end }}

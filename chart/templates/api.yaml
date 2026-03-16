@@ -33,6 +33,8 @@ spec:
     metadata:
       labels:
         app: {{ .Values.apiGateway.name }}
+      annotations:
+        checksum/config: {{ include "golanglab5.configChecksum" . }}
     spec:
       containers:
       - name: api
@@ -44,6 +46,7 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "api"
+{{ include "golanglab5.r2Env" . | nindent 8 }}
         resources:
           {{- toYaml .Values.apiGateway.resources | nindent 10 }}
         volumeMounts:

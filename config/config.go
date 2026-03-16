@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
 )
 
@@ -14,6 +15,7 @@ var (
 	Redis        *redis
 	Etcd         *etcd
 	Kafka        *kafkaConfig
+	OTel         *otelConfig
 	Service      *service
 	CFR2Config   *cfR2Config
 	runtimeViper = viper.New()
@@ -63,20 +65,35 @@ func ReadConfigFile(serviceName string) {
 	Redis = &c.Redis
 	Etcd = &c.Etcd
 	Kafka = &c.Kafka
+	OTel = &c.OTel
+	CFR2Config = &c.R2
+}
+
+func TelemetryEndpoint() string {
+	if OTel != nil && OTel.Endpoint != "" {
+		return OTel.Endpoint
+	}
+	return constants.OpenTelemetryCollectorEndpoint
 }
 
 func LoadR2ConfigFromEnv() {
+	if CFR2Config == nil {
+		CFR2Config = &cfR2Config{}
+	}
+
 	CFR2Config = &cfR2Config{
-		Endpoint:        getEnv("R2_Endpoint", "R2_Endpoint"),
-		AccessKeyID:     getEnv("R2_ACCESS_KEY_ID", "R2_ACCESS_KEY_ID"),
-		SecretAccessKey: getEnv("R2_SECRET_ACCESS_KEY", "R2_SECRET_ACCESS_KEY"),
+		Endpoint:        getEnvOrFallback("R2_Endpoint", CFR2Config.Endpoint),
+		AccessKeyID:     getEnvOrFallback("R2_ACCESS_KEY_ID", CFR2Config.AccessKeyID),
+		SecretAccessKey: getEnvOrFallback("R2_SECRET_ACCESS_KEY", CFR2Config.SecretAccessKey),
 	}
 }
 
-func getEnv(key, defaultValue string) string {
+func getEnvOrFallback(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
-	logger.Warnf("get key from env err")
-	return defaultValue
+	if fallback == "" {
+		logger.Warnf("missing optional env %s, keeping config file value", key)
+	}
+	return fallback
 }

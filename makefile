@@ -43,8 +43,8 @@ start-%:
 
 .PHONY: start-all
 start-all:
-	@command -v goreman >/dev/null 2>&1 || (echo "Installing goreman..." && go install github.com/mattn/goreman@latest)
-	goreman start 2>&1 | tee -a app.log
+	@if ! command -v goreman >/dev/null 2>&1; then echo "Installing goreman..."; go install github.com/mattn/goreman@latest; fi
+	@PATH="$$(go env GOPATH)/bin:$$PATH" goreman start 2>&1 | tee -a app.log
 
 .PHONY: stop-all
 stop-all:

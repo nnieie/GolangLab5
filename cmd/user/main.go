@@ -22,21 +22,22 @@ import (
 	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
-func Init() {
-	logger.InitKlog()
-	config.Init(constants.UserServiceName)
+func initDependencies() {
 	oss.InitR2Client()
 	dal.Init()
 }
 
 func main() {
+	logger.InitKlog()
+	config.Init(constants.UserServiceName)
+
 	// 初始化 OpenTelemetry
-	shutdown, err := tracer.InitOpenTelemetry(constants.UserServiceName, constants.OpenTelemetryCollectorEndpoint)
+	shutdown, err := tracer.InitOpenTelemetry(constants.UserServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init tracer failed: %v", err)
 	}
 
-	shutdownMetrics, err := tracer.InitMetrics(constants.UserServiceName, constants.OpenTelemetryCollectorEndpoint)
+	shutdownMetrics, err := tracer.InitMetrics(constants.UserServiceName, config.TelemetryEndpoint())
 	if err != nil {
 		logger.Fatalf("init metrics failed: %v", err)
 	}
@@ -53,7 +54,7 @@ func main() {
 		}
 	}()
 
-	Init()
+	initDependencies()
 	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
 	if err != nil {
 		logger.Fatalf("newEtcdRegistry err: %v", err)

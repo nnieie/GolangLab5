@@ -75,4 +75,46 @@ spec:
       storageClassName: {{ .Values.mysql.persistence.storageClass | quote }}
       {{- end }}
   {{- end }}
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-schema-sync
+  labels:
+    app: mysql-schema-sync
+    {{- include "golanglab5.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: mysql-schema-sync
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: mysql-schema-sync
+        image: {{ .Values.mysql.image }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: MYSQL_PWD
+          value: {{ .Values.mysql.rootPassword | quote }}
+        command:
+        - sh
+        - -c
+        - |
+          until mysqladmin ping -hmysql -uroot --silent; do
+            sleep 2
+          done
+          mysql -hmysql -uroot {{ .Values.mysql.database | quote }} < /initdb/init.sql
+        volumeMounts:
+        - name: init-sql
+          mountPath: /initdb
+          readOnly: true
+      volumes:
+      - name: init-sql
+        configMap:
+          name: {{ .Values.config.mysqlInitSql }}
 {{- end }}

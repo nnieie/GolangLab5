@@ -12,6 +12,12 @@ etcd:
 kafka:
   brokers:
     - kafka:9093
+otel:
+  endpoint: otel-collector:4318
+r2:
+  endpoint: ""
+  accessKeyId: ""
+  secretAccessKey: ""
 services:
   user:
     name: user

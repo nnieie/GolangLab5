@@ -70,6 +70,7 @@ jaeger:
     uiPort: 16686
     nodePort: 30686
     otlpGrpcPort: 4317
+    otlpHttpPort: 4318
 
 # Microservices configuration
 services:
@@ -165,3 +166,11 @@ apiGateway:
 config:
   name: app-config
   mysqlInitSql: mysql-init-sql
+  configK8sContent: ""
+  mysqlInitSqlContent: ""
+
+r2:
+  secretName: r2-config
+  endpoint: ""
+  accessKeyId: ""
+  secretAccessKey: ""

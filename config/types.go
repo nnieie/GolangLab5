@@ -27,6 +27,10 @@ type kafkaConfig struct {
 	Topic   string
 }
 
+type otelConfig struct {
+	Endpoint string
+}
+
 type cfR2Config struct {
 	Endpoint        string
 	AccessKeyID     string
@@ -38,5 +42,7 @@ type config struct {
 	Redis   redis
 	Etcd    etcd
 	Kafka   kafkaConfig
+	OTel    otelConfig `mapstructure:"otel"`
+	R2      cfR2Config `mapstructure:"r2"`
 	Service service
 }

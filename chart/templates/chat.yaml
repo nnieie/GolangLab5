@@ -31,6 +31,8 @@ spec:
     metadata:
       labels:
         app: {{ .Values.services.chat.name }}
+      annotations:
+        checksum/config: {{ include "golanglab5.configChecksum" . }}
     spec:
       containers:
       - name: chat

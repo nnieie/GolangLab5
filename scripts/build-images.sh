@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+cd "$REPO_ROOT"
+
 echo "========================================="
 echo "Building GolangLab5 Docker Images"
 echo "========================================="
@@ -13,10 +18,10 @@ for service in "${services[@]}"; do
     echo ""
     echo "Building image for service: $service"
     echo "-----------------------------------"
-    
+
     docker build -t golanglab5-$service:v1.0 \
         --build-arg SERVICE_NAME=$service \
-        -f Dockerfile.template .
+        -f Dockerfile .
     
     if [ $? -eq 0 ]; then
         echo "✓ Successfully built golanglab5-$service:v1.0"

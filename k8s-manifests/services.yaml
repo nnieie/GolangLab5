@@ -24,6 +24,8 @@ spec:
     metadata:
       labels:
         app: user-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: user
@@ -34,6 +36,21 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "user"
+        - name: R2_Endpoint
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: endpoint
+        - name: R2_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: accessKeyId
+        - name: R2_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: secretAccessKey
         resources:
           requests:
             memory: "128Mi"
@@ -88,6 +105,8 @@ spec:
     metadata:
       labels:
         app: video-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: video
@@ -98,6 +117,21 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "video"
+        - name: R2_Endpoint
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: endpoint
+        - name: R2_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: accessKeyId
+        - name: R2_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: secretAccessKey
         resources:
           requests:
             memory: "128Mi"
@@ -152,6 +186,8 @@ spec:
     metadata:
       labels:
         app: social-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: social
@@ -216,6 +252,8 @@ spec:
     metadata:
       labels:
         app: interaction-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: interaction
@@ -280,6 +318,8 @@ spec:
     metadata:
       labels:
         app: chat-service
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: chat
@@ -319,7 +359,7 @@ spec:
             path: config.yaml
 
 ---
-# API Gateway (Hertz HTTP Service)
+# API
 apiVersion: v1
 kind: Service
 metadata:
@@ -346,6 +386,8 @@ spec:
     metadata:
       labels:
         app: api-gateway
+      annotations:
+        telemetry.golanglab5/config: otel-collector-v1
     spec:
       containers:
       - name: api
@@ -356,6 +398,21 @@ spec:
         env:
         - name: SERVICE_NAME
           value: "api"
+        - name: R2_Endpoint
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: endpoint
+        - name: R2_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: accessKeyId
+        - name: R2_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: r2-config
+              key: secretAccessKey
         resources:
           requests:
             memory: "256Mi"
