@@ -34,7 +34,7 @@ func QueryGroupHistoryMessage(ctx context.Context, groupID string, pageNum, page
 	}
 	var msgs []*GroupMessage
 	err = DB.WithContext(ctx).Where("group_id = ?", intGroupID).
-		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
+		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at DESC, id DESC").Find(&msgs).Error
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func QueryGroupMessageByTime(ctx context.Context, groupID string, pageNum, pageS
 	var msgs []*GroupMessage
 	err = DB.WithContext(ctx).Where("group_id = ?", intGroupID).
 		Where("created_at >= ?", since).
-		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at desc").Find(&msgs).Error
+		Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Order("created_at DESC, id DESC").Find(&msgs).Error
 	if err != nil {
 		return nil, err
 	}

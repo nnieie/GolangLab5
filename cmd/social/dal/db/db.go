@@ -56,7 +56,7 @@ func QueryFollowingList(ctx context.Context, userID int64, pageNum, pageSize int
 	if pageSize <= 0 || pageSize > 100 {
 		pageSize = 20
 	}
-	err := DB.WithContext(ctx).Model(&Follow{}).Where("follower_id = ?", userID).Order("created_at DESC").
+	err := DB.WithContext(ctx).Model(&Follow{}).Where("follower_id = ?", userID).Order("created_at DESC, id DESC").
 		Limit(int(pageSize)).Offset(int((pageNum-1)*pageSize)).Pluck("user_id", &follows).Error
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func QueryFollowingCount(ctx context.Context, userID int64) (int64, error) {
 
 func QueryFollowerList(ctx context.Context, userID int64, pageNum, pageSize int64) ([]int64, error) {
 	var follows []int64
-	err := DB.WithContext(ctx).Model(&Follow{}).Where("user_id = ?", userID).Order("created_at DESC").
+	err := DB.WithContext(ctx).Model(&Follow{}).Where("user_id = ?", userID).Order("created_at DESC, id DESC").
 		Limit(int(pageSize)).Offset(int((pageNum-1)*pageSize)).Pluck("follower_id", &follows).Error
 	if err != nil {
 		return nil, err

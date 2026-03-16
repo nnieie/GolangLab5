@@ -143,7 +143,7 @@ func QueryLikeVideoListByUserID(ctx context.Context, userID int64, pageNum, page
 
 	err := DB.WithContext(ctx).Model(&Like{}).
 		Where("type = ? AND user_id = ?", VideoLikeType, userID).
-		Order("created_at DESC").
+		Order("created_at DESC, id DESC").
 		Offset(offset).
 		Limit(limit).
 		Pluck("target_id", &likes).Error
@@ -155,7 +155,7 @@ func QueryLikeVideoListByUserID(ctx context.Context, userID int64, pageNum, page
 
 func QueryLikeByUserIDAndTargetIDAndType(ctx context.Context, userID, targetID int64, likeType int64) (*Like, error) {
 	var like Like
-	err := DB.WithContext(ctx).Where("user_id = ? AND target_id = ? AND type = ?", userID, targetID, likeType).Order("created_at DESC").First(&like).Error
+	err := DB.WithContext(ctx).Where("user_id = ? AND target_id = ? AND type = ?", userID, targetID, likeType).First(&like).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

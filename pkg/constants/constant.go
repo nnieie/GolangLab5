@@ -12,6 +12,7 @@ const (
 	PrivateMessageTableName = "private_messages"
 	GroupMessageTableName   = "group_messages"
 	LastLogoutTimeTableName = "last_logout_times"
+	GroupTableName          = "groups"
 	GroupMembersTableName   = "group_members"
 )
 

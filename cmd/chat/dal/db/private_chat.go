@@ -33,12 +33,12 @@ func QueryPrivateHistoryMessage(ctx context.Context, fromUser, toUser int64, pag
 	sql := `
         (SELECT * FROM private_messages 
          WHERE from_user_id = ? AND to_user_id = ? AND deleted_at IS NULL
-         ORDER BY created_at DESC)
+         ORDER BY created_at DESC, id DESC)
         UNION ALL
         (SELECT * FROM private_messages 
          WHERE from_user_id = ? AND to_user_id = ? AND deleted_at IS NULL
-         ORDER BY created_at DESC)
-        ORDER BY created_at DESC
+         ORDER BY created_at DESC, id DESC)
+        ORDER BY created_at DESC, id DESC
         LIMIT ? OFFSET ?
     `
 
@@ -56,12 +56,12 @@ func QueryPrivateMessageByTime(ctx context.Context, fromUser, toUser int64, page
 	sql := `
         (SELECT * FROM private_messages 
          WHERE from_user_id = ? AND to_user_id = ? AND created_at >= ? AND deleted_at IS NULL
-         ORDER BY created_at DESC)
+         ORDER BY created_at DESC, id DESC)
         UNION ALL
         (SELECT * FROM private_messages 
          WHERE from_user_id = ? AND to_user_id = ? AND created_at >= ? AND deleted_at IS NULL
-         ORDER BY created_at DESC)
-        ORDER BY created_at DESC
+         ORDER BY created_at DESC, id DESC)
+        ORDER BY created_at DESC, id DESC
         LIMIT ? OFFSET ?
     `
 

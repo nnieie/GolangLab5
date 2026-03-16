@@ -115,7 +115,12 @@ func QueryLatestVideos(ctx context.Context, limit int) ([]*Video, error) {
 
 func QueryVideoByUserID(ctx context.Context, userID int64, pageNum, pageSize int64) ([]*Video, error) {
 	var videos []*Video
-	err := DB.WithContext(ctx).Where("user_id = ?", userID).Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
+	err := DB.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Order("created_at DESC, id DESC").
+		Limit(int(pageSize)).
+		Offset(int((pageNum - 1) * pageSize)).
+		Find(&videos).Error
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +138,11 @@ func QueryVideoCountByUserID(ctx context.Context, userID int64) (int64, error) {
 
 func QueryVideoByPopular(ctx context.Context, pageNum, pageSize int64) ([]*Video, error) {
 	var videos []*Video
-	err := DB.WithContext(ctx).Order("visit_count DESC").Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
+	err := DB.WithContext(ctx).
+		Order("visit_count DESC, id DESC").
+		Limit(int(pageSize)).
+		Offset(int((pageNum - 1) * pageSize)).
+		Find(&videos).Error
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +187,11 @@ func SearchVideos(
 		return nil, 0, err
 	}
 
-	err = query.Limit(int(pageSize)).Offset(int((pageNum - 1) * pageSize)).Find(&videos).Error
+	err = query.
+		Order("created_at DESC, id DESC").
+		Limit(int(pageSize)).
+		Offset(int((pageNum - 1) * pageSize)).
+		Find(&videos).Error
 	if err != nil {
 		return nil, 0, err
 	}
