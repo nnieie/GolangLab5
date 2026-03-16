@@ -18,6 +18,15 @@ type GroupMembers struct {
 	gorm.Model
 }
 
+type Group struct {
+	OwnerUserID int64
+	gorm.Model
+}
+
+func (Group) TableName() string {
+	return constants.GroupTableName
+}
+
 func (GroupMembers) TableName() string {
 	return constants.GroupMembersTableName
 }
@@ -43,22 +52,17 @@ func CheckUserExistInGroup(ctx context.Context, userID, groupID string) (bool, e
 }
 
 func CreateGroup(ctx context.Context, userID int64) error {
-	// TODO: CreateGroup 逻辑，再创建一个表放群信息¿
-	var maxID int64
-	err := DB.WithContext(ctx).Model(&GroupMembers{}).Select("MAX(group_id)").Scan(&maxID).Error
-	if err != nil {
-		return err
-	}
-	// TODO: 并发Boooooom💥
-	groupID := maxID + 1
-	err = DB.WithContext(ctx).Create(&GroupMembers{
-		GroupID: groupID,
-		UserID:  userID,
-	}).Error
-	if err != nil {
-		return err
-	}
-	return nil
+	return DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		group := &Group{OwnerUserID: userID}
+		if err := tx.Create(group).Error; err != nil {
+			return err
+		}
+
+		return tx.Create(&GroupMembers{
+			GroupID: int64(group.ID),
+			UserID:  userID,
+		}).Error
+	})
 }
 
 func AddGroupMember(ctx context.Context, groupID, userID int64) error {
