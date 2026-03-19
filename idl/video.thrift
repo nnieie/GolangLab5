@@ -5,7 +5,7 @@ include "base.thrift"
 struct PublishRequest{
     1: string title,
     2: string description,
-    3: binary video,
+    3: string video_url,
     4: binary cover,
     5: string user_id,
     6: string file_name,

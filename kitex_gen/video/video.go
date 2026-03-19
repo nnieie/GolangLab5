@@ -11,7 +11,7 @@ import (
 type PublishRequest struct {
 	Title       string `thrift:"title,1" frugal:"1,default,string" json:"title"`
 	Description string `thrift:"description,2" frugal:"2,default,string" json:"description"`
-	Video       []byte `thrift:"video,3" frugal:"3,default,binary" json:"video"`
+	VideoUrl    string `thrift:"video_url,3" frugal:"3,default,string" json:"video_url"`
 	Cover       []byte `thrift:"cover,4" frugal:"4,default,binary" json:"cover"`
 	UserId      string `thrift:"user_id,5" frugal:"5,default,string" json:"user_id"`
 	FileName    string `thrift:"file_name,6" frugal:"6,default,string" json:"file_name"`
@@ -32,8 +32,8 @@ func (p *PublishRequest) GetDescription() (v string) {
 	return p.Description
 }
 
-func (p *PublishRequest) GetVideo() (v []byte) {
-	return p.Video
+func (p *PublishRequest) GetVideoUrl() (v string) {
+	return p.VideoUrl
 }
 
 func (p *PublishRequest) GetCover() (v []byte) {
@@ -53,8 +53,8 @@ func (p *PublishRequest) SetTitle(val string) {
 func (p *PublishRequest) SetDescription(val string) {
 	p.Description = val
 }
-func (p *PublishRequest) SetVideo(val []byte) {
-	p.Video = val
+func (p *PublishRequest) SetVideoUrl(val string) {
+	p.VideoUrl = val
 }
 func (p *PublishRequest) SetCover(val []byte) {
 	p.Cover = val
@@ -76,7 +76,7 @@ func (p *PublishRequest) String() string {
 var fieldIDToName_PublishRequest = map[int16]string{
 	1: "title",
 	2: "description",
-	3: "video",
+	3: "video_url",
 	4: "cover",
 	5: "user_id",
 	6: "file_name",

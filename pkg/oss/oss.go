@@ -32,6 +32,8 @@ func NewR2Client() *s3.Client {
 	awsCfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.CFR2Config.AccessKeyID, cfg.CFR2Config.SecretAccessKey, "")),
 		config.WithRegion("auto"),
+		config.WithRequestChecksumCalculation(aws.RequestChecksumCalculationWhenRequired),
+		config.WithResponseChecksumValidation(aws.ResponseChecksumValidationWhenRequired),
 	)
 	if err != nil {
 		logger.Fatalf("failed to load AWS config: %v", err)

@@ -163,7 +163,7 @@ func SearchVideos(
 
 	if strings.TrimSpace(keywords) != "" {
 		likePattern := "%" + keywords + "%"
-		query = query.Where("title LIKE ? OR description LIKE ?", likePattern, likePattern)
+		query = query.Where("(title LIKE ? OR description LIKE ?)", likePattern, likePattern)
 	}
 
 	if fromDate != nil {
@@ -178,6 +178,9 @@ func SearchVideos(
 		if err != nil {
 			return nil, 0, err
 		}
+		if len(userIds) == 0 {
+			return []*Video{}, 0, nil
+		}
 		query = query.Where("user_id IN ?", userIds)
 	}
 	var count int64
@@ -185,6 +188,10 @@ func SearchVideos(
 	err := query.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
+	}
+
+	if count == 0 {
+		return []*Video{}, 0, nil
 	}
 
 	err = query.

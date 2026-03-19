@@ -3,10 +3,14 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
 	"net/http"
+	"path/filepath"
+	"strings"
+	"sync"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -18,9 +22,35 @@ import (
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/errno"
 	"github.com/nnieie/golanglab5/pkg/logger"
+	"github.com/nnieie/golanglab5/pkg/oss"
+	"github.com/nnieie/golanglab5/pkg/utils"
 )
 
 const sniffLen = 512
+
+var (
+	videoBucket     *oss.VideoOSSCli
+	videoBucketOnce sync.Once
+	videoBucketErr  error
+)
+
+func getVideoBucket() (*oss.VideoOSSCli, error) {
+	videoBucketOnce.Do(func() {
+		snowflake, err := utils.NewSnowflake(9)
+		if err != nil {
+			videoBucketErr = err
+			return
+		}
+
+		videoBucket = oss.NewVideoOSSCli(constants.VideoBucketName, constants.VideoPublicDomain, snowflake)
+	})
+
+	if videoBucketErr != nil {
+		return nil, videoBucketErr
+	}
+
+	return videoBucket, nil
+}
 
 // PublishVideo .
 // @router /video/publish [POST]
@@ -55,6 +85,7 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		pack.SendErrResp(c, errno.FileTooLargeErr.WithMessage("video file exceeds upload limit"))
 		return
 	}
+
 	openedFile, err := file.Open()
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -62,7 +93,6 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	}
 	defer openedFile.Close()
 
-	// 读取前 512 字节用于验证文件类型
 	header := make([]byte, sniffLen)
 	n, err := io.ReadFull(openedFile, header)
 	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
@@ -76,12 +106,27 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	if _, err := openedFile.Seek(0, io.SeekStart); err != nil {
+	uploadReader := io.MultiReader(bytes.NewReader(header[:n]), openedFile)
+
+	bucket, err := getVideoBucket()
+	if err != nil {
 		pack.SendErrResp(c, err)
 		return
 	}
 
-	videoData, err := io.ReadAll(io.LimitReader(openedFile, constants.MaxVideoSize))
+	videoName, err := bucket.GenerateVideoName()
+	if err != nil {
+		pack.SendErrResp(c, err)
+		return
+	}
+
+	fileName := strings.TrimSpace(filepath.Base(file.Filename))
+	if fileName == "" || fileName == "." {
+		fileName = "video"
+	}
+	videoName = strings.Join([]string{videoName, fileName}, "_")
+
+	fileURL, err := bucket.UploadVideo(videoName, uploadReader, file.Size)
 	if err != nil {
 		pack.SendErrResp(c, err)
 		return
@@ -89,8 +134,8 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 
 	rpcResp, err := rpc.PublishVideo(ctx, &video.PublishRequest{
 		UserId:      UserID,
-		Video:       videoData,
-		FileName:    file.Filename,
+		VideoUrl:    fileURL,
+		FileName:    fileName,
 		Title:       req.Title,
 		Description: req.Description,
 	})
