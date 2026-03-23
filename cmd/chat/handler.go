@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/nnieie/golanglab5/cmd/chat/service"
+	"github.com/nnieie/golanglab5/internal/chat/service"
 	chat "github.com/nnieie/golanglab5/kitex_gen/chat"
 	"github.com/nnieie/golanglab5/pkg/utils"
 )

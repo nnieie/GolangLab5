@@ -12,8 +12,8 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/nnieie/golanglab5/cmd/social/dal"
-	"github.com/nnieie/golanglab5/cmd/social/rpc"
+	"github.com/nnieie/golanglab5/internal/social/dal"
+	"github.com/nnieie/golanglab5/internal/social/rpc"
 	"github.com/nnieie/golanglab5/config"
 	social "github.com/nnieie/golanglab5/kitex_gen/social/socialservice"
 	"github.com/nnieie/golanglab5/pkg/constants"

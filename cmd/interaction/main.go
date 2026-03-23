@@ -12,9 +12,9 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/nnieie/golanglab5/cmd/interaction/dal"
-	"github.com/nnieie/golanglab5/cmd/interaction/kafka"
-	"github.com/nnieie/golanglab5/cmd/interaction/rpc"
+	"github.com/nnieie/golanglab5/internal/interaction/dal"
+	"github.com/nnieie/golanglab5/internal/interaction/kafka"
+	"github.com/nnieie/golanglab5/internal/interaction/rpc"
 	"github.com/nnieie/golanglab5/config"
 	interaction "github.com/nnieie/golanglab5/kitex_gen/interaction/interactionservice"
 	"github.com/nnieie/golanglab5/pkg/constants"

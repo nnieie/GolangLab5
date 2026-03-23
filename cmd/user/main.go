@@ -12,7 +12,7 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/nnieie/golanglab5/cmd/user/dal"
+	"github.com/nnieie/golanglab5/internal/user/dal"
 	"github.com/nnieie/golanglab5/config"
 	user "github.com/nnieie/golanglab5/kitex_gen/user/userservice"
 	"github.com/nnieie/golanglab5/pkg/constants"

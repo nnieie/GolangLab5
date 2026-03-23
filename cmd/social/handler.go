@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/nnieie/golanglab5/cmd/social/service"
+	"github.com/nnieie/golanglab5/internal/social/service"
 	social "github.com/nnieie/golanglab5/kitex_gen/social"
 	"github.com/nnieie/golanglab5/pkg/utils"
 )

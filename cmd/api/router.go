@@ -4,9 +4,9 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	handler "github.com/nnieie/golanglab5/cmd/api/biz/handler"
-	"github.com/nnieie/golanglab5/cmd/api/biz/handler/api"
-	"github.com/nnieie/golanglab5/cmd/api/biz/handler/mw/jwt"
+	handler "github.com/nnieie/golanglab5/internal/api/biz/handler"
+	"github.com/nnieie/golanglab5/internal/api/biz/handler/api"
+	"github.com/nnieie/golanglab5/internal/api/biz/handler/mw/jwt"
 )
 
 // customizeRegister registers customize routers.
