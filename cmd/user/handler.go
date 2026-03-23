@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/nnieie/golanglab5/cmd/user/service"
+	"github.com/nnieie/golanglab5/internal/user/service"
 	"github.com/nnieie/golanglab5/kitex_gen/base"
 	user "github.com/nnieie/golanglab5/kitex_gen/user"
 	"github.com/nnieie/golanglab5/pkg/utils"

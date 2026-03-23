@@ -4,7 +4,7 @@ package main
 
 import (
 	"github.com/cloudwego/hertz/pkg/app/server"
-	router "github.com/nnieie/golanglab5/cmd/api/biz/router"
+	router "github.com/nnieie/golanglab5/internal/api/biz/router"
 )
 
 // register registers all routers.

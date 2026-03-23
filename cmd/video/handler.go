@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/nnieie/golanglab5/cmd/video/service"
+	"github.com/nnieie/golanglab5/internal/video/service"
 	video "github.com/nnieie/golanglab5/kitex_gen/video"
 	"github.com/nnieie/golanglab5/pkg/utils"
 )
