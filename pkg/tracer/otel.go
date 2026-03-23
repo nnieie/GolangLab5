@@ -10,10 +10,18 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	nooptrace "go.opentelemetry.io/otel/trace/noop"
+
+	"github.com/nnieie/golanglab5/config"
 )
 
 // InitOpenTelemetry 初始化 OTel Tracer
 func InitOpenTelemetry(serviceName string, collectorAddr string) (func(context.Context) error, error) {
+	if !config.TraceEnabled() {
+		otel.SetTracerProvider(nooptrace.NewTracerProvider())
+		return func(context.Context) error { return nil }, nil
+	}
+
 	ctx := context.Background()
 
 	// 创建 Exporter
@@ -40,7 +48,7 @@ func InitOpenTelemetry(serviceName string, collectorAddr string) (func(context.C
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(res),
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(config.TraceSampleRatio()))),
 	)
 
 	// 设置全局 Tracer Provider

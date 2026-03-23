@@ -23,10 +23,12 @@ func InitRedis() {
 		DB:         1,
 	})
 
-	if err := redisotel.InstrumentTracing(rChat,
-		redisotel.WithAttributes(attribute.String("peer.service", "redis-chat")),
-	); err != nil {
-		logger.Fatalf("redis otel instrumentation error: %v", err)
+	if config.RedisTraceEnabled() {
+		if err := redisotel.InstrumentTracing(rChat,
+			redisotel.WithAttributes(attribute.String("peer.service", "redis-chat")),
+		); err != nil {
+			logger.Fatalf("redis otel instrumentation error: %v", err)
+		}
 	}
 
 	if _, err := rChat.Ping(context.Background()).Result(); err != nil {

@@ -79,13 +79,20 @@ func main() {
 	}()
 
 	// 注入 Hertz 中间件
-	tracerOption, _ := hertztracing.NewServerTracer()
-
-	h := server.New(
-		server.WithHostPorts("0.0.0.0:8888"),
-		tracerOption, // 把 Option 塞进去
-		server.WithHandleMethodNotAllowed(true),
-	)
+	var h *server.Hertz
+	if config.TraceEnabled() {
+		tracerOption, _ := hertztracing.NewServerTracer()
+		h = server.New(
+			server.WithHostPorts("0.0.0.0:8888"),
+			tracerOption,
+			server.WithHandleMethodNotAllowed(true),
+		)
+	} else {
+		h = server.New(
+			server.WithHostPorts("0.0.0.0:8888"),
+			server.WithHandleMethodNotAllowed(true),
+		)
+	}
 	// 添加 Metrics 中间件
 	h.Use(merics.MetricsMiddleware())
 	register(h)

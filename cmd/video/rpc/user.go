@@ -23,14 +23,16 @@ func InitUserRPC() {
 		panic(err)
 	}
 
-	c, err := userservice.NewClient(
-		constants.UserServiceName,
+	options := []client.Option{
 		client.WithResolver(r),
 		client.WithRPCTimeout(constants.RPCTimeout),
 		client.WithConnectTimeout(constants.ConnectTimeout),
 		client.WithFailureRetry(retry.NewFailurePolicy()),
-		client.WithSuite(kitextracing.NewClientSuite()),
-	)
+	}
+	if config.TraceEnabled() {
+		options = append(options, client.WithSuite(kitextracing.NewClientSuite()))
+	}
+	c, err := userservice.NewClient(constants.UserServiceName, options...)
 	if err != nil {
 		panic(err)
 	}

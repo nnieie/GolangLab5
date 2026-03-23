@@ -22,14 +22,16 @@ func InitChatRPC() {
 		panic(err)
 	}
 
-	c, err := chatservice.NewClient(
-		constants.ChatServiceName,
+	options := []client.Option{
 		client.WithRPCTimeout(constants.RPCTimeout),
 		client.WithConnectTimeout(constants.ConnectTimeout),
 		client.WithFailureRetry(retry.NewFailurePolicy()),
 		client.WithResolver(r),
-		client.WithSuite(kitextracing.NewClientSuite()),
-	)
+	}
+	if config.TraceEnabled() {
+		options = append(options, client.WithSuite(kitextracing.NewClientSuite()))
+	}
+	c, err := chatservice.NewClient(constants.ChatServiceName, options...)
 	if err != nil {
 		panic(err)
 	}

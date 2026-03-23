@@ -24,14 +24,16 @@ func InitVideoRPC() {
 		panic(err)
 	}
 
-	c, err := videoservice.NewClient(
-		constants.VideoServiceName,
+	options := []client.Option{
 		client.WithResolver(r),
 		client.WithRPCTimeout(constants.RPCTimeout),
 		client.WithConnectTimeout(constants.ConnectTimeout),
 		client.WithFailureRetry(retry.NewFailurePolicy()),
-		client.WithSuite(kitextracing.NewClientSuite()),
-	)
+	}
+	if config.TraceEnabled() {
+		options = append(options, client.WithSuite(kitextracing.NewClientSuite()))
+	}
+	c, err := videoservice.NewClient(constants.VideoServiceName, options...)
 	if err != nil {
 		panic(err)
 	}

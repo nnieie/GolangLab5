@@ -76,12 +76,15 @@ func main() {
 	}
 
 	svcImpl := new(InteractionServiceImpl)
-	svr := interaction.NewServer(svcImpl,
+	options := []server.Option{
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.Service.Name}),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
-		server.WithSuite(kitextracing.NewServerSuite()),
-	)
+	}
+	if config.TraceEnabled() {
+		options = append(options, server.WithSuite(kitextracing.NewServerSuite()))
+	}
+	svr := interaction.NewServer(svcImpl, options...)
 
 	err = svr.Run()
 
