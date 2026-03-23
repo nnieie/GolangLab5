@@ -12,9 +12,9 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	"github.com/nnieie/golanglab5/config"
 	"github.com/nnieie/golanglab5/internal/video/dal"
 	"github.com/nnieie/golanglab5/internal/video/rpc"
-	"github.com/nnieie/golanglab5/config"
 	video "github.com/nnieie/golanglab5/kitex_gen/video/videoservice"
 	"github.com/nnieie/golanglab5/pkg/constants"
 	"github.com/nnieie/golanglab5/pkg/logger"
