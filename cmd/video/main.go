@@ -76,12 +76,15 @@ func main() {
 	svcImpl := new(VideoServiceImpl)
 	// TODO: Snowflake
 	svcImpl.Snowflake, _ = utils.NewSnowflake(1)
-	svr := video.NewServer(svcImpl,
+	options := []server.Option{
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.Service.Name}),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
-		server.WithSuite(kitextracing.NewServerSuite()),
-	)
+	}
+	if config.TraceEnabled() {
+		options = append(options, server.WithSuite(kitextracing.NewServerSuite()))
+	}
+	svr := video.NewServer(svcImpl, options...)
 
 	err = svr.Run()
 

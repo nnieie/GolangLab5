@@ -71,12 +71,15 @@ func main() {
 	}
 
 	svcImpl := new(SocialServiceImpl)
-	svr := social.NewServer(svcImpl,
+	options := []server.Option{
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.Service.Name}),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
-		server.WithSuite(kitextracing.NewServerSuite()),
-	)
+	}
+	if config.TraceEnabled() {
+		options = append(options, server.WithSuite(kitextracing.NewServerSuite()))
+	}
+	svr := social.NewServer(svcImpl, options...)
 
 	err = svr.Run()
 

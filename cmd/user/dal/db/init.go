@@ -38,7 +38,9 @@ func InitMySQL() {
 	sqlDB.SetConnMaxLifetime(constants.DBConnMaxLifetime)
 	sqlDB.SetConnMaxIdleTime(constants.DBConnMaxIdleTime)
 	logger.Infof("mysql connected")
-	if err := DB.Use(otelgorm.NewPlugin(otelgorm.WithDBName(config.Mysql.Database))); err != nil {
-		logger.Fatalf("mysql otelgorm plugin error: %v", err)
+	if config.TraceEnabled() {
+		if err := DB.Use(otelgorm.NewPlugin(otelgorm.WithDBName(config.Mysql.Database))); err != nil {
+			logger.Fatalf("mysql otelgorm plugin error: %v", err)
+		}
 	}
 }

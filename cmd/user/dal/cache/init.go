@@ -24,10 +24,12 @@ func InitRedis() {
 	})
 
 	// 配置 OTel，并给它加上标签
-	if err := redisotel.InstrumentTracing(rUser,
-		redisotel.WithAttributes(attribute.String("peer.service", "redis-user")),
-	); err != nil {
-		logger.Fatalf("redis otel instrumentation error: %v", err)
+	if config.RedisTraceEnabled() {
+		if err := redisotel.InstrumentTracing(rUser,
+			redisotel.WithAttributes(attribute.String("peer.service", "redis-user")),
+		); err != nil {
+			logger.Fatalf("redis otel instrumentation error: %v", err)
+		}
 	}
 
 	// Ping 一下，确保连接成功

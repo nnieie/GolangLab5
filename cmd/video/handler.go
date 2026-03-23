@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 
 	"github.com/nnieie/golanglab5/cmd/video/service"
@@ -17,8 +16,7 @@ type VideoServiceImpl struct {
 // PublishVideo implements the VideoServiceImpl interface.
 func (s *VideoServiceImpl) PublishVideo(ctx context.Context, req *video.PublishRequest) (resp *video.PublishResponse, err error) {
 	resp = new(video.PublishResponse)
-	videoData := bytes.NewReader(req.Video)
-	err = service.NewVideoService(ctx, s.Snowflake).PublishVideo(req.UserId, videoData, req.FileName, req.Title, req.Description)
+	err = service.NewVideoService(ctx, s.Snowflake).PublishVideo(req.UserId, nil, req.FileName, req.VideoUrl, req.Title, req.Description)
 	resp.Base = utils.BuildBaseResp(err)
 	return
 }

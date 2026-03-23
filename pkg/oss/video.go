@@ -26,12 +26,13 @@ func NewVideoOSSCli(bucketName, publicDomain string, snowflake *utils.Snowflake)
 	}
 }
 
-func (c *VideoOSSCli) UploadVideo(objectKey string, reader io.Reader) (fileURL string, err error) {
+func (c *VideoOSSCli) UploadVideo(objectKey string, reader io.Reader, contentLength int64) (fileURL string, err error) {
 	if false {
 		_, err = r2Client.PutObject(context.Background(), &s3.PutObjectInput{
-			Bucket: aws.String(c.bucketName),
-			Key:    aws.String(objectKey),
-			Body:   reader,
+			Bucket:        aws.String(c.bucketName),
+			Key:           aws.String(objectKey),
+			Body:          reader,
+			ContentLength: aws.Int64(contentLength),
 		})
 
 		if err != nil {

@@ -76,14 +76,16 @@ func main() {
 	svcImpl := new(UserServiceImpl)
 	// TODO: Snowflake
 	svcImpl.Snowflake, _ = utils.NewSnowflake(1)
-	svr := user.NewServer(svcImpl,
+	options := []server.Option{
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: config.Service.Name}),
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
-
+	}
+	if config.TraceEnabled() {
 		// 注入 Kitex OTel 服务端套件 解析请求头里的 TraceID，把 api 和 user 连起来
-		server.WithSuite(kitextracing.NewServerSuite()),
-	)
+		options = append(options, server.WithSuite(kitextracing.NewServerSuite()))
+	}
+	svr := user.NewServer(svcImpl, options...)
 
 	err = svr.Run()
 

@@ -45,6 +45,7 @@ func LikeAction(ctx context.Context, like *Like) (int64, error) {
 		}).Create(like).Error; err != nil {
 			return err
 		}
+
 		// 更新点赞数
 		var updateErr error
 		switch like.Type {
@@ -248,21 +249,25 @@ func BatchUnlikeAction(ctx context.Context, unlikes []Like) error {
 	for _, unlike := range unlikes {
 		key := targetKey{TargetID: unlike.TargetID, Type: unlike.Type}
 		deleteGroups[key] = append(deleteGroups[key], unlike.UserID)
-
-		switch unlike.Type {
-		case VideoLikeType:
-			videoLikeCounts[unlike.TargetID]++
-		case CommentLikeType:
-			commentLikeCounts[unlike.TargetID]++
-		}
 	}
 
 	err := DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// 批量执行 Delete
 		for key, userIDs := range deleteGroups {
-			if err := tx.Where("target_id = ? AND type = ? AND user_id IN ?",
-				key.TargetID, key.Type, userIDs).Delete(&Like{}).Error; err != nil {
-				return err
+			result := tx.Where("target_id = ? AND type = ? AND user_id IN ?",
+				key.TargetID, key.Type, userIDs).Delete(&Like{})
+			if result.Error != nil {
+				return result.Error
+			}
+			if result.RowsAffected == 0 {
+				continue
+			}
+
+			switch key.Type {
+			case VideoLikeType:
+				videoLikeCounts[key.TargetID] += result.RowsAffected
+			case CommentLikeType:
+				commentLikeCounts[key.TargetID] += result.RowsAffected
 			}
 		}
 

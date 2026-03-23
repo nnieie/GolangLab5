@@ -3,7 +3,9 @@
 package api
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -195,6 +197,15 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 		pack.SendErrResp(c, err)
 		return
 	}
+	if file.Size <= 0 {
+		pack.SendErrResp(c, errno.ParamErr.WithMessage("avatar file is empty"))
+		return
+	}
+	if file.Size > constants.MaxAvatarSize {
+		pack.SendErrResp(c, errno.FileTooLargeErr.WithMessage("avatar file exceeds upload limit"))
+		return
+	}
+
 	openedFile, err := file.Open()
 	if err != nil {
 		pack.SendErrResp(c, err)
@@ -202,23 +213,20 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 	}
 	defer openedFile.Close()
 
-	// 读取前512字节用于验证文件类型
-	header := make([]byte, 512)
-	if _, err := openedFile.Read(header); err != nil {
+	header := make([]byte, sniffLen)
+	n, err := io.ReadFull(openedFile, header)
+	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
 		pack.SendErrResp(c, err)
 		return
 	}
-	contentType := http.DetectContentType(header)
+
+	contentType := http.DetectContentType(header[:n])
 	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
 		pack.SendErrResp(c, errno.InvalidFileTypeErr)
 		return
 	}
 
-	// Seek 回到文件最开头 0 的位置
-	if _, err := openedFile.Seek(0, io.SeekStart); err != nil {
-		pack.SendErrResp(c, err)
-		return
-	}
+	uploadReader := io.MultiReader(bytes.NewReader(header[:n]), openedFile)
 
 	bucket, err := getAvatarBucket()
 	if err != nil {
@@ -238,7 +246,7 @@ func UploadAvatar(ctx context.Context, c *app.RequestContext) {
 	}
 	imgName = strings.Join([]string{imgName, fileName}, "_")
 
-	fileURL, err := bucket.UploadAvatar(imgName, openedFile)
+	fileURL, err := bucket.UploadAvatar(imgName, uploadReader, file.Size)
 	if err != nil {
 		pack.SendErrResp(c, err)
 		return

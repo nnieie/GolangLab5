@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/viper"
 
@@ -76,6 +78,39 @@ func TelemetryEndpoint() string {
 	return constants.OpenTelemetryCollectorEndpoint
 }
 
+func TraceEnabled() bool {
+	if value, ok := getBoolEnv("OTEL_TRACE_ENABLED"); ok {
+		return value
+	}
+	if OTel != nil && OTel.TraceEnabled != nil {
+		return *OTel.TraceEnabled
+	}
+	return true
+}
+
+func TraceSampleRatio() float64 {
+	if value, ok := getFloatEnv("OTEL_TRACE_SAMPLE_RATIO"); ok {
+		return normalizeTraceSampleRatio(value)
+	}
+	if OTel != nil && OTel.TraceSampleRatio != nil {
+		return normalizeTraceSampleRatio(*OTel.TraceSampleRatio)
+	}
+	return 1.0
+}
+
+func RedisTraceEnabled() bool {
+	if !TraceEnabled() {
+		return false
+	}
+	if value, ok := getBoolEnv("OTEL_REDIS_TRACE_ENABLED"); ok {
+		return value
+	}
+	if OTel != nil && OTel.RedisTraceEnabled != nil {
+		return *OTel.RedisTraceEnabled
+	}
+	return true
+}
+
 func LoadR2ConfigFromEnv() {
 	if CFR2Config == nil {
 		CFR2Config = &cfR2Config{}
@@ -96,4 +131,43 @@ func getEnvOrFallback(key, fallback string) string {
 		logger.Warnf("missing optional env %s, keeping config file value", key)
 	}
 	return fallback
+}
+
+func getBoolEnv(key string) (bool, bool) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return false, false
+	}
+	value, err := strconv.ParseBool(raw)
+	if err != nil {
+		logger.Warnf("invalid bool env %s=%q, ignoring override: %v", key, raw, err)
+		return false, false
+	}
+	return value, true
+}
+
+func getFloatEnv(key string) (float64, bool) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return 0, false
+	}
+	value, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		logger.Warnf("invalid float env %s=%q, ignoring override: %v", key, raw, err)
+		return 0, false
+	}
+	return value, true
+}
+
+func normalizeTraceSampleRatio(value float64) float64 {
+	switch {
+	case value < 0:
+		logger.Warnf("trace sample ratio %.4f is below 0, clamping to 0", value)
+		return 0
+	case value > 1:
+		logger.Warnf("trace sample ratio %.4f is above 1, clamping to 1", value)
+		return 1
+	default:
+		return value
+	}
 }

@@ -26,19 +26,20 @@ func NewAvatarOSSCli(bucketName, publicDomain string, snowflake *utils.Snowflake
 	}
 }
 
-func (c *AvatarOSSCli) UploadAvatar(objectKey string, reader io.Reader) (fileURL string, err error) {
-	if false {
-		_, err = r2Client.PutObject(context.Background(), &s3.PutObjectInput{
-			Bucket: aws.String(c.bucketName),
-			Key:    aws.String(objectKey),
-			Body:   reader,
-		})
+func (c *AvatarOSSCli) UploadAvatar(objectKey string, reader io.Reader, contentLength int64) (fileURL string, err error) {
+	// if false {
+	_, err = r2Client.PutObject(context.Background(), &s3.PutObjectInput{
+		Bucket:        aws.String(c.bucketName),
+		Key:           aws.String(objectKey),
+		Body:          reader,
+		ContentLength: aws.Int64(contentLength),
+	})
 
-		if err != nil {
-			logger.Errorf("failed to upload file to R2: %v", err)
-			return "", err
-		}
+	if err != nil {
+		logger.Errorf("failed to upload file to R2: %v", err)
+		return "", err
 	}
+	// }
 	// 上传成功后，拼接出可公开访问的 URL
 	fileURL = fmt.Sprintf("%s/%s", c.publicDomain, objectKey)
 

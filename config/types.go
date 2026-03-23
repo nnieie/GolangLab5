@@ -28,7 +28,10 @@ type kafkaConfig struct {
 }
 
 type otelConfig struct {
-	Endpoint string
+	Endpoint          string
+	TraceEnabled      *bool    `mapstructure:"traceEnabled"`
+	TraceSampleRatio  *float64 `mapstructure:"traceSampleRatio"`
+	RedisTraceEnabled *bool    `mapstructure:"redisTraceEnabled"`
 }
 
 type cfR2Config struct {
